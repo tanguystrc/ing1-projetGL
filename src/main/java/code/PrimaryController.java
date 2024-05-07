@@ -1,4 +1,4 @@
-package ing1gl;
+package code;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
