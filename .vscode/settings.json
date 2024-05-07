@@ -1,6 +1,0 @@
-{
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "C:/Users/Tanguy/Documents/Cours/Java/projet/ing1-projetGL/lib/javafx-sdk-22.0.1/**/*.jar",
-    ]
-}
