@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/home/cytech/JavaFX/openjfx-22_linux-x64_bin-sdk/javafx-sdk-22/**/*.jar",
+    ]
+
+}
