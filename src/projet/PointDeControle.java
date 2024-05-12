@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PointDeControle {
-    protected Map<Point, Point> pointsMap;
-    protected List<Point> listePoint;
+    private Map<Point, Point> pointsMap;
+    private List<Point> listePoint;
 
     public PointDeControle() {
         this.pointsMap = new HashMap<>();

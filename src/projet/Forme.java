@@ -77,14 +77,13 @@ public abstract class Forme {
         }
         return image;
     }
-    public boolean estDomaine(PointDeControle points, Point p) {
+    public boolean estDomaine(List<Point> listePoint, Point p) {
         int compteur = 0; 
-        int nbPts = points.listePoint.size();
-        Point dernierPoint = points.listePoint.get(nbPts - 1);
+        int nbPts = listePoint.size();
+        Point dernierPoint = listePoint.get(nbPts - 1);
     
-        for (Point pointActuel : points.listePoint) { 
-            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || 
-                (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
+        for (Point pointActuel : listePoint) { 
+            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
                 if (pointActuel.getY() == dernierPoint.getY()) {
                     if (pointActuel.getX() > p.getX() || dernierPoint.getX() > p.getX()) {
                         compteur++;
