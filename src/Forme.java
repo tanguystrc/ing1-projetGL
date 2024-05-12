@@ -63,11 +63,11 @@ public abstract class Forme {
         return colorMatrix;
     }
     public BufferedImage genereImage(Color[][] matrix) {
-    	int height = matrix.length;
-        int width = matrix[0].length;
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+    	int hauteur = matrix.length;
+        int largeur = matrix[0].length;
+        BufferedImage image = new BufferedImage(largeur, hauteur, BufferedImage.TYPE_INT_ARGB); 
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
                 if (matrix[y][x] != null) {
                     Color color = matrix[y][x];
                     int rgb = color.getRGB();
@@ -77,6 +77,31 @@ public abstract class Forme {
         }
         return image;
     }
+    public boolean estDomaine(PointDeControle points, Point p) {
+        int compteur = 0; 
+        int nbPts = points.listePoint.size();
+        Point dernierPoint = points.listePoint.get(nbPts - 1);
     
+        for (Point pointActuel : points.listePoint) { 
+            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || 
+                (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
+                if (pointActuel.getY() == dernierPoint.getY()) {
+                    if (pointActuel.getX() > p.getX() || dernierPoint.getX() > p.getX()) {
+                        compteur++;
+                    }
+                } else {
+                    double denom = (pointActuel.getY() - dernierPoint.getY());
+                    if (denom != 0) { 
+                        double pointIntersectX = dernierPoint.getX() + (pointActuel.getX() - dernierPoint.getX()) * ((p.getY() - dernierPoint.getY()) / denom);
+                        if (p.getX() < pointIntersectX) {
+                            compteur++;
+                        }
+                    }
+                }
+            }
+            dernierPoint = pointActuel;
+        }
+        return compteur % 2 != 0;
+    }
 }
 
