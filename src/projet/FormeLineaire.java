@@ -43,5 +43,4 @@ public class FormeLineaire extends Forme{
 	    FormeLineaire other = (FormeLineaire) obj;
 	    return Arrays.deepEquals(matrix1, other.matrix1) && Arrays.deepEquals(matrix2, other.matrix2);
 	}
-
 }

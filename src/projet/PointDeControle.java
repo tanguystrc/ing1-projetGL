@@ -34,6 +34,12 @@ public class PointDeControle {
         this.pointsMap.put(key, value);
         this.listePoint.add(key); 
     }
+    public Point calculerVecteur(Point p1, Point p2) {
+		Point p=new Point();
+		p.setX(p1.getX()-p2.getX());
+		p.setY(p1.getY()-p2.getY());
+		return p;
+	}
 
     @Override
     public String toString() {
