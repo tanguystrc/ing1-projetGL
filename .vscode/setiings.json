@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/home/cytech/morphing/ing1-projetGL/lib/javafx-sdk-22-linux/**/*.jar"
+    ]
+}
