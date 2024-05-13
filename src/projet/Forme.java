@@ -115,7 +115,7 @@ public abstract class Forme {
 				}
 			}
 		}
-		return matrix[0][0];
+		return null;
 	}
     public Color chercheAutreCouleur(Color[][] matrix, List<Point> pts){
 		int hauteur = matrix.length;
@@ -130,7 +130,7 @@ public abstract class Forme {
 				}
 			}
 		}
-		return matrix[0][0];
+		return null;
 	}
 }
 
