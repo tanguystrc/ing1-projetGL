@@ -1,6 +1,5 @@
 package src.projet;
 import java.util.List;
-import java.util.Map;
 import java.awt.Color;
 import java.util.Arrays;
 
@@ -44,4 +43,9 @@ public class FormeLineaire extends Forme{
 	    FormeLineaire other = (FormeLineaire) obj;
 	    return Arrays.deepEquals(matrix1, other.matrix1) && Arrays.deepEquals(matrix2, other.matrix2);
 	}
+
+	
+
+
+
 }
