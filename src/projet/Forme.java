@@ -5,24 +5,24 @@ import java.awt.Color;
 
 public abstract class Forme {
 	
-    protected List<PointDeControle> pointsDeControle;
+    protected PointDeControle pointsDeControle;
     protected BufferedImage image1;
     protected BufferedImage image2;
     protected int nbFrame;
 
     
-    public Forme(List<PointDeControle> pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame) {
+    public Forme(PointDeControle pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame) {
         this.pointsDeControle = pointsDeControle;
         this.image1 = image1;
         this.image2 = image2;
         this.nbFrame = nbFrame;
     }
 
-    public List<PointDeControle> getPointsDeControle() {
+    public PointDeControle getPointsDeControle() {
         return pointsDeControle;
     }
 
-    public void setPointsDeControle(List<PointDeControle> pointsDeControle) {
+    public void setPointsDeControle(PointDeControle pointsDeControle) {
         this.pointsDeControle = pointsDeControle;
     }
 
@@ -102,5 +102,35 @@ public abstract class Forme {
         }
         return compteur % 2 != 0;
     }
+    public Color chercheCouleur(Color[][] matrix, List<Point> pts){
+		int hauteur = matrix.length;
+        int largeur = matrix[0].length;
+		Point p=new Point();
+		for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+				p.setX(x);
+				p.setY(y);
+				if (estDomaine(pts,p)){
+					return matrix[x][y];
+				}
+			}
+		}
+		return matrix[0][0];
+	}
+    public Color chercheAutreCouleur(Color[][] matrix, List<Point> pts){
+		int hauteur = matrix.length;
+        int largeur = matrix[0].length;
+		Point p=new Point();
+		for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+				p.setX(x);
+				p.setY(y);
+				if (!(estDomaine(pts,p))){
+					return matrix[x][y];
+				}
+			}
+		}
+		return matrix[0][0];
+	}
 }
 
