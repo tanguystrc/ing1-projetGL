@@ -3,6 +3,7 @@ package src.projet;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.awt.Color;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 
