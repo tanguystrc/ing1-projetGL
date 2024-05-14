@@ -14,14 +14,7 @@ public class FormeLineaire extends Forme {
     private Color[][] matrix1;
     private Color[][] matrix2;
 
-    /**
-     * Constructeur initialisant les attributs de la classe FormeLineaire.
-     * 
-     * @param pointsDeControle les points de contrôle de la forme.
-     * @param nbFrame le nombre de frames pour le morphisme.
-     * @param matrix1 la première matrice de couleurs.
-     * @param matrix2 la seconde matrice de couleurs.
-     */
+   
     public FormeLineaire(PointDeControle pointsDeControle, int nbFrame, Color[][] matrix1, Color[][] matrix2) {
         super(pointsDeControle, null, null, nbFrame);
         this.matrix1 = matrix1;
