@@ -62,7 +62,8 @@ public class FormeLineaire extends Forme{
     	}
     	return p;
 	}
-	public void calculerPointDeControle(Color[][] matrix, Map<Point, Point> pointsMap, int nbFrame) {
+	public void calculerPointDeControle(BufferedImage image1, Map<Point, Point> pointsMap, int nbFrame) {
+		Color[][] matrix = genererMatrice(image1);
 		List<Point> listIndice = listIndice(pointsMap, nbFrame); 
 		for (int i = 0; i < nbFrame; i++) {
 			List<Point> listPoint = new ArrayList<>(); 
