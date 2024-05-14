@@ -18,14 +18,24 @@ public class Point {
 		return x;
 	}
 	public void setX(double x) {
-		this.x = x;
+		if (x>0 && x<600){
+			this.x = x;
+		}
+		else {
+			throw new IllegalArgumentException("La valeur de x doit être comprise entre 0 et 600 car l'image est entre 0 et 600 pixels");
+		}
 	}
 
 	public double getY() {
 		return y;
 	}
 	public void setY(double y) {
-		this.y = y;
+		if (y>0 && y<600){
+			this.y = y;
+		}
+		else {
+			throw new IllegalArgumentException("La valeur de y doit être comprise entre 0 et 600 car l'image est entre 0 et 600 pixels");
+		}
 	
 	}
 	@Override
