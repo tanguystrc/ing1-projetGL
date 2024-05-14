@@ -7,47 +7,43 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FormeLineaire extends Forme{
-	private Color[][] matrix1;
-	private Color[][] matrix2;
-	
-	public FormeLineaire(PointDeControle pointsDeControle, int nbFrame, Color[][] matrix1, Color[][] matrix2) {
+/**
+ * Classe représentant une forme linéaire, qui hérite de la classe abstraite Forme.
+ */
+public class FormeLineaire extends Forme {
+    private Color[][] matrix1;
+    private Color[][] matrix2;
+
+    /**
+     * Constructeur initialisant les attributs de la classe FormeLineaire.
+     * 
+     * @param pointsDeControle les points de contrôle de la forme.
+     * @param nbFrame le nombre de frames pour le morphisme.
+     * @param matrix1 la première matrice de couleurs.
+     * @param matrix2 la seconde matrice de couleurs.
+     */
+    public FormeLineaire(PointDeControle pointsDeControle, int nbFrame, Color[][] matrix1, Color[][] matrix2) {
         super(pointsDeControle, null, null, nbFrame);
         this.matrix1 = matrix1;
         this.matrix2 = matrix2;
     }
 
-	public Color[][] getMatrix1() {
-		return matrix1;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        FormeLineaire other = (FormeLineaire) obj;
+        return Arrays.deepEquals(matrix1, other.matrix1) && Arrays.deepEquals(matrix2, other.matrix2);
+    }
 
-	public void setMatrix1(Color[][] matrix1) {
-		this.matrix1 = matrix1;
-	}
-
-	public Color[][] getMatrix2() {
-		return matrix2;
-	}
-
-	public void setMatrix2(Color[][] matrix2) {
-		this.matrix2 = matrix2;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-	    if (this == obj) {
-	        return true;
-	    }
-	    if (!super.equals(obj)) {
-	        return false;
-	    }
-	    if (getClass() != obj.getClass()) {
-	        return false;
-	    }
-	    FormeLineaire other = (FormeLineaire) obj;
-	    return Arrays.deepEquals(matrix1, other.matrix1) && Arrays.deepEquals(matrix2, other.matrix2);
-	}
-	/**
+    /**
      * Calcule le vecteur entre deux points.
      * 
      * @param p1 le premier point.
@@ -61,15 +57,15 @@ public class FormeLineaire extends Forme{
     /**
      * Crée une liste de vecteurs pour chaque paire de points de la map des points de contrôle.
      * 
-     * @param pointsMap la map des points de contrôle.
+     * @param pointsDeControle les points de contrôle.
      * @param nbFrame le nombre de frames pour le morphisme.
      * @return une liste de points représentant les vecteurs calculés.
      */
-    public List<Point> listIndice(Map<Point, Point> pointsMap, int nbFrame) {
+    public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
         List<Point> p = new ArrayList<>();
-        for (Map.Entry<Point, Point> entre : pointsMap.entrySet()) {
-            Point keyPoint = entre.getKey();
-            Point valuePoint = entre.getValue();
+        for (Map.Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point keyPoint = entry.getKey();
+            Point valuePoint = entry.getValue();
             Point indice = calculerVecteur(keyPoint, valuePoint);
             indice.setX(indice.getX() / nbFrame);
             indice.setY(indice.getY() / nbFrame);
@@ -82,16 +78,19 @@ public class FormeLineaire extends Forme{
      * Applique un morphisme simple à une image en utilisant une map de points de contrôle.
      * 
      * @param image1 l'image source.
-     * @param pointsMap la map des points de contrôle.
+     * @param pointsDeControle les points de contrôle.
      * @param nbFrame le nombre de frames pour le morphisme.
      */
-    public void morphismeSimple(BufferedImage image1, Map<Point, Point> pointsMap, int nbFrame) {
+    public void morphismeSimple(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) {
         Color[][] matrix = genererMatrice(image1);
-        List<Point> listIndice = listIndice(pointsMap, nbFrame); 
+        List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
+        List<Point> pointsKeys = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
+
         for (int i = 0; i < nbFrame; i++) {
             List<Point> listPoint = new ArrayList<>(); 
-            for (Point p : pointsMap.keySet()) {
-                Point indice = listIndice.get(i);
+            for (int j = 0; j < pointsKeys.size(); j++) {
+                Point p = pointsKeys.get(j);
+                Point indice = listIndice.get(j);
                 Point p1 = new Point(p.getX() + indice.getX(), p.getY() + indice.getY()); 
                 listPoint.add(p1);
             }

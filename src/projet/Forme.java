@@ -1,16 +1,19 @@
 package src.projet;
+
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.awt.Color;
 
+/**
+ * Classe abstraite représentant une forme avec des points de contrôle et des images associées.
+ */
 public abstract class Forme {
-	
+    
     protected PointDeControle pointsDeControle;
     protected BufferedImage image1;
     protected BufferedImage image2;
     protected int nbFrame;
 
-    
     public Forme(PointDeControle pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame) {
         this.pointsDeControle = pointsDeControle;
         this.image1 = image1;
@@ -18,37 +21,6 @@ public abstract class Forme {
         this.nbFrame = nbFrame;
     }
 
-    public PointDeControle getPointsDeControle() {
-        return pointsDeControle;
-    }
-
-    public void setPointsDeControle(PointDeControle pointsDeControle) {
-        this.pointsDeControle = pointsDeControle;
-    }
-
-    public BufferedImage getImage1() {
-        return image1;
-    }
-
-    public void setImage1(BufferedImage image1) {
-        this.image1 = image1;
-    }
-
-    public BufferedImage getImage2() {
-        return image2;
-    }
-
-    public void setImage2(BufferedImage image2) {
-        this.image2 = image2;
-    }
-
-    public int getNbFrame() {
-        return nbFrame;
-    }
-
-    public void setNbFrame(int nbFrame) {
-        this.nbFrame = nbFrame;
-    }
     /**
      * Génère une matrice de couleurs à partir d'une image.
      * 
@@ -173,4 +145,3 @@ public abstract class Forme {
         return null;
     }
 }
-
