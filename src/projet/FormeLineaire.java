@@ -1,20 +1,20 @@
 package src.projet;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.util.List;
 import java.awt.Color;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Classe représentant une forme linéaire, qui hérite de la classe abstraite Forme.
- */
 public class FormeLineaire extends Forme {
     private Color[][] matrix1;
     private Color[][] matrix2;
 
-   
     public FormeLineaire(PointDeControle pointsDeControle, int nbFrame, Color[][] matrix1, Color[][] matrix2) {
         super(pointsDeControle, null, null, nbFrame);
         this.matrix1 = matrix1;
@@ -36,24 +36,10 @@ public class FormeLineaire extends Forme {
         return Arrays.deepEquals(matrix1, other.matrix1) && Arrays.deepEquals(matrix2, other.matrix2);
     }
 
-    /**
-     * Calcule le vecteur entre deux points.
-     * 
-     * @param p1 le premier point.
-     * @param p2 le second point.
-     * @return le vecteur résultant du calcul entre les deux points.
-     */
     public static Point calculerVecteur(Point p1, Point p2) {
         return new Point(p1.getX() - p2.getX(), p1.getY() - p2.getY());
     }
 
-    /**
-     * Crée une liste de vecteurs pour chaque paire de points de la map des points de contrôle.
-     * 
-     * @param pointsDeControle les points de contrôle.
-     * @param nbFrame le nombre de frames pour le morphisme.
-     * @return une liste de points représentant les vecteurs calculés.
-     */
     public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
         List<Point> p = new ArrayList<>();
         for (Map.Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
@@ -67,17 +53,13 @@ public class FormeLineaire extends Forme {
         return p;
     }
 
-    /**
-     * Applique un morphisme simple à une image en utilisant une map de points de contrôle.
-     * 
-     * @param image1 l'image source.
-     * @param pointsDeControle les points de contrôle.
-     * @param nbFrame le nombre de frames pour le morphisme.
-     */
-    public void morphismeSimple(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) {
+    public void morphismeSimple(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
         Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
         List<Point> pointsKeys = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
+
+        ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
 
         for (int i = 0; i < nbFrame; i++) {
             List<Point> listPoint = new ArrayList<>(); 
@@ -87,17 +69,14 @@ public class FormeLineaire extends Forme {
                 Point p1 = new Point(p.getX() + indice.getX(), p.getY() + indice.getY()); 
                 listPoint.add(p1);
             }
-            morphismeSimpleRemplissage(matrix, listPoint); 
+            BufferedImage frameImage = morphismeSimpleRemplissage(matrix, listPoint); 
+            gifWriter.writeToSequence(frameImage);
         }
+
+        gifWriter.close();
+        output.close();
     }
 
-    /**
-     * Remplit une image en utilisant les couleurs d'une matrice de couleurs et une liste de points de contrôle.
-     * 
-     * @param matrix la matrice de couleurs.
-     * @param points la liste des points de contrôle.
-     * @return l'image résultante du remplissage.
-     */
     public BufferedImage morphismeSimpleRemplissage(Color[][] matrix, List<Point> points) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
