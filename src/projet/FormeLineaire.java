@@ -62,7 +62,7 @@ public class FormeLineaire extends Forme{
     	}
     	return p;
 	}
-	public void calculerPointDeControle(BufferedImage image1, Map<Point, Point> pointsMap, int nbFrame) {
+	public void morphismeSimple(BufferedImage image1, Map<Point, Point> pointsMap, int nbFrame) {
 		Color[][] matrix = genererMatrice(image1);
 		List<Point> listIndice = listIndice(pointsMap, nbFrame); 
 		for (int i = 0; i < nbFrame; i++) {
@@ -72,10 +72,10 @@ public class FormeLineaire extends Forme{
 				Point p1 = new Point(p.getX() + indice.getX(), p.getY() + indice.getY()); 
 				listPoint.add(p1);
 			}
-			morphismeSimple(matrix, listPoint); 
+			morphismeSimpleRemplissage(matrix, listPoint); 
 		}
 	}
-	public BufferedImage morphismeSimple(Color[][] matrix, List<Point> points){
+	public BufferedImage morphismeSimpleRemplissage(Color[][] matrix, List<Point> points){
 		int hauteur = matrix.length;
         int largeur = matrix[0].length;
 		Color couleur=chercheCouleur(matrix,points);
