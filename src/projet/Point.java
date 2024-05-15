@@ -1,4 +1,6 @@
-package src.projet;
+	package src.projet;
+
+import java.util.Objects;
 
 public class Point {
 
@@ -16,28 +18,47 @@ public class Point {
 		return x;
 	}
 	public void setX(double x) {
-		this.x = x;
+		if (x>0 && x<600){
+			this.x = x;
+		}
+		else {
+			throw new IllegalArgumentException("La valeur de x doit être comprise entre 0 et 600 car l'image est entre 0 et 600 pixels");
+		}
 	}
 
 	public double getY() {
 		return y;
 	}
 	public void setY(double y) {
-		this.y = y;
+		if (y>0 && y<600){
+			this.y = y;
+		}
+		else {
+			throw new IllegalArgumentException("La valeur de y doit être comprise entre 0 et 600 car l'image est entre 0 et 600 pixels");
+		}
 	
 	}
 	@Override
 	public String toString() {
-		return "Point : ("+x+")";
+		return "Point : ("+x+","+y+")";
 	}
 
-	public boolean equals(Object obj) {
-	    if (!(obj instanceof Point)) {
-	        return false; 
-	    }
-	    
-	    Point otherPoint = (Point) obj; 
-	    return this.getX() == otherPoint.getX();
+	@Override
+		public boolean equals(Object obj) {
+    	if (this == obj) {
+        	return true;
+    	}
+    	if (!(obj instanceof Point)) {
+        	return false;
+    	}
+    	Point other = (Point) obj;
+    	final double EPSILON = 1e-10;  
+    	return Math.abs(this.x - other.x) < EPSILON && Math.abs(this.y - other.y) < EPSILON;
 	}
+	@Override
+	public int hashCode() {
+    	return Objects.hash(x, y);
+	}
+
 }
 
