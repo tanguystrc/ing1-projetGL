@@ -18,6 +18,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -39,6 +40,8 @@ public class Hello extends Application {
     private int selectedPointIndex = -1;
     private Canvas canvasA;
     private Canvas canvasB;
+    private boolean isDragging = false;
+    private boolean isClickValid = true;
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -68,32 +71,65 @@ public class Hello extends Application {
         }
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        canvas.setOnMouseClicked(mouseEvent -> {
-            double mouseX = mouseEvent.getX();
-            double mouseY = mouseEvent.getY();
-
-            if (selectedPoint != null) {
-                pointsDeControle.set(selectedPointIndex, new Point2D(mouseX, mouseY));
-                selectedPoint = null;
-                selectedPointIndex = -1;
-                redrawPoints();
-            } else {
-                if (isImageA && nbPointsDeControle % 2 == 0) {
-                    pointsDeControle.add(new Point2D(mouseX, mouseY));
-                    draw(gc, mouseX, mouseY, isImageA, nbPointsDeControle / 2);
-                    nbPointsDeControle++;
-                } else if (!isImageA && nbPointsDeControle % 2 != 0) {
-                    pointsDeControle.add(new Point2D(mouseX, mouseY));
-                    draw(gc, mouseX, mouseY, isImageA, nbPointsDeControle / 2);
-                    nbPointsDeControle++;
-                }
-            }
-        });
+        canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
+        canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent));
+        canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased());
+        canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
 
         StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien aligner le Canvas en haut à gauche (et superposer)
         pane.getChildren().add(canvas);
 
         return pane;
+    }
+
+    private void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
+        double mouseX = mouseEvent.getX();
+        double mouseY = mouseEvent.getY();
+
+        for (int index = 0; index < pointsDeControle.size(); index++) {
+            if ((isImageA && index % 2 == 0) || (!isImageA && index % 2 != 0)) {
+                Point2D point = pointsDeControle.get(index);
+                if (point.distance(mouseX, mouseY) < 10) { // assuming a tolerance of 10 pixels for selection
+                    selectedPoint = point;
+                    selectedPointIndex = index;
+                    isDragging = true;
+                    isClickValid = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    private void handleMouseDragged(MouseEvent mouseEvent) {
+        if (isDragging && selectedPoint != null) {
+            double mouseX = mouseEvent.getX();
+            double mouseY = mouseEvent.getY();
+            pointsDeControle.set(selectedPointIndex, new Point2D(mouseX, mouseY));
+            redrawPoints();
+        }
+    }
+
+    private void handleMouseReleased() {
+        if (isDragging) {
+            isDragging = false;
+            selectedPoint = null;
+            selectedPointIndex = -1;
+        }
+    }
+
+    private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
+        if (isClickValid) {
+            double mouseX = mouseEvent.getX();
+            double mouseY = mouseEvent.getY();
+
+            if (isImageA && nbPointsDeControle % 2 == 0) {
+                pointsDeControle.add(new Point2D(mouseX, mouseY));
+                pointsDeControle.add(new Point2D(mouseX, mouseY)); // Add corresponding point in image B
+                nbPointsDeControle += 2;
+                redrawPoints();
+            }
+        }
+        isClickValid = true;
     }
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
@@ -107,49 +143,12 @@ public class Hello extends Application {
         canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
-        nbPointsDeControle = 0;
         for (int i = 0; i < pointsDeControle.size(); i++) {
             Point2D point = pointsDeControle.get(i);
             boolean isImageA = (i % 2 == 0);
             draw(isImageA ? canvasA.getGraphicsContext2D() : canvasB.getGraphicsContext2D(),
                     point.getX(), point.getY(), isImageA, i / 2);
-            nbPointsDeControle++;
         }
-    }
-
-    private void showModifyPointDialog() {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Modifier un point");
-
-        ListView<String> listView = new ListView<>();
-        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        for (int i = 0; i < pointsDeControle.size(); i++) {
-            Point2D point = pointsDeControle.get(i);
-            String pointInfo = String.format("Point %c%d: (%.1f, %.1f) - %s",
-                    (i < 52) ? (char) (asciiDuA + (i / 2) % 26) : '0' + (i / 2 - 26),
-                    i / 2 + 1, point.getX(), point.getY(), (i % 2 == 0) ? "Image A" : "Image B");
-            listView.getItems().add(pointInfo);
-        }
-
-        Button modifyButton = new Button("Modifier");
-        modifyButton.setOnAction(e -> {
-            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-            if (selectedIndex != -1) {
-                selectedPointIndex = selectedIndex;
-                selectedPoint = pointsDeControle.get(selectedIndex);
-                System.out.println("Point sélectionné pour modification : " + selectedPoint);
-                dialog.close();
-            }
-        });
-
-        VBox dialogVBox = new VBox(20, listView, modifyButton);
-        dialogVBox.setPadding(new Insets(20));
-        dialogVBox.setAlignment(Pos.CENTER);
-
-        Scene dialogScene = new Scene(dialogVBox, 300, 400);
-        dialog.setScene(dialogScene);
-        dialog.show();
     }
 
     private void resetPoints() {
@@ -169,20 +168,18 @@ public class Hello extends Application {
             Point2D pointA = pointsDeControle.get(i);
             Point2D pointB = pointsDeControle.get(i + 1);
             String pointInfo = String.format("Points %c%d: A(%.1f, %.1f) - B(%.1f, %.1f)",
-                    (i < 52) ? (char) (asciiDuA + (i / 2) % 26) : '0' + (i / 2 - 26),
-                    i / 2 + 1, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
+                    (i / 2 < 26) ? (char) (asciiDuA + (i / 2)) : Integer.toString((i / 2) - 26),
+                    (i / 2) + 1, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
             listView.getItems().add(pointInfo);
         }
 
         Button deleteButton = new Button("Supprimer");
         deleteButton.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-            if (selectedIndex != -1) {
+            if (selectedIndex != -1 && selectedIndex * 2 + 1 < pointsDeControle.size()) {
                 int index = selectedIndex * 2;
                 pointsDeControle.remove(index + 1); // Supprimer le point correspondant dans l'image B
                 pointsDeControle.remove(index); // Supprimer le point dans l'image A
-                selectedPoint = null;
-                selectedPointIndex = -1;
                 nbPointsDeControle -= 2;
                 redrawPoints();
                 dialog.close();
@@ -209,8 +206,8 @@ public class Hello extends Application {
             if ((isImageA && i % 2 == 0) || (!isImageA && i % 2 != 0)) {
                 Point2D point = pointsDeControle.get(i);
                 String pointInfo = String.format("Point %c%d: (%.1f, %.1f) - %s",
-                        (i < 52) ? (char) (asciiDuA + (i / 2) % 26) : '0' + (i / 2 - 26),
-                        i / 2 + 1, point.getX(), point.getY(), (i % 2 == 0) ? "Image A" : "Image B");
+                        (i / 2 < 26) ? (char) (asciiDuA + (i / 2)) : Integer.toString((i / 2) - 26),
+                        (i / 2) + 1, point.getX(), point.getY(), (i % 2 == 0) ? "Image A" : "Image B");
                 listView.getItems().add(pointInfo);
             }
         }
@@ -218,10 +215,11 @@ public class Hello extends Application {
         Button superposeButton = new Button("Superposer");
         superposeButton.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-            if (selectedIndex != -1) {
+            if (selectedIndex != -1 && selectedIndex * 2 < pointsDeControle.size()) {
                 int index = (selectedIndex * 2) + (isImageA ? 0 : 1);
                 Point2D point = pointsDeControle.get(index);
-                pointsDeControle.add(point); // Ajouter un nouveau point superposé à la même position
+                pointsDeControle.add(new Point2D(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
+                //nbPointsDeControle++;
                 redrawPoints();
                 dialog.close();
             }
@@ -267,10 +265,6 @@ public class Hello extends Application {
         HBox buttonBox1 = new HBox(10, selectStartImageButton, selectEndImageButton);
         buttonBox1.setAlignment(Pos.CENTER);
 
-        // Bouton pour modifier un point
-        Button selectPointButton = new Button("Modifier un point");
-        selectPointButton.setOnAction(e -> showModifyPointDialog());
-
         // Bouton pour réinitialiser les points
         Button resetButton = new Button("Réinitialiser");
         resetButton.setOnAction(e -> resetPoints());
@@ -298,7 +292,7 @@ public class Hello extends Application {
         // Boutons
         Button startButton = new Button("Start");
         Button saveSettingsButton = new Button("Save settings");
-        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, selectPointButton, resetButton, deleteButton, superposePointButton);
+        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton);
         buttonBox2.setAlignment(Pos.CENTER);
 
         // Configuration du BorderPane
