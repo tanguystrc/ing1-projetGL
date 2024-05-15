@@ -2,7 +2,9 @@ package src.projet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -19,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -40,7 +43,6 @@ public class Hello extends Application {
     private PointDeControle pointsDeControle;
     private int nbPointsDeControle;
     private Point selectedPoint = null;
-    private Point currentPoint;
     private int selectedPointIndex = -1;
     private Canvas canvasA;
     private Canvas canvasB;
@@ -91,11 +93,10 @@ public class Hello extends Application {
     private void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
-        currentPoint = new Point(mouseX, mouseY);
 
-        for (int index = 0; index < nbPointsDeControle; index++) {
+        for (int index = 0; index < pointsDeControle.getPointsMap().size(); index++) {
             Point point = getPointFromIndex(index, isImageA);
-            if (point != null && point.distance(mouseX, mouseY) < 10) { // assuming a tolerance of 10 pixels for selection
+            if (point != null && point.distance(new Point(mouseX, mouseY)) < 10) { // assuming a tolerance of 10 pixels for selection
                 selectedPoint = point;
                 selectedPointIndex = index;
                 isDragging = true;
@@ -142,9 +143,9 @@ public class Hello extends Application {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
 
-        for (int index = 0; index < nbPointsDeControle; index++) {
+        for (int index = 0; index < pointsDeControle.getPointsMap().size(); index++) {
             Point point = getPointFromIndex(index, isImageA);
-            if (point != null && point.distance(mouseX, mouseY) < 10) { // assuming a tolerance of 10 pixels for hover
+            if (point != null && point.distance(new Point(mouseX, mouseY)) < 10) { // assuming a tolerance of 10 pixels for hover
                 showAnimatedLabels(mouseX, mouseY, index);
                 return;
             }
@@ -200,10 +201,14 @@ public class Hello extends Application {
     }
 
     private Point getPointFromIndex(int index, boolean isImageA) {
-        for (Point key : pointsDeControle.getPointsMap().keySet()) {
+        List<Point> points = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
+        if (index < points.size()) {
+            Point key = points.get(index);
             Point value = pointsDeControle.getPointsMap().get(key);
-            if ((isImageA && key.equals(value)) || (!isImageA && !key.equals(value))) {
+            if (isImageA) {
                 return key;
+            } else {
+                return value;
             }
         }
         return null;
