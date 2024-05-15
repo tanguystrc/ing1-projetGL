@@ -165,12 +165,14 @@ public class Hello extends Application {
         ListView<String> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         for (int i = 0; i < pointsDeControle.size(); i += 2) {
-            Point2D pointA = pointsDeControle.get(i);
-            Point2D pointB = pointsDeControle.get(i + 1);
-            String pointInfo = String.format("Points %c%d: A(%.1f, %.1f) - B(%.1f, %.1f)",
-                    (i / 2 < 26) ? (char) (asciiDuA + (i / 2)) : Integer.toString((i / 2) - 26),
-                    (i / 2) + 1, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
-            listView.getItems().add(pointInfo);
+            if (i + 1 < pointsDeControle.size()) {
+                Point2D pointA = pointsDeControle.get(i);
+                Point2D pointB = pointsDeControle.get(i + 1);
+                String pointInfo = String.format("Points %c%d: A(%.1f, %.1f) - B(%.1f, %.1f)",
+                        (i / 2 < 26) ? (char) (asciiDuA + (i / 2)) : Integer.toString((i / 2) - 26),
+                        (i / 2) + 1, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
+                listView.getItems().add(pointInfo);
+            }
         }
 
         Button deleteButton = new Button("Supprimer");
@@ -219,7 +221,6 @@ public class Hello extends Application {
                 int index = (selectedIndex * 2) + (isImageA ? 0 : 1);
                 Point2D point = pointsDeControle.get(index);
                 pointsDeControle.add(new Point2D(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
-                //nbPointsDeControle++;
                 redrawPoints();
                 dialog.close();
             }
