@@ -1,8 +1,6 @@
 package src.projet;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 
 import javafx.application.Application;
@@ -37,7 +35,6 @@ public class Hello extends Application {
     private PointDeControle pointsDeControle;
     private int nbPointsDeControle;
     private Point selectedPoint = null;
-    private int selectedPointIndex = -1;
     private Canvas canvasA;
     private Canvas canvasB;
     private boolean isDragging = false;
@@ -69,7 +66,7 @@ public class Hello extends Application {
         } else {
             canvasB = canvas;
         }
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        
 
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
