@@ -11,6 +11,10 @@ public class PointDeControle {
         this.pointsMap = new LinkedHashMap<>();
     }
 
+    public void supprimer(Point pointA) {
+        pointsMap.remove(pointA);
+    }
+
     public Map<Point, Point> getPointsMap() {
         return pointsMap;
     }
