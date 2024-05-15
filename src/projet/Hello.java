@@ -2,16 +2,11 @@ package src.projet;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -21,10 +16,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -35,11 +29,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
-import javafx.util.Duration;
 
 public class Hello extends Application {
 
     private static int asciiDuA = 65;
+
     private PointDeControle pointsDeControle;
     private int nbPointsDeControle;
     private Point selectedPoint = null;
@@ -48,7 +42,6 @@ public class Hello extends Application {
     private Canvas canvasB;
     private boolean isDragging = false;
     private boolean isClickValid = true;
-    private List<Text> pointLabels = new ArrayList<>();
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -79,10 +72,9 @@ public class Hello extends Application {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
-        canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent));
+        canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
         canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased());
         canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
-        canvas.setOnMouseMoved(mouseEvent -> handleMouseMoved(mouseEvent, isImageA, gc));
 
         StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien aligner le Canvas en haut à gauche (et superposer)
         pane.getChildren().add(canvas);
@@ -94,11 +86,10 @@ public class Hello extends Application {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
 
-        for (int index = 0; index < pointsDeControle.getPointsMap().size(); index++) {
-            Point point = getPointFromIndex(index, isImageA);
-            if (point != null && point.distance(new Point(mouseX, mouseY)) < 10) { // assuming a tolerance of 10 pixels for selection
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point point = isImageA ? entry.getKey() : entry.getValue();
+            if (point.distance(new Point(mouseX, mouseY)) < 10) { // assuming a tolerance of 10 pixels for selection
                 selectedPoint = point;
-                selectedPointIndex = index;
                 isDragging = true;
                 isClickValid = false;
                 break;
@@ -106,7 +97,7 @@ public class Hello extends Application {
         }
     }
 
-    private void handleMouseDragged(MouseEvent mouseEvent) {
+    private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         if (isDragging && selectedPoint != null) {
             double mouseX = mouseEvent.getX();
             double mouseY = mouseEvent.getY();
@@ -120,7 +111,6 @@ public class Hello extends Application {
         if (isDragging) {
             isDragging = false;
             selectedPoint = null;
-            selectedPointIndex = -1;
         }
     }
 
@@ -131,87 +121,12 @@ public class Hello extends Application {
             Point point = new Point(mouseX, mouseY);
 
             if (isImageA) {
-                pointsDeControle.ajouter(point, point); // Add corresponding point in image B
+                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); // Add corresponding point in image B
                 nbPointsDeControle++;
                 redrawPoints();
             }
         }
         isClickValid = true;
-    }
-
-    private void handleMouseMoved(MouseEvent mouseEvent, boolean isImageA, GraphicsContext gc) {
-        double mouseX = mouseEvent.getX();
-        double mouseY = mouseEvent.getY();
-
-        for (int index = 0; index < pointsDeControle.getPointsMap().size(); index++) {
-            Point point = getPointFromIndex(index, isImageA);
-            if (point != null && point.distance(new Point(mouseX, mouseY)) < 10) { // assuming a tolerance of 10 pixels for hover
-                showAnimatedLabels(mouseX, mouseY, index);
-                return;
-            }
-        }
-        removeAnimatedLabels();
-    }
-
-    private void showAnimatedLabels(double mouseX, double mouseY, int index) {
-        for (Text label : pointLabels) {
-            label.setVisible(false);
-        }
-        pointLabels.clear();
-
-        String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
-
-        Text labelA = new Text("." + pointLabel);
-        labelA.setFont(new Font(12));
-        labelA.setFill(Color.RED);
-        labelA.setX(mouseX + 10);
-        labelA.setY(mouseY - 10);
-
-        Text labelB = new Text("." + pointLabel);
-        labelB.setFont(new Font(12));
-        labelB.setFill(Color.RED);
-        labelB.setX(mouseX - 10);
-        labelB.setY(mouseY + 10);
-
-        pointLabels.add(labelA);
-        pointLabels.add(labelB);
-
-        animateLabel(labelA, mouseX + 10, mouseY - 10);
-        animateLabel(labelB, mouseX - 10, mouseY + 10);
-
-        canvasA.getGraphicsContext2D().getCanvas().getParent().getChildrenUnmodifiable().addAll(labelA, labelB);
-    }
-
-    private void animateLabel(Text label, double startX, double startY) {
-        KeyValue keyValueX = new KeyValue(label.translateXProperty(), startX + 20);
-        KeyValue keyValueY = new KeyValue(label.translateYProperty(), startY + 20);
-        KeyFrame keyFrame = new KeyFrame(Duration.millis(500), keyValueX, keyValueY);
-
-        Timeline timeline = new Timeline(keyFrame);
-        timeline.setAutoReverse(true);
-        timeline.setCycleCount(2);
-        timeline.play();
-    }
-
-    private void removeAnimatedLabels() {
-        for (Text label : pointLabels) {
-            label.setVisible(false);
-        }
-        pointLabels.clear();
-    }
-
-    private Point getPointFromIndex(int index, boolean isImageA) {
-        List<Point> points = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
-        if (index < points.size()) {
-            Point key = points.get(index);
-            Point value = pointsDeControle.getPointsMap().get(key);
-            if (isImageA) {
-                return key;
-            } else {
-                return value;
-            }
-        }
-        return null;
     }
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
@@ -226,8 +141,9 @@ public class Hello extends Application {
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
         int index = 0;
-        for (Point key : pointsDeControle.getPointsMap().keySet()) {
-            Point value = pointsDeControle.getPointsMap().get(key);
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point key = entry.getKey();
+            Point value = entry.getValue();
             draw(canvasA.getGraphicsContext2D(), key.getX(), key.getY(), true, index);
             draw(canvasB.getGraphicsContext2D(), value.getX(), value.getY(), false, index);
             index++;
@@ -249,8 +165,9 @@ public class Hello extends Application {
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         int index = 0;
-        for (Point key : pointsDeControle.getPointsMap().keySet()) {
-            Point value = pointsDeControle.getPointsMap().get(key);
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point key = entry.getKey();
+            Point value = entry.getValue();
             String pointInfo = String.format("Points %c%d: A(%.1f, %.1f) - B(%.1f, %.1f)",
                     (index < 26) ? (char) (asciiDuA + index) : Integer.toString(index - 26),
                     index + 1, key.getX(), key.getY(), value.getX(), value.getY());
@@ -287,7 +204,8 @@ public class Hello extends Application {
         ListView<String> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         int index = 0;
-        for (Point key : pointsDeControle.getPointsMap().keySet()) {
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point key = entry.getKey();
             if ((isImageA && index % 2 == 0) || (!isImageA && index % 2 != 0)) {
                 String pointInfo = String.format("Point %c%d: (%.1f, %.1f) - %s",
                         (index < 26) ? (char) (asciiDuA + index) : Integer.toString(index - 26),
@@ -303,7 +221,7 @@ public class Hello extends Application {
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsMap().size()) {
                 Point point = getPointFromIndex(selectedIndex, isImageA);
                 Point newPoint = new Point(point.getX(), point.getY());
-                pointsDeControle.ajouter(newPoint, newPoint); // Ajouter un nouveau point superposé à la même position
+                pointsDeControle.ajouter(newPoint, new Point(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
                 nbPointsDeControle++;
                 redrawPoints();
                 dialog.close();
@@ -317,6 +235,17 @@ public class Hello extends Application {
         Scene dialogScene = new Scene(dialogVBox, 300, 400);
         dialog.setScene(dialogScene);
         dialog.show();
+    }
+
+    private Point getPointFromIndex(int index, boolean isImageA) {
+        int i = 0;
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            if (i == index) {
+                return isImageA ? entry.getKey() : entry.getValue();
+            }
+            i++;
+        }
+        return null;
     }
 
     @Override
