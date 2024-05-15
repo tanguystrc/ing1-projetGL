@@ -1,6 +1,5 @@
 package src.projet;
 
-import java.awt.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -9,7 +8,11 @@ public class PointDeControle {
     private Map<Point, Point> pointsMap;
 
     public PointDeControle() {
-        this.pointsMap = new LinkedHashMap<>(); 
+        this.pointsMap = new LinkedHashMap<>();
+    }
+
+    public void supprimer(Point pointA) {
+        pointsMap.remove(pointA);
     }
 
     public Map<Point, Point> getPointsMap() {
@@ -17,11 +20,11 @@ public class PointDeControle {
     }
 
     public void setPointsMap(Map<Point, Point> pointsMap) {
-        this.pointsMap = new LinkedHashMap<>(pointsMap); 
+        this.pointsMap = new LinkedHashMap<>(pointsMap);
     }
 
     public void ajouter(Point key, Point value) {
-        this.pointsMap.put(key, value); 
+        this.pointsMap.put(key, value);
     }
 
     @Override
