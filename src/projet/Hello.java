@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -29,6 +32,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 public class Hello extends Application {
 
@@ -42,6 +46,7 @@ public class Hello extends Application {
     private Canvas canvasB;
     private boolean isDragging = false;
     private boolean isClickValid = true;
+    private List<Text> pointLabels = new ArrayList<>();
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -75,6 +80,7 @@ public class Hello extends Application {
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent));
         canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased());
         canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
+        canvas.setOnMouseMoved(mouseEvent -> handleMouseMoved(mouseEvent, isImageA, gc));
 
         StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien aligner le Canvas en haut à gauche (et superposer)
         pane.getChildren().add(canvas);
@@ -130,6 +136,69 @@ public class Hello extends Application {
             }
         }
         isClickValid = true;
+    }
+
+    private void handleMouseMoved(MouseEvent mouseEvent, boolean isImageA, GraphicsContext gc) {
+        double mouseX = mouseEvent.getX();
+        double mouseY = mouseEvent.getY();
+
+        for (int index = 0; index < pointsDeControle.size(); index++) {
+            Point2D point = pointsDeControle.get(index);
+            if (point.distance(mouseX, mouseY) < 10) { // assuming a tolerance of 10 pixels for hover
+                if ((isImageA && index % 2 == 0) || (!isImageA && index % 2 != 0)) {
+                    showAnimatedLabels(mouseX, mouseY, index / 2);
+                    return;
+                }
+            }
+        }
+        removeAnimatedLabels();
+    }
+
+    private void showAnimatedLabels(double mouseX, double mouseY, int index) {
+        for (Text label : pointLabels) {
+            label.setVisible(false);
+        }
+        pointLabels.clear();
+
+        String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
+
+        Text labelA = new Text("." + pointLabel);
+        labelA.setFont(new Font(12));
+        labelA.setFill(Color.RED);
+        labelA.setX(mouseX + 10);
+        labelA.setY(mouseY - 10);
+
+        Text labelB = new Text("." + pointLabel);
+        labelB.setFont(new Font(12));
+        labelB.setFill(Color.RED);
+        labelB.setX(mouseX - 10);
+        labelB.setY(mouseY + 10);
+
+        pointLabels.add(labelA);
+        pointLabels.add(labelB);
+
+        animateLabel(labelA, mouseX + 10, mouseY - 10);
+        animateLabel(labelB, mouseX - 10, mouseY + 10);
+
+        canvasA.getGraphicsContext2D().getCanvas().getParent().getChildrenUnmodifiable().addAll(labelA, labelB);
+    }
+
+    private void animateLabel(Text label, double startX, double startY) {
+        KeyValue keyValueX = new KeyValue(label.translateXProperty(), startX + 20);
+        KeyValue keyValueY = new KeyValue(label.translateYProperty(), startY + 20);
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(500), keyValueX, keyValueY);
+
+        Timeline timeline = new Timeline(keyFrame);
+        timeline.setAutoReverse(true);
+        timeline.setCycleCount(2);
+        timeline.play();
+    }
+
+    private void removeAnimatedLabels() {
+        for (Text label : pointLabels) {
+            label.setVisible(false);
+        }
+        pointLabels.clear();
     }
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
