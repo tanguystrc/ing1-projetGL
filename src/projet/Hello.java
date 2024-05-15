@@ -221,6 +221,8 @@ public class Hello extends Application {
                 int index = (selectedIndex * 2) + (isImageA ? 0 : 1);
                 Point2D point = pointsDeControle.get(index);
                 pointsDeControle.add(new Point2D(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
+                pointsDeControle.add(new Point2D(point.getX(), point.getY())); // Add corresponding point in other image
+                nbPointsDeControle += 2;
                 redrawPoints();
                 dialog.close();
             }
