@@ -3,6 +3,8 @@ package src.projet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PointDeControle {
     private Map<Point, Point> pointsMap;
