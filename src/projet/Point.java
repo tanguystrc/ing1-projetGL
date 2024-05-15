@@ -3,13 +3,12 @@ package src.projet;
 import java.util.Objects;
 
 public class Point {
-
     private double x;
     private double y;
 
     public Point(double x, double y) {
-        this.x = x;
-        this.y = y;
+        setX(x);
+        setY(y);
     }
 
     public Point() {
@@ -21,11 +20,9 @@ public class Point {
     }
 
     public void setX(double x) {
-        if (x >= 0 && x <= 600) {
+     
             this.x = x;
-        } else {
-            throw new IllegalArgumentException("La valeur de x doit être comprise entre 0 et 600.");
-        }
+
     }
 
     public double getY() {
@@ -33,15 +30,27 @@ public class Point {
     }
 
     public void setY(double y) {
-        if (y >= 0 && y <= 600) {
+     
             this.y = y;
-        } else {
-            throw new IllegalArgumentException("La valeur de y doit être comprise entre 0 et 600.");
-        }
+        
     }
 
     public double distance(Point other) {
-        return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
+        double dx = this.x - other.x;
+        double dy = this.y - other.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    /**
+     * Calcule le vecteur entre deux points.
+     * @param p1 le premier point
+     * @param p2 le deuxième point
+     * @return le vecteur résultant du calcul
+     */
+    public static Point calculerVecteur(Point p1, Point p2) {
+        double deltaX = p2.getX() - p1.getX();
+        double deltaY = p2.getY() - p1.getY();
+        return new Point(deltaX, deltaY);
     }
 
     @Override

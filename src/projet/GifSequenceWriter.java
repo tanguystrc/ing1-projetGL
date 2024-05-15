@@ -89,20 +89,4 @@ public class GifSequenceWriter {
     public void close() throws IOException {
         gifWriter.endWriteSequence();
     }
-
-    public static void main(String[] args) throws IOException {
-        BufferedImage firstImage = ImageIO.read(new File("path/to/first/image.png"));
-
-        ImageOutputStream output = new FileImageOutputStream(new File("path/to/output.gif"));
-
-        GifSequenceWriter writer = new GifSequenceWriter(output, firstImage.getType(), 500, true);
-
-        writer.writeToSequence(firstImage);
-        // Repeat for other images
-        BufferedImage nextImage = ImageIO.read(new File("path/to/next/image.png"));
-        writer.writeToSequence(nextImage);
-
-        writer.close();
-        output.close();
-    }
 }
