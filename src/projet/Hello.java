@@ -1,9 +1,14 @@
 package src.projet;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map.Entry;
-
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,9 +19,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -24,9 +29,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.FileChooser;
 
 public class Hello extends Application {
 
@@ -35,11 +40,12 @@ public class Hello extends Application {
     private PointDeControle pointsDeControle;
     private int nbPointsDeControle;
     private Point selectedPoint = null;
-    private int selectedPointIndex = -1;
     private Canvas canvasA;
     private Canvas canvasB;
     private boolean isDragging = false;
     private boolean isClickValid = true;
+    private Image startImage;
+    private Image endImage;
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -95,15 +101,21 @@ public class Hello extends Application {
         }
     }
 
-    private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
-        if (isDragging && selectedPoint != null) {
-            double mouseX = mouseEvent.getX();
-            double mouseY = mouseEvent.getY();
+private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
+    if (isDragging && selectedPoint != null) {
+        double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
+        double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
+        try {
             selectedPoint.setX(mouseX);
             selectedPoint.setY(mouseY);
-            redrawPoints();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
         }
+        redrawPoints();
     }
+}
+
 
     private void handleMouseReleased() {
         if (isDragging) {
@@ -114,10 +126,16 @@ public class Hello extends Application {
 
     private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
         if (isClickValid) {
-            double mouseX = mouseEvent.getX();
-            double mouseY = mouseEvent.getY();
-            Point point = new Point(mouseX, mouseY);
-
+            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
+            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
+            Point point;
+            try {
+                point = new Point(mouseX, mouseY);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+    
             if (isImageA) {
                 pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); // Add corresponding point in image B
                 nbPointsDeControle++;
@@ -126,6 +144,7 @@ public class Hello extends Application {
         }
         isClickValid = true;
     }
+    
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
         String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
@@ -304,6 +323,31 @@ public class Hello extends Application {
         // Boutons
         Button startButton = new Button("Start");
         Button saveSettingsButton = new Button("Save settings");
+        startButton.setOnAction(e -> {
+            //afficher la map de points de controle
+            System.out.println(pointsDeControle.toString());
+            int nbFrames;
+            try {
+                nbFrames = Integer.parseInt(framesTextField.getText());
+                if (nbFrames < 5 || nbFrames > 144) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                System.out.println("Le nombre de frames doit être compris entre 5 et 144.");
+                return;
+            }
+            
+            if (startImage != null) {
+                try {
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
+                    FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
+                    formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+
         HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton);
         buttonBox2.setAlignment(Pos.CENTER);
 
@@ -326,14 +370,16 @@ public class Hello extends Application {
         selectStartImageButton.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {
-                startImageView.setImage(new Image("file:" + file.getAbsolutePath(), 600, 600, true, true));
+                startImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                startImageView.setImage(startImage);
             }
         });
 
         selectEndImageButton.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {
-                endImageView.setImage(new Image("file:" + file.getAbsolutePath(), 600, 600, true, true));
+                endImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                endImageView.setImage(endImage);
             }
         });
     }

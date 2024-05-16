@@ -11,10 +11,6 @@ public class PointDeControle {
         this.pointsMap = new LinkedHashMap<>();
     }
 
-    public void supprimer(Point pointA) {
-        pointsMap.remove(pointA);
-    }
-
     public Map<Point, Point> getPointsMap() {
         return pointsMap;
     }
@@ -24,7 +20,19 @@ public class PointDeControle {
     }
 
     public void ajouter(Point key, Point value) {
-        this.pointsMap.put(key, value);
+        if (isValidPoint(key) && isValidPoint(value)) {
+            this.pointsMap.put(key, value);
+        } else {
+            throw new IllegalArgumentException("Les coordonnées des points doivent être comprises entre 0 et 600.");
+        }
+    }
+
+    public void supprimer(Point key) {
+        this.pointsMap.remove(key);
+    }
+
+    private boolean isValidPoint(Point p) {
+        return p.getX() >= 0 && p.getX() <= 600 && p.getY() >= 0 && p.getY() <= 600;
     }
 
     @Override
