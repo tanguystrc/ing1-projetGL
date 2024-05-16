@@ -1,4 +1,9 @@
 package src.projet;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map.Entry;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
@@ -14,8 +19,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -25,15 +30,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map.Entry;
-
 public class Hello extends Application {
 
     private static int asciiDuA = 65;
+
     private PointDeControle pointsDeControle;
     private int nbPointsDeControle;
     private Point selectedPoint = null;
@@ -41,9 +41,8 @@ public class Hello extends Application {
     private Canvas canvasB;
     private boolean isDragging = false;
     private boolean isClickValid = true;
-    private ImageView startImageView;
-    private ImageView endImageView;
-    private List<BufferedImage> generatedFrames;
+    private Image startImage;
+    private Image endImage;
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -58,31 +57,26 @@ public class Hello extends Application {
         button.setPrefSize(200, 50);
         return button;
     }
-    private void handleMouseReleased(MouseEvent mouseEvent) {
-        if (isDragging) {
-            isDragging = false;
-            selectedPoint = null;
-        }
-    }
-    
+
     private StackPane imgDansPane(ImageView i, boolean isImageA) {
         StackPane pane = new StackPane();
         pane.getChildren().add(i);
         pane.setStyle("-fx-border-color: #000000; -fx-border-width: 1px;");
 
+        // canvas des points :
         Canvas canvas = new Canvas(600, 600);
         if (isImageA) {
             canvasA = canvas;
         } else {
             canvasB = canvas;
         }
-
+        
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
-        canvas.setOnMouseReleased(this::handleMouseReleased);
+        canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased());
         canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
 
-        StackPane.setAlignment(canvas, Pos.TOP_LEFT);
+        StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien aligner le Canvas en haut à gauche (et superposer)
         pane.getChildren().add(canvas);
 
         return pane;
@@ -94,7 +88,7 @@ public class Hello extends Application {
 
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point point = isImageA ? entry.getKey() : entry.getValue();
-            if (point.distance(new Point(mouseX, mouseY)) < 10) {
+            if (point.distance(new Point(mouseX, mouseY)) < 10) { // assuming a tolerance of 10 pixels for selection
                 selectedPoint = point;
                 isDragging = true;
                 isClickValid = false;
@@ -103,32 +97,50 @@ public class Hello extends Application {
         }
     }
 
-    private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
-        if (isDragging && selectedPoint != null) {
-            double mouseX = mouseEvent.getX();
-            double mouseY = mouseEvent.getY();
+private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
+    if (isDragging && selectedPoint != null) {
+        double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
+        double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
+        try {
             selectedPoint.setX(mouseX);
             selectedPoint.setY(mouseY);
-            redrawPoints();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        redrawPoints();
+    }
+}
+
+
+    private void handleMouseReleased() {
+        if (isDragging) {
+            isDragging = false;
+            selectedPoint = null;
         }
     }
 
-
-
     private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
         if (isClickValid) {
-            double mouseX = mouseEvent.getX();
-            double mouseY = mouseEvent.getY();
-            Point point = new Point(mouseX, mouseY);
-
+            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
+            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
+            Point point;
+            try {
+                point = new Point(mouseX, mouseY);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+    
             if (isImageA) {
-                pointsDeControle.ajouter(point, new Point(mouseX, mouseY));
+                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); // Add corresponding point in image B
                 nbPointsDeControle++;
                 redrawPoints();
             }
         }
         isClickValid = true;
     }
+    
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
         String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
@@ -222,7 +234,7 @@ public class Hello extends Application {
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsMap().size()) {
                 Point point = getPointFromIndex(selectedIndex, isImageA);
                 Point newPoint = new Point(point.getX(), point.getY());
-                pointsDeControle.ajouter(newPoint, new Point(point.getX(), point.getY()));
+                pointsDeControle.ajouter(newPoint, new Point(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
                 nbPointsDeControle++;
                 redrawPoints();
                 dialog.close();
@@ -254,6 +266,7 @@ public class Hello extends Application {
         this.pointsDeControle = new PointDeControle();
         this.nbPointsDeControle = 0;
 
+        // Texte d'instruction :
         Text texteInstruction = new Text();
         texteInstruction.setFont(new Font(14));
         texteInstruction.setWrappingWidth(1000);
@@ -262,32 +275,39 @@ public class Hello extends Application {
                 + "Cliquez sur la 1ère image pour ajouter un nouveau point de controle là où vous le souhaitez, puis sur la seconde pour son second emplacement."
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF.");
 
-        startImageView = createImageView();
-        endImageView = createImageView();
+        // Configuration des zones des images A et B :
+        ImageView startImageView = createImageView();
+        ImageView endImageView = createImageView();
 
         StackPane paneA = imgDansPane(startImageView, true);
         StackPane paneB = imgDansPane(endImageView, false);
 
+        // Conteneur d'images
         HBox imageBox = new HBox(20, paneA, paneB);
         imageBox.setAlignment(Pos.CENTER);
 
+        // Boutons de chargement/changement d'image
         Button selectStartImageButton = createImageButton("Select Image A");
         Button selectEndImageButton = createImageButton("Select Image B");
         HBox buttonBox1 = new HBox(10, selectStartImageButton, selectEndImageButton);
         buttonBox1.setAlignment(Pos.CENTER);
 
+        // Bouton pour réinitialiser les points
         Button resetButton = new Button("Réinitialiser");
         resetButton.setOnAction(e -> resetPoints());
 
+        // Bouton pour supprimer une paire de points
         Button deleteButton = new Button("Supprimer");
         deleteButton.setOnAction(e -> showDeletePointDialog());
 
+        // Bouton pour superposer un point
         Button superposePointButton = new Button("Superposer un point");
         superposePointButton.setOnAction(e -> {
             boolean isImageA = (nbPointsDeControle % 2 == 0);
             showSuperposePointDialog(isImageA);
         });
 
+        // Champ de texte pour le nombre de frames
         TextField framesTextField = new TextField();
         framesTextField.setPromptText("Frames (5-144)");
         framesTextField.setMaxWidth(120);
@@ -296,21 +316,38 @@ public class Hello extends Application {
         VBox textFieldBox = new VBox(5, framesLabel, framesTextField);
         textFieldBox.setAlignment(Pos.CENTER);
 
+        // Boutons
         Button startButton = new Button("Start");
+        Button saveSettingsButton = new Button("Save settings");
         startButton.setOnAction(e -> {
+            //afficher la map de points de controle
+            System.out.println(pointsDeControle.toString());
+            int nbFrames;
             try {
-                startMorphing(Integer.parseInt(framesTextField.getText()));
+                nbFrames = Integer.parseInt(framesTextField.getText());
+                if (nbFrames < 5 || nbFrames > 144) {
+                    throw new NumberFormatException();
+                }
             } catch (NumberFormatException ex) {
-                System.out.println("Nombre de frames invalide.");
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                System.out.println("Le nombre de frames doit être compris entre 5 et 144.");
+                return;
+            }
+            
+            if (startImage != null) {
+                try {
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
+                    FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
+                    formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         });
 
-        Button saveSettingsButton = new Button("Save settings");
         HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton);
         buttonBox2.setAlignment(Pos.CENTER);
 
+        // Configuration du BorderPane
         VBox vBox = new VBox();
         vBox.getChildren().addAll(texteInstruction, imageBox, buttonBox1, textFieldBox, buttonBox2);
         vBox.setPadding(new Insets(20));
@@ -318,57 +355,32 @@ public class Hello extends Application {
         vBox.setAlignment(Pos.CENTER);
         vBox.setStyle("-fx-background-color: #eeeeee;");
 
+        // Scène et affichage
         Scene scene = new Scene(vBox, 1450, 950);
         primaryStage.setTitle("PROJET GL");
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        // Ajout des gestionnaires d'événements pour les boutons de chargement/changement d'images
         FileChooser fileChooser = new FileChooser();
         selectStartImageButton.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {
-                startImageView.setImage(new Image("file:" + file.getAbsolutePath(), 600, 600, true, true));
+                startImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                startImageView.setImage(startImage);
             }
         });
 
         selectEndImageButton.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {
-                endImageView.setImage(new Image("file:" + file.getAbsolutePath(), 600, 600, true, true));
+                endImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                endImageView.setImage(endImage);
             }
         });
     }
 
-    private void startMorphing(int nbFrame) throws IOException {
-        if (startImageView.getImage() != null && endImageView.getImage() != null) {
-            BufferedImage image1 = SwingFXUtils.fromFXImage(startImageView.getImage(), null);
-            BufferedImage image2 = SwingFXUtils.fromFXImage(endImageView.getImage(), null);
-
-            java.awt.Color[][] matrix1 = FormeLineaire.genererMatrice(image1);
-            java.awt.Color[][] matrix2 = FormeLineaire.genererMatrice(image2);
-
-            FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrame, matrix1, matrix2);
-            generatedFrames = formeLineaire.morphismeSimple(image1, pointsDeControle, nbFrame);
-            displayFrame(0);  // Affiche la première frame
-        } else {
-            System.out.println("Les deux images doivent être sélectionnées.");
-        }
-    }
-
-    private void displayFrame(int index) {
-        if (generatedFrames != null && index < generatedFrames.size()) {
-            BufferedImage frame = generatedFrames.get(index);
-            Image fxImage = SwingFXUtils.toFXImage(frame, null);
-            Stage stage = new Stage();
-            ImageView imageView = new ImageView(fxImage);
-            StackPane pane = new StackPane(imageView);
-            Scene scene = new Scene(pane, 600, 600);
-            stage.setScene(scene);
-            stage.setTitle("Frame " + index);
-            stage.show();
-        }
-    }
-
+    // main method
     public static void main(String[] args) {
         launch(args);
     }
