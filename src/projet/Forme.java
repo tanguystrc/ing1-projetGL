@@ -114,10 +114,13 @@ public abstract class Forme {
                 p.setX(x);
                 p.setY(y);
                 if (estDomaine(pts, p)) {
-                    return matrix[x][y];
+                    //afficher la couleur trouvée
+                    System.out.println("Couleur trouvée : " + matrix[y][x]);
+                    return matrix[y][x];
                 }
             }
         }
+        
         return null;
     }
 
@@ -138,7 +141,7 @@ public abstract class Forme {
                 p.setX(x);
                 p.setY(y);
                 if (!estDomaine(pts, p)) {
-                    return matrix[x][y];
+                    return matrix[y][x];
                 }
             }
         }

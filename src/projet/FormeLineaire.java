@@ -3,13 +3,14 @@ package src.projet;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.util.List;
-import java.awt.Color;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.awt.Color;
 
 public class FormeLineaire extends Forme {
     private Color[][] matrix1;
@@ -37,7 +38,10 @@ public class FormeLineaire extends Forme {
     }
 
     public static Point calculerVecteur(Point p1, Point p2) {
-        return new Point(p1.getX() - p2.getX(), p1.getY() - p2.getY());
+        double deltaX = p2.getX() - p1.getX();
+        double deltaY = p2.getY() - p1.getY();
+        System.out.println("Vector coordinates: (" + deltaX + ", " + deltaY + ")");
+        return new Point(deltaX, deltaY);
     }
 
     public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
@@ -54,6 +58,16 @@ public class FormeLineaire extends Forme {
     }
 
     public void morphismeSimple(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
+        // Créer le dossier temporaire ou le nettoyer s'il existe déjà
+        File tempDir = new File("temp");
+        if (tempDir.exists()) {
+            for (File file : tempDir.listFiles()) {
+                file.delete();
+            }
+        } else {
+            tempDir.mkdir();
+        }
+
         Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
         List<Point> pointsKeys = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
@@ -61,16 +75,27 @@ public class FormeLineaire extends Forme {
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
 
+        int hauteur = matrix.length;
+        int largeur = matrix[0].length;
+
         for (int i = 0; i < nbFrame; i++) {
             List<Point> listPoint = new ArrayList<>(); 
             for (int j = 0; j < pointsKeys.size(); j++) {
                 Point p = pointsKeys.get(j);
                 Point indice = listIndice.get(j);
-                Point p1 = new Point(p.getX() + indice.getX(), p.getY() + indice.getY()); 
+                double x = Math.max(0, Math.min(largeur - 1, p.getX() + indice.getX() * i));
+                double y = Math.max(0, Math.min(hauteur - 1, p.getY() + indice.getY() * i));
+                System.out.println("Calculated point coordinates: (" + x + ", " + y + ")");
+                Point p1 = new Point(x, y); 
                 listPoint.add(p1);
             }
-            BufferedImage frameImage = morphismeSimpleRemplissage(matrix, listPoint); 
+            BufferedImage frameImage = morphismeSimpleRemplissage(matrix, listPoint);
+            System.out.println("Frame " + i + " generated with dimensions: " + frameImage.getWidth() + "x" + frameImage.getHeight());
             gifWriter.writeToSequence(frameImage);
+
+            // Enregistrer l'image intermédiaire dans le dossier temporaire
+            File outputFile = new File(tempDir, "frame_" + i + ".png");
+            ImageIO.write(frameImage, "png", outputFile);
         }
 
         gifWriter.close();
@@ -85,9 +110,9 @@ public class FormeLineaire extends Forme {
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 if (estDomaine(points, new Point(x, y))) {
-                    matrix[x][y] = couleur;
+                    matrix[y][x] = couleur;
                 } else {
-                    matrix[x][y] = autreCouleur;
+                    matrix[y][x] = autreCouleur;
                 }
             }
         }
