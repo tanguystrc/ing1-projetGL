@@ -1,0 +1,91 @@
+/* Définir les couleurs principales */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #ecf0f1;
+    --text-color: #2c3e50;
+    --border-color: #bdc3c7;
+}
+
+/* Style global pour l'application */
+.root {
+    -fx-font-family: 'Arial', sans-serif;
+    -fx-background-color: var(--background-color);
+}
+
+/* Style pour les boutons */
+.button {
+    -fx-background-color: var(--primary-color);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-border-color: var(--border-color);
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: var(--secondary-color);
+}
+
+.button:pressed {
+    -fx-background-color: #2980b9; /* une couleur légèrement plus foncée pour le bouton pressé */
+}
+
+/* Style pour les champs de texte */
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: var(--border-color);
+    -fx-border-width: 1px;
+    -fx-padding: 5px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.text-field:focused {
+    -fx-border-color: var(--primary-color);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+}
+
+/* Style pour les labels */
+.label {
+    -fx-text-fill: var(--text-color);
+    -fx-font-size: 14px;
+}
+
+/* Style pour les listes */
+.list-view {
+    -fx-background-color: white;
+    -fx-border-color: var(--border-color);
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.list-cell {
+    -fx-padding: 10px;
+}
+
+.list-cell:filled:selected, .list-cell:filled:selected:focused {
+    -fx-background-color: var(--primary-color);
+    -fx-text-fill: white;
+}
+
+/* Style pour les textes */
+.text {
+    -fx-fill: var(--text-color);
+    -fx-font-size: 14px;
+    -fx-padding: 5px;
+}
+
+/* Style pour les boîtes de conteneur */
+.hbox {
+    -fx-spacing: 10px;
+}
+
+.vbox {
+    -fx-spacing: 10px;
+}

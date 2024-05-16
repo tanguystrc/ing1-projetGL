@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map.Entry;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -31,7 +32,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Hello extends Application {
-
+    
     private static int asciiDuA = 65;
 
     private PointDeControle pointsDeControle;
@@ -41,7 +42,7 @@ public class Hello extends Application {
     private Canvas canvasB;
     private boolean isDragging = false;
     private boolean isClickValid = true;
-    private boolean isPipetteMode = false; // Mode pipette
+    private boolean isPipetteMode = false;
     private Color selectedColor;
     private Image startImage;
     private Image endImage;
@@ -355,8 +356,15 @@ public class Hello extends Application {
                 try {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
-                    formeLineaire.setSelectedColor(selectedColor); // Passer la couleur sélectionnée
+                    formeLineaire.setSelectedColor(selectedColor); // Appliquer la couleur sélectionnée
                     formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
+                    Platform.runLater(() -> {
+                        try {
+                            GIFViewer.display("GIF Viewer", "animation.gif");
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -376,8 +384,13 @@ public class Hello extends Application {
 
         // Scène et affichage
         Scene scene = new Scene(vBox, 1450, 950);
+        
         primaryStage.setTitle("PROJET GL");
         primaryStage.setScene(scene);
+        scene.getStylesheets().add(Hello.class.getResource("styles.css").toExternalForm());0
+        
+        // Lien vers le fichier CSS
+        
         primaryStage.show();
 
         // Ajout des gestionnaires d'événements pour les boutons de chargement/changement d'images

@@ -75,13 +75,18 @@ public abstract class Forme {
         int compteur = 0;
         int nbPts = listePoint.size();
         Point dernierPoint = listePoint.get(nbPts - 1);
-
+    
         for (Point pointActuel : listePoint) {
-            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
+            // Vérifie si p est exactement sur un segment horizontal ou vertical
+            if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY() && 
+                ((pointActuel.getX() <= p.getX() && p.getX() <= dernierPoint.getX()) || (dernierPoint.getX() <= p.getX() && p.getX() <= pointActuel.getX()))) {
+                return true; // Le point est sur un segment horizontal
+            }
+    
+            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || 
+                (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
                 if (pointActuel.getY() == dernierPoint.getY()) {
-                    if (pointActuel.getX() > p.getX() || dernierPoint.getX() > p.getX()) {
-                        compteur++;
-                    }
+                    // Cas de segment horizontal déjà traité plus haut
                 } else {
                     double denom = (pointActuel.getY() - dernierPoint.getY());
                     if (denom != 0) {
@@ -90,6 +95,16 @@ public abstract class Forme {
                             compteur++;
                         }
                     }
+                }
+            } else if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY()) {
+                // Ignorer les segments horizontaux
+            } else if (pointActuel.getY() == p.getY() || dernierPoint.getY() == p.getY()) {
+                if (p.getX() < Math.min(pointActuel.getX(), dernierPoint.getX()) || p.getX() > Math.max(pointActuel.getX(), dernierPoint.getX())) {
+                    continue; // Point p est en dehors du segment horizontal
+                }
+                // Compteur pour segments verticaux
+                if (pointActuel.getX() == p.getX() && dernierPoint.getX() == p.getX()) {
+                    return true; // Le point est sur un segment vertical
                 }
             }
             dernierPoint = pointActuel;
