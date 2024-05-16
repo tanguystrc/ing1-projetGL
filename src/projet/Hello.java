@@ -41,6 +41,8 @@ public class Hello extends Application {
     private Canvas canvasB;
     private boolean isDragging = false;
     private boolean isClickValid = true;
+    private boolean isPipetteMode = false; // Mode pipette
+    private Color selectedColor;
     private Image startImage;
     private Image endImage;
 
@@ -70,7 +72,7 @@ public class Hello extends Application {
         } else {
             canvasB = canvas;
         }
-        
+
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
         canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased());
@@ -97,21 +99,20 @@ public class Hello extends Application {
         }
     }
 
-private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
-    if (isDragging && selectedPoint != null) {
-        double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
-        double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
-        try {
-            selectedPoint.setX(mouseX);
-            selectedPoint.setY(mouseY);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            return;
+    private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
+        if (isDragging && selectedPoint != null) {
+            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
+            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
+            try {
+                selectedPoint.setX(mouseX);
+                selectedPoint.setY(mouseY);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+            redrawPoints();
         }
-        redrawPoints();
     }
-}
-
 
     private void handleMouseReleased() {
         if (isDragging) {
@@ -121,7 +122,10 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
     }
 
     private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
-        if (isClickValid) {
+        if (isPipetteMode) {
+            pickColor(mouseEvent, isImageA);
+            isPipetteMode = false; // Désactiver le mode pipette après utilisation
+        } else if (isClickValid) {
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); // Limiting the x-coordinate
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); // Limiting the y-coordinate
             Point point;
@@ -131,7 +135,7 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
                 System.out.println(e.getMessage());
                 return;
             }
-    
+
             if (isImageA) {
                 pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); // Add corresponding point in image B
                 nbPointsDeControle++;
@@ -140,7 +144,18 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         }
         isClickValid = true;
     }
-    
+
+    private void pickColor(MouseEvent mouseEvent, boolean isImageA) {
+        Image image = isImageA ? startImage : endImage;
+        if (image != null) {
+            int x = (int) mouseEvent.getX();
+            int y = (int) mouseEvent.getY();
+            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+            java.awt.Color color = new java.awt.Color(bufferedImage.getRGB(x, y));
+            selectedColor = Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
+            System.out.println("Selected Color: " + selectedColor);
+        }
+    }
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
         String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
@@ -307,6 +322,10 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
             showSuperposePointDialog(isImageA);
         });
 
+        // Bouton pipette
+        Button pipetteButton = new Button("Pipette");
+        pipetteButton.setOnAction(e -> isPipetteMode = true);
+
         // Champ de texte pour le nombre de frames
         TextField framesTextField = new TextField();
         framesTextField.setPromptText("Frames (5-144)");
@@ -320,7 +339,6 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         Button startButton = new Button("Start");
         Button saveSettingsButton = new Button("Save settings");
         startButton.setOnAction(e -> {
-            //afficher la map de points de controle
             System.out.println(pointsDeControle.toString());
             int nbFrames;
             try {
@@ -332,11 +350,12 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
                 System.out.println("Le nombre de frames doit être compris entre 5 et 144.");
                 return;
             }
-            
+
             if (startImage != null) {
                 try {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
+                    formeLineaire.setSelectedColor(selectedColor); // Passer la couleur sélectionnée
                     formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -344,7 +363,7 @@ private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
             }
         });
 
-        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton);
+        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton, pipetteButton);
         buttonBox2.setAlignment(Pos.CENTER);
 
         // Configuration du BorderPane
