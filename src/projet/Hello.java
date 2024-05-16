@@ -32,7 +32,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Hello extends Application {
-    
+
     private static int asciiDuA = 65;
 
     private PointDeControle pointsDeControle;
@@ -76,7 +76,7 @@ public class Hello extends Application {
 
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
-        canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased());
+        canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased(isImageA));
         canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
 
         StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien aligner le Canvas en haut à gauche (et superposer)
@@ -107,6 +107,7 @@ public class Hello extends Application {
             try {
                 selectedPoint.setX(mouseX);
                 selectedPoint.setY(mouseY);
+                checkForProximityAndMerge(mouseX, mouseY, isImageA);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 return;
@@ -115,10 +116,22 @@ public class Hello extends Application {
         }
     }
 
-    private void handleMouseReleased() {
+    private void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point point = isImageA ? entry.getKey() : entry.getValue();
+            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { // Merge points within 10 pixels
+                selectedPoint.setX(point.getX());
+                selectedPoint.setY(point.getY());
+                return;
+            }
+        }
+    }
+
+    private void handleMouseReleased(boolean isImageA) {
         if (isDragging) {
             isDragging = false;
             selectedPoint = null;
+            redrawPoints();
         }
     }
 
@@ -192,6 +205,7 @@ public class Hello extends Application {
 
         ListView<String> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        listView.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 
         int index = 0;
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
@@ -205,6 +219,7 @@ public class Hello extends Application {
         }
 
         Button deleteButton = new Button("Supprimer");
+        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
         deleteButton.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsMap().size()) {
@@ -217,47 +232,6 @@ public class Hello extends Application {
         });
 
         VBox dialogVBox = new VBox(20, listView, deleteButton);
-        dialogVBox.setPadding(new Insets(20));
-        dialogVBox.setAlignment(Pos.CENTER);
-
-        Scene dialogScene = new Scene(dialogVBox, 300, 400);
-        dialog.setScene(dialogScene);
-        dialog.show();
-    }
-
-    private void showSuperposePointDialog(boolean isImageA) {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Superposer un point");
-
-        ListView<String> listView = new ListView<>();
-        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        int index = 0;
-        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
-            Point key = entry.getKey();
-            if ((isImageA && index % 2 == 0) || (!isImageA && index % 2 != 0)) {
-                String pointInfo = String.format("Point %c%d: (%.1f, %.1f) - %s",
-                        (index < 26) ? (char) (asciiDuA + index) : Integer.toString(index - 26),
-                        index + 1, key.getX(), key.getY(), (index % 2 == 0) ? "Image A" : "Image B");
-                listView.getItems().add(pointInfo);
-            }
-            index++;
-        }
-
-        Button superposeButton = new Button("Superposer");
-        superposeButton.setOnAction(e -> {
-            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-            if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsMap().size()) {
-                Point point = getPointFromIndex(selectedIndex, isImageA);
-                Point newPoint = new Point(point.getX(), point.getY());
-                pointsDeControle.ajouter(newPoint, new Point(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
-                nbPointsDeControle++;
-                redrawPoints();
-                dialog.close();
-            }
-        });
-
-        VBox dialogVBox = new VBox(20, listView, superposeButton);
         dialogVBox.setPadding(new Insets(20));
         dialogVBox.setAlignment(Pos.CENTER);
 
@@ -290,6 +264,7 @@ public class Hello extends Application {
         texteInstruction.setText("Vos images doivent être de même dimension.\n"
                 + "Cliquez sur la 1ère image pour ajouter un nouveau point de controle là où vous le souhaitez, puis sur la seconde pour son second emplacement."
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF.");
+        texteInstruction.setStyle("-fx-fill: #2c3e50; -fx-font-size: 14px; -fx-padding: 5px;");
 
         // Configuration des zones des images A et B :
         ImageView startImageView = createImageView();
@@ -301,44 +276,47 @@ public class Hello extends Application {
         // Conteneur d'images
         HBox imageBox = new HBox(20, paneA, paneB);
         imageBox.setAlignment(Pos.CENTER);
+        imageBox.setStyle("-fx-spacing: 10px;");
 
         // Boutons de chargement/changement d'image
         Button selectStartImageButton = createImageButton("Select Image A");
         Button selectEndImageButton = createImageButton("Select Image B");
         HBox buttonBox1 = new HBox(10, selectStartImageButton, selectEndImageButton);
         buttonBox1.setAlignment(Pos.CENTER);
+        buttonBox1.setStyle("-fx-spacing: 10px;");
 
         // Bouton pour réinitialiser les points
         Button resetButton = new Button("Réinitialiser");
+        resetButton.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
         resetButton.setOnAction(e -> resetPoints());
 
         // Bouton pour supprimer une paire de points
         Button deleteButton = new Button("Supprimer");
+        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
         deleteButton.setOnAction(e -> showDeletePointDialog());
-
-        // Bouton pour superposer un point
-        Button superposePointButton = new Button("Superposer un point");
-        superposePointButton.setOnAction(e -> {
-            boolean isImageA = (nbPointsDeControle % 2 == 0);
-            showSuperposePointDialog(isImageA);
-        });
 
         // Bouton pipette
         Button pipetteButton = new Button("Pipette");
+        pipetteButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
         pipetteButton.setOnAction(e -> isPipetteMode = true);
 
         // Champ de texte pour le nombre de frames
         TextField framesTextField = new TextField();
         framesTextField.setPromptText("Frames (5-144)");
         framesTextField.setMaxWidth(120);
+        framesTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 
         Label framesLabel = new Label("Nombre de frames");
+        framesLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
         VBox textFieldBox = new VBox(5, framesLabel, framesTextField);
         textFieldBox.setAlignment(Pos.CENTER);
 
         // Boutons
         Button startButton = new Button("Start");
-        Button saveSettingsButton = new Button("Save settings");
+        startButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+
+
+
         startButton.setOnAction(e -> {
             System.out.println(pointsDeControle.toString());
             int nbFrames;
@@ -371,8 +349,9 @@ public class Hello extends Application {
             }
         });
 
-        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton, pipetteButton);
+        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, pipetteButton);
         buttonBox2.setAlignment(Pos.CENTER);
+        buttonBox2.setStyle("-fx-spacing: 10px;");
 
         // Configuration du BorderPane
         VBox vBox = new VBox();
@@ -380,17 +359,12 @@ public class Hello extends Application {
         vBox.setPadding(new Insets(20));
         vBox.setSpacing(15);
         vBox.setAlignment(Pos.CENTER);
-        vBox.setStyle("-fx-background-color: #eeeeee;");
+        vBox.setStyle("-fx-background-color: #ecf0f1;");
 
         // Scène et affichage
         Scene scene = new Scene(vBox, 1450, 950);
-        
         primaryStage.setTitle("PROJET GL");
         primaryStage.setScene(scene);
-        scene.getStylesheets().add(Hello.class.getResource("styles.css").toExternalForm());0
-        
-        // Lien vers le fichier CSS
-        
         primaryStage.show();
 
         // Ajout des gestionnaires d'événements pour les boutons de chargement/changement d'images
