@@ -2,6 +2,7 @@ package src.projet;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 public class PointDeControle {
@@ -9,6 +10,17 @@ public class PointDeControle {
 
     public PointDeControle() {
         this.pointsMap = new LinkedHashMap<>();
+    }
+
+    /**
+     * Constructeur qui a ses valeurs en copie profonde
+     * @param p
+     */
+    public PointDeControle(PointDeControle p) {
+        this.pointsMap = new LinkedHashMap<>();
+        for (Entry<Point, Point> entry : p.getPointsMap().entrySet()) {        
+        	ajouter( new Point(entry.getKey().getX(),entry.getKey().getY()), new Point(entry.getValue().getX(),entry.getValue().getY()));
+        }
     }
 
     public void supprimer(Point pointA) {

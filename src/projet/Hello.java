@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
@@ -45,6 +46,8 @@ public class Hello extends Application {
 
     private PointDeControle pointsDeControle;
     private int nbPointsDeControle;
+    private int nbPointsDeControleAutreGroupe;
+    private List<PointDeControle> pointsDeControleLies;
     
     private Canvas canvasA;
     private Canvas canvasB;
@@ -57,7 +60,6 @@ public class Hello extends Application {
     private BufferedImage buffImageB;
     
     private Point selectedPoint = null;
-    private int selectedPointIndex = -1;
     private boolean isDragging = false;
     private boolean isClickValid = true;
     
@@ -91,7 +93,6 @@ public class Hello extends Application {
         } else {
             canvasB = canvas;
         }
-        GraphicsContext gc = canvas.getGraphicsContext2D();
 
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
@@ -118,7 +119,9 @@ public class Hello extends Application {
             }
         }
     }
-
+    
+    // TODO : faire qu'on puisse pas drag le point trop trop près du bord 
+    // (car error throw sinon + le point est difficile à recup + idk si ça risque de faire bug le traitement)
     private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         if (isDragging && selectedPoint != null) {
             double mouseX = mouseEvent.getX();
@@ -135,7 +138,12 @@ public class Hello extends Application {
             selectedPoint = null;
         }
     }
-
+    
+    /**
+     * Ajouter un point (simple clic)
+     * @param mouseEvent
+     * @param isImageA
+     */
     private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
         if (isClickValid) {
             double mouseX = mouseEvent.getX();
@@ -143,37 +151,65 @@ public class Hello extends Application {
             Point point = new Point(mouseX, mouseY);
 
             if (isImageA) {
-                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); // Add corresponding point in image B
+                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); // Add corresponding point in image B                
                 nbPointsDeControle++;
+                
+                System.out.println("--click--");
+                System.out.println("Groupe actu : "+pointsDeControle);
+                System.out.println("nb : "+nbPointsDeControle);
+                System.out.println("tous les groupes : "+ pointsDeControleLies);
                 redrawPoints();
             }
         }
         isClickValid = true;
     }
 
-    private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
-        String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
+    private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index, int numGroupe) {
+        // lettre de l'alphabet au début, chiffres après
+    	String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
 
         gc.setStroke(isImageA ? Color.RED : Color.BLUE);
-        gc.strokeText("." + pointLabel, mouseX, mouseY);
+        gc.strokeText("." + pointLabel, mouseX, mouseY);  
+        
+        //On a un point précédant du même groupe, on le lie avec le nouveau :
+        if(index > 0 && !(index == nbPointsDeControleAutreGroupe)) {      	
+        	System.out.println("Ligne avec : "+"groupe : " + numGroupe+ " | "+mouseX+" "+mouseY);        	
+        	gc.setStroke(isImageA ? Color.BLUE : Color.RED);        	
+        	gc.strokeLine(getPointFromIndex(index-1, isImageA,numGroupe).getX(),getPointFromIndex(index-1, isImageA,numGroupe).getY(),mouseX,mouseY);
+        }   
+        
     }
 
     private void redrawPoints() {
         canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
-        int index = 0;
-        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
-            Point key = entry.getKey();
-            Point value = entry.getValue();
-            draw(canvasA.getGraphicsContext2D(), key.getX(), key.getY(), true, index);
-            draw(canvasB.getGraphicsContext2D(), value.getX(), value.getY(), false, index);
-            index++;
-        }
+        int index;        
+        int numGroupe = 0;
+        
+        for (PointDeControle groupe : pointsDeControleLies){
+        	nbPointsDeControleAutreGroupe = 0;
+        	for(int j = 0 ; j < numGroupe ; j++) {
+        		nbPointsDeControleAutreGroupe += pointsDeControleLies.get(j).getPointsMap().size();
+        	}
+        	index = 0 + nbPointsDeControleAutreGroupe;
+        	
+        	for (Entry<Point, Point> entry : groupe.getPointsMap().entrySet()) {
+                Point key = entry.getKey();
+                Point value = entry.getValue();
+                System.out.println("redraw : index : "+index+" | groupe :"+numGroupe+" | nb elem autre groupe :"+nbPointsDeControleAutreGroupe+" | " + key);
+                draw(canvasA.getGraphicsContext2D(), key.getX(), key.getY(), true, index,numGroupe );
+                draw(canvasB.getGraphicsContext2D(), value.getX(), value.getY(), false, index,numGroupe );
+                index++;                
+            }   
+        	numGroupe++;       	
+        }        
     }
 
     private void resetPoints() {
         pointsDeControle.getPointsMap().clear();
+        pointsDeControleLies.clear();
+        pointsDeControleLies.add(pointsDeControle);
         nbPointsDeControle = 0;
         redrawPoints();
     }
@@ -201,7 +237,7 @@ public class Hello extends Application {
         deleteButton.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsMap().size()) {
-                Point point = getPointFromIndex(selectedIndex, true);
+                Point point = getPointFromIndex(selectedIndex, true, pointsDeControleLies.size()-1);
                 pointsDeControle.supprimer(point);
                 nbPointsDeControle--;
                 redrawPoints();
@@ -241,7 +277,7 @@ public class Hello extends Application {
         superposeButton.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsMap().size()) {
-                Point point = getPointFromIndex(selectedIndex, isImageA);
+                Point point = getPointFromIndex(selectedIndex, isImageA, pointsDeControleLies.size()-1);
                 Point newPoint = new Point(point.getX(), point.getY());
                 pointsDeControle.ajouter(newPoint, new Point(point.getX(), point.getY())); // Ajouter un nouveau point superposé à la même position
                 nbPointsDeControle++;
@@ -259,17 +295,18 @@ public class Hello extends Application {
         dialog.show();
     }
 
-    private Point getPointFromIndex(int index, boolean isImageA) {
+    private Point getPointFromIndex(int index, boolean isImageA, int numGroupe) {
         int i = 0;
-        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
-            if (i == index) {
+        System.out.println("GETPOINT : index :"+index+" | numGroupe :"+numGroupe);
+        for (Entry<Point, Point> entry : pointsDeControleLies.get(numGroupe).getPointsMap().entrySet()) {
+            if (i == index-nbPointsDeControleAutreGroupe) {
                 return isImageA ? entry.getKey() : entry.getValue();
             }
             i++;
         }
+        
         return null;
     }
-
     
     private void searchAllImgColors() {
     	couleursDeImg.clear();
@@ -308,7 +345,13 @@ public class Hello extends Application {
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
         this.nbPointsDeControle = 0;
+        this.nbPointsDeControleAutreGroupe = 0;
         this.couleursDeImg = new ArrayList<>();
+        
+        this.pointsDeControleLies = new LinkedList<>();    
+        // il aura tjrs pointsDeControle, qui est la dernière liste
+        pointsDeControleLies.add(pointsDeControle);
+        
 
         // Texte d'instruction :
         Text texteInstruction = new Text();
@@ -345,10 +388,29 @@ public class Hello extends Application {
         deleteButton.setOnAction(e -> showDeletePointDialog());
 
         // Bouton pour superposer un point
+        /* TODO : idk si le nbPointsDeControle est vraiment utile car actuellement c'est le seul endroit où
+         * il est utilisé alors qu'il se retrouve très facilement sans à avoir des "nbPointsDeControle++/--" partout
+         * */
         Button superposePointButton = new Button("Superposer un point");
         superposePointButton.setOnAction(e -> {
             boolean isImageA = (nbPointsDeControle % 2 == 0);
             showSuperposePointDialog(isImageA);
+        });
+        
+        // Bouton pour creer un nouveau groupe de points :
+        Button nvGroupePointsButton = new Button("Nouveau Groupe de point");
+        nvGroupePointsButton.setOnAction(e -> {
+        	if (!pointsDeControle.getPointsMap().isEmpty()) {
+        		System.out.println("NOUVEAU GROUPE !");      
+        		// Copie profonde du groupe actuel terminé :
+        		pointsDeControleLies.remove(pointsDeControle);
+                pointsDeControleLies.add(new PointDeControle(pointsDeControle));
+                // Nouveau groupe :
+                pointsDeControle.getPointsMap().clear();
+                pointsDeControleLies.add(pointsDeControle);
+                
+                
+            }
         });
         
         // Bouton pour choisir la couleur principale de la forme :
@@ -376,7 +438,7 @@ public class Hello extends Application {
         // Boutons
         Button startButton = new Button("Start");
         Button saveSettingsButton = new Button("Save settings");
-        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton);
+        HBox buttonBox2 = new HBox(10, startButton, saveSettingsButton, resetButton, deleteButton, superposePointButton,nvGroupePointsButton);
         buttonBox2.setAlignment(Pos.CENTER);
 
         // Configuration du BorderPane
@@ -392,8 +454,9 @@ public class Hello extends Application {
         primaryStage.setTitle("PROJET GL");
         primaryStage.setScene(scene);
         primaryStage.show();
-
-     // Ajout des gestionnaires d'événements pour les boutons de chargement/changement d'images
+        
+             
+        // Ajout des gestionnaires d'événements pour les boutons de chargement/changement d'images
         FileChooser fileChooser = new FileChooser();
         selectStartImageButton.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(primaryStage);
@@ -428,5 +491,12 @@ public class Hello extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+    
+    private String toRgbCode(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
     }
 }
