@@ -27,7 +27,7 @@ public abstract class Forme {
      * @param image l'image source.
      * @return une matrice 2D de couleurs représentant les pixels de l'image.
      */
-    public Color[][] genererMatrice(BufferedImage image) {
+    public static Color[][] genererMatrice(BufferedImage image) {
         int largeur = image.getWidth();
         int hauteur = image.getHeight();
         Color[][] colorMatrix = new Color[hauteur][largeur];
@@ -109,8 +109,8 @@ public abstract class Forme {
         int largeur = matrix[0].length;
         Point p = new Point();
 
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < largeur; x++) {
+        for (int x = 0; x < hauteur; x++) {
+            for (int y = 0; y < largeur; y++) {
                 p.setX(x);
                 p.setY(y);
                 if (estDomaine(pts, p)) {
@@ -133,8 +133,8 @@ public abstract class Forme {
         int largeur = matrix[0].length;
         Point p = new Point();
 
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < largeur; x++) {
+        for (int x = 0; x < hauteur; x++) {
+            for (int y = 0; y < largeur; y++) {
                 p.setX(x);
                 p.setY(y);
                 if (!estDomaine(pts, p)) {
