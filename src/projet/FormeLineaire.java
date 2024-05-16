@@ -79,7 +79,6 @@ public class FormeLineaire extends Forme {
                 Point indice = listIndice.get(j);
                 double x = Math.max(0, Math.min(largeur - 1, p.getX() + indice.getX() * i));
                 double y = Math.max(0, Math.min(hauteur - 1, p.getY() + indice.getY() * i));
-                System.out.println("Frame " + i + ", Point " + j + " coordinates: (" + x + ", " + y + ")");
                 Point p1 = new Point(x, y); 
                 listPoint.add(p1);
             }
