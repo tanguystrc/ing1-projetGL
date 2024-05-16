@@ -4,9 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map.Entry;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
@@ -73,7 +70,6 @@ public class Hello extends Application {
         } else {
             canvasB = canvas;
         }
-        GraphicsContext gc = canvas.getGraphicsContext2D();
 
         canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
         canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
