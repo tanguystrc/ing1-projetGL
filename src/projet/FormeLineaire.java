@@ -85,13 +85,15 @@ public class FormeLineaire extends Forme {
         Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
         List<Point> pointsKeys = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
-
+        Color couleur = (selectedColor != null) ? new Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)) : chercheCouleur(matrix, pointsKeys);
+        Color autreCouleur = chercheAutreCouleur(matrix, pointsKeys);
+    
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
-
+    
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
-
+    
         for (int i = 0; i < nbFrame; i++) {
             List<Point> listPoint = new ArrayList<>(); 
             for (int j = 0; j < pointsKeys.size(); j++) {
@@ -104,28 +106,28 @@ public class FormeLineaire extends Forme {
                 Point p1 = new Point(x, y); 
                 listPoint.add(p1);
             }
-            BufferedImage frameImage = morphismeSimpleRemplissage(matrix, listPoint);
+            BufferedImage frameImage = morphismeSimpleRemplissage(matrix, couleur, autreCouleur, listPoint);
             
             // Vérifiez le contenu de chaque frame
             System.out.println("Frame " + i + " generated with dimensions: " + frameImage.getWidth() + "x" + frameImage.getHeight());
             gifWriter.writeToSequence(frameImage);
         }
-
+    
         gifWriter.close();
         output.close();
     }
-
+    
     /**
      * Remplit l'image en utilisant le morphisme simple.
      * @param matrix la matrice de couleurs
+     * @param couleur la couleur à utiliser pour remplir l'intérieur du polygone
+     * @param autreCouleur la couleur à utiliser pour remplir l'extérieur du polygone
      * @param points la liste des points
      * @return l'image remplie
      */
-    public BufferedImage morphismeSimpleRemplissage(Color[][] matrix, List<Point> points) {
+    public BufferedImage morphismeSimpleRemplissage(Color[][] matrix, Color couleur, Color autreCouleur, List<Point> points) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
-        Color couleur = (selectedColor != null) ? new Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)) : chercheCouleur(matrix, points);
-        Color autreCouleur = chercheAutreCouleur(matrix, points);
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 if (estDomaine(points, new Point(x, y))) {
@@ -137,4 +139,5 @@ public class FormeLineaire extends Forme {
         }
         return genereImage(matrix);
     }
+    
 }
