@@ -50,8 +50,6 @@ public class FormeLineaire extends Forme {
     public static Point calculerVecteur(Point p1, Point p2) {
         double deltaX = p2.getX() - p1.getX();
         double deltaY = p2.getY() - p1.getY();
-        // Afficher les coordonnées du vecteur
-        System.out.println("Vector coordinates: (" + deltaX + ", " + deltaY + ")");
         return new Point(deltaX, deltaY);
     }
 
@@ -101,15 +99,11 @@ public class FormeLineaire extends Forme {
                 Point indice = listIndice.get(j);
                 double x = Math.max(0, Math.min(largeur - 1, p.getX() + indice.getX() * i));
                 double y = Math.max(0, Math.min(hauteur - 1, p.getY() + indice.getY() * i));
-                // Afficher les coordonnées calculées
-                System.out.println("Calculated point coordinates: (" + x + ", " + y + ")");
                 Point p1 = new Point(x, y); 
                 listPoint.add(p1);
             }
             BufferedImage frameImage = morphismeSimpleRemplissage(matrix, couleur, autreCouleur, listPoint);
             
-            // Vérifiez le contenu de chaque frame
-            System.out.println("Frame " + i + " generated with dimensions: " + frameImage.getWidth() + "x" + frameImage.getHeight());
             gifWriter.writeToSequence(frameImage);
         }
     
