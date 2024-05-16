@@ -8,6 +8,7 @@ import javax.imageio.stream.ImageOutputStream;
 import java.util.List;
 import java.awt.Color;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -107,9 +108,18 @@ public class FormeLineaire extends Forme {
             gifWriter.writeToSequence(frameImage);
         }
     
+        // Ajouter l'image d'arrivée en utilisant les valeurs de la map en entrée
+        List<Point> listPointArrivee = new ArrayList<>();
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            listPointArrivee.add(entry.getValue());
+        }
+        BufferedImage imageArrivee = morphismeSimpleRemplissage(matrix, couleur, autreCouleur, listPointArrivee);
+        gifWriter.writeToSequence(imageArrivee);
+    
         gifWriter.close();
         output.close();
     }
+    
     
     /**
      * Remplit l'image en utilisant le morphisme simple.
