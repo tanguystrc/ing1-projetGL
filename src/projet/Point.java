@@ -75,4 +75,36 @@ public class Point {
     public int hashCode() {
         return Objects.hash(x, y);
     }
+
+    public Point somme(Point p) {
+		return new Point(x+p.getX(),y+p.getY());
+	}
+	
+	public Point soustraction(Point p) {
+		return new Point(x-p.getX(),y-p.getY());
+	}
+	
+	public Point perp() {
+		return new Point(y,-x);
+	}
+	
+	public double norme() {
+		return Math.sqrt(x*x+y*y);
+	}
+	/**
+     * Produit scalaire en prenant les points pour des vecteurs
+     * @param p
+     * @return
+     */
+	public double produit(Point p) {
+		return x*p.getX()+y*p.getY();
+	}
+	
+	public Point produit(double v) {
+		return new Point(x*v,y*v);
+	}
+
+    public Point pixel(){
+        return new Point(Math.round(x),Math.round(y));
+    }
 }
