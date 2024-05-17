@@ -265,7 +265,7 @@ public class Hello extends Application {
 
     
         // Rectangle to display the selected color
-        colorDisplay = new Rectangle(50, 50, Color.TRANSPARENT);
+        colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
     
         // Texte d'instruction :
