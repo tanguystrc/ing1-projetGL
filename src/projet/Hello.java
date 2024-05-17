@@ -8,7 +8,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -330,11 +329,6 @@ public class Hello extends Application {
         textFieldBox.setAlignment(Pos.CENTER);
     
         // Boutons
-        /* TODO : pour le gestionnaire d'event de "start" : 
-         * vérif qu'on a bien les 2 images chargées, 
-         * verif qu'on a pas aucun point de controle
-         * verif que le nb total de point de controle soit pair (moitié dans image A, moitié dans image B quoi)
-         * */
         Button startButton = new Button("Start");
         startButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
         startButton.setOnAction(e -> {

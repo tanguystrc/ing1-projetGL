@@ -1,7 +1,9 @@
 package src.projet;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.awt.Color;
 
 /**
@@ -63,54 +65,62 @@ public abstract class Forme {
         }
         return image;
     }
-
-    /**
-     * Vérifie si un point donné est à l'intérieur d'un polygone défini par une liste de points.
-     * 
-     * @param listePoint la liste des points définissant le polygone.
-     * @param p le point à vérifier.
-     * @return true si le point est à l'intérieur du polygone, false sinon.
+        /**
+     * Calcule le vecteur entre deux points.
+     * @param p1 le premier point
+     * @param p2 le deuxième point
+     * @return le vecteur résultant du calcul
      */
-    public boolean estDomaine(List<Point> listePoint, Point p) {
-        int compteur = 0;
-        int nbPts = listePoint.size();
-        Point dernierPoint = listePoint.get(nbPts - 1);
-    
-        for (Point pointActuel : listePoint) {
-            // Vérifie si p est exactement sur un segment horizontal ou vertical
-            if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY() && 
-                ((pointActuel.getX() <= p.getX() && p.getX() <= dernierPoint.getX()) || (dernierPoint.getX() <= p.getX() && p.getX() <= pointActuel.getX()))) {
-                return true; // Le point est sur un segment horizontal
-            }
-    
-            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || 
-                (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
-                if (pointActuel.getY() == dernierPoint.getY()) {
-                    // Cas de segment horizontal déjà traité plus haut
-                } else {
-                    double denom = (pointActuel.getY() - dernierPoint.getY());
-                    if (denom != 0) {
-                        double pointIntersectX = dernierPoint.getX() + (pointActuel.getX() - dernierPoint.getX()) * ((p.getY() - dernierPoint.getY()) / denom);
-                        if (p.getX() < pointIntersectX) {
-                            compteur++;
-                        }
-                    }
-                }
-            } else if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY()) {
-                // Ignorer les segments horizontaux
-            } else if (pointActuel.getY() == p.getY() || dernierPoint.getY() == p.getY()) {
-                if (p.getX() < Math.min(pointActuel.getX(), dernierPoint.getX()) || p.getX() > Math.max(pointActuel.getX(), dernierPoint.getX())) {
-                    continue; // Point p est en dehors du segment horizontal
-                }
-                // Compteur pour segments verticaux
-                if (pointActuel.getX() == p.getX() && dernierPoint.getX() == p.getX()) {
-                    return true; // Le point est sur un segment vertical
-                }
-            }
-            dernierPoint = pointActuel;
-        }
-        return compteur % 2 != 0;
+    public static Point calculerVecteur(Point p1, Point p2) {
+        double deltaX = p2.getX() - p1.getX();
+        double deltaY = p2.getY() - p1.getY();
+        return new Point(deltaX, deltaY);
     }
+        /**
+     * Calcule les indices pour chaque paire de points de contrôle.
+     * @param pointsDeControle les points de contrôle
+     * @param nbFrame le nombre de frames
+     * @return une liste de points représentant les indices
+     */
+    public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
+        List<Point> p = new ArrayList<>();
+        for (Map.Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point keyPoint = entry.getKey();
+            Point valuePoint = entry.getValue();
+            Point indice = calculerVecteur(keyPoint, valuePoint);
+            indice.setX(indice.getX() / nbFrame);
+            indice.setY(indice.getY() / nbFrame);
+            p.add(indice);
+        }
+        return p;
+    }
+
+    public abstract boolean estDomaine(List<Point> listePoint, Point p) ;
+        /**
+     * Remplit l'image en utilisant le morphisme simple.
+     * @param matrix la matrice de couleurs
+     * @param couleur la couleur à utiliser pour remplir l'intérieur du polygone
+     * @param autreCouleur la couleur à utiliser pour remplir l'extérieur du polygone
+     * @param points la liste des points
+     * @return l'image remplie
+     */
+    public BufferedImage morphismeRemplissage(Color[][] matrix, Color couleur, Color autreCouleur, List<Point> points) {
+        int hauteur = matrix.length;
+        int largeur = matrix[0].length;
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+                if (estDomaine(points, new Point(x, y))) {
+                    matrix[y][x] = couleur; // Correction : matrix[y][x] au lieu de matrix[x][y]
+                } else {
+                    matrix[y][x] = autreCouleur; // Correction : matrix[y][x] au lieu de matrix[x][y]
+                }
+            }
+        }
+        return genereImage(matrix);
+    }
+
+    
+    
 
     /**
      * Cherche une couleur à l'intérieur d'un polygone dans une matrice de couleurs.
