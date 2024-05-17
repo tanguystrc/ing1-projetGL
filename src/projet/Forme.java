@@ -78,39 +78,34 @@ public abstract class Forme {
     
         for (Point pointActuel : listePoint) {
             // Vérifie si p est exactement sur un segment horizontal ou vertical
-            if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY() && 
-                ((pointActuel.getX() <= p.getX() && p.getX() <= dernierPoint.getX()) || (dernierPoint.getX() <= p.getX() && p.getX() <= pointActuel.getX()))) {
-                return true; // Le point est sur un segment horizontal
-            }
-    
-            if ((pointActuel.getY() < p.getY() && dernierPoint.getY() > p.getY()) || 
-                (pointActuel.getY() > p.getY() && dernierPoint.getY() < p.getY())) {
-                if (pointActuel.getY() == dernierPoint.getY()) {
-                    // Cas de segment horizontal déjà traité plus haut
-                } else {
-                    double denom = (pointActuel.getY() - dernierPoint.getY());
-                    if (denom != 0) {
-                        double pointIntersectX = dernierPoint.getX() + (pointActuel.getX() - dernierPoint.getX()) * ((p.getY() - dernierPoint.getY()) / denom);
-                        if (p.getX() < pointIntersectX) {
-                            compteur++;
-                        }
-                    }
+            if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY()) {
+                // Segment horizontal
+                if ((pointActuel.getX() <= p.getX() && p.getX() <= dernierPoint.getX()) || 
+                    (dernierPoint.getX() <= p.getX() && p.getX() <= pointActuel.getX())) {
+                    return true; // Le point est sur un segment horizontal
                 }
-            } else if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY()) {
-                // Ignorer les segments horizontaux
-            } else if (pointActuel.getY() == p.getY() || dernierPoint.getY() == p.getY()) {
-                if (p.getX() < Math.min(pointActuel.getX(), dernierPoint.getX()) || p.getX() > Math.max(pointActuel.getX(), dernierPoint.getX())) {
-                    continue; // Point p est en dehors du segment horizontal
-                }
-                // Compteur pour segments verticaux
-                if (pointActuel.getX() == p.getX() && dernierPoint.getX() == p.getX()) {
+            } else if (pointActuel.getX() == p.getX() && dernierPoint.getX() == p.getX()) {
+                // Segment vertical
+                if ((pointActuel.getY() <= p.getY() && p.getY() <= dernierPoint.getY()) || 
+                    (dernierPoint.getY() <= p.getY() && p.getY() <= pointActuel.getY())) {
                     return true; // Le point est sur un segment vertical
+                }
+            } else {
+                // Vérifie les intersections avec le segment actuel
+                if ((pointActuel.getY() < p.getY() && dernierPoint.getY() >= p.getY()) || 
+                    (pointActuel.getY() >= p.getY() && dernierPoint.getY() < p.getY())) {
+                    double intersectX = pointActuel.getX() + (p.getY() - pointActuel.getY()) * (dernierPoint.getX() - pointActuel.getX()) / (dernierPoint.getY() - pointActuel.getY());
+                    if (p.getX() < intersectX) {
+                        compteur++;
+                    }
                 }
             }
             dernierPoint = pointActuel;
         }
         return compteur % 2 != 0;
     }
+    
+    
 
     /**
      * Cherche une couleur à l'intérieur d'un polygone dans une matrice de couleurs.

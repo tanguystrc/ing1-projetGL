@@ -8,9 +8,9 @@ import javax.imageio.stream.ImageOutputStream;
 import java.util.List;
 import java.awt.Color;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map.Entry;
 
 public class FormeLineaire extends Forme {
     private Color[][] matrix1;
@@ -51,8 +51,6 @@ public class FormeLineaire extends Forme {
     public static Point calculerVecteur(Point p1, Point p2) {
         double deltaX = p2.getX() - p1.getX();
         double deltaY = p2.getY() - p1.getY();
-        // Afficher les coordonnées du vecteur
-        System.out.println("Vector coordinates: (" + deltaX + ", " + deltaY + ")");
         return new Point(deltaX, deltaY);
     }
 
@@ -75,6 +73,13 @@ public class FormeLineaire extends Forme {
         return p;
     }
 
+    /**
+     * Applique le morphisme simple pour générer une animation GIF.
+     * @param image1 l'image source
+     * @param pointsDeControle les points de contrôle
+     * @param nbFrame le nombre de frames
+     * @throws IOException si une erreur d'entrée/sortie se produit
+     */
     public void morphismeSimple(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
         Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
@@ -138,4 +143,5 @@ public class FormeLineaire extends Forme {
         }
         return genereImage(matrix);
     }
+    
 }
