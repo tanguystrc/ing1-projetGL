@@ -1,9 +1,10 @@
 package src.projet;
 
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Map.Entry;
 
 public class PointDeControle {
     private Map<Point, Point> pointsMap;
@@ -11,7 +12,7 @@ public class PointDeControle {
     public PointDeControle() {
         this.pointsMap = new LinkedHashMap<>();
     }
-
+    
     /**
      * Constructeur qui a ses valeurs en copie profonde
      * @param p
@@ -29,7 +30,8 @@ public class PointDeControle {
 
     public Map<Point, Point> getPointsMap() {
         return pointsMap;
-    }
+    }   
+    
 
     public void setPointsMap(Map<Point, Point> pointsMap) {
         this.pointsMap = new LinkedHashMap<>(pointsMap);
