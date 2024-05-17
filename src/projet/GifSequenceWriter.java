@@ -1,7 +1,5 @@
 package src.projet;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import javax.imageio.IIOException;
@@ -12,7 +10,6 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
 public class GifSequenceWriter {
@@ -88,21 +85,5 @@ public class GifSequenceWriter {
 
     public void close() throws IOException {
         gifWriter.endWriteSequence();
-    }
-
-    public static void main(String[] args) throws IOException {
-        BufferedImage firstImage = ImageIO.read(new File("path/to/first/image.png"));
-
-        ImageOutputStream output = new FileImageOutputStream(new File("path/to/output.gif"));
-
-        GifSequenceWriter writer = new GifSequenceWriter(output, firstImage.getType(), 500, true);
-
-        writer.writeToSequence(firstImage);
-        // Repeat for other images
-        BufferedImage nextImage = ImageIO.read(new File("path/to/next/image.png"));
-        writer.writeToSequence(nextImage);
-
-        writer.close();
-        output.close();
     }
 }
