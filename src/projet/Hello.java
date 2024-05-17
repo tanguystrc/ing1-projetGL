@@ -349,7 +349,7 @@ public class Hello extends Application {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
                     formeLineaire.setSelectedColor(selectedColor); // Appliquer la couleur sélectionnée
-                    formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
+                    formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
                     Platform.runLater(() -> {
                         try {
                             GIFViewer.display("GIF Viewer", "animation.gif");
