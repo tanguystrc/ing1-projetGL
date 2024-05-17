@@ -46,7 +46,7 @@ public class FormeArrondie {
     }
 
     private boolean traverseCourbe(Point p0, Point p1, Point p2, Point p3, Point point) {
-        final int étapes = 500; // Nombre de points d'évaluation sur la courbe
+        final int étapes = 100; // Nombre de points d'évaluation sur la courbe
         double[] xPoints = new double[étapes];
         double[] yPoints = new double[étapes];
 

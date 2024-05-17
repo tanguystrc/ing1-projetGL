@@ -155,6 +155,7 @@ public abstract class Forme {
     
 
     public abstract boolean estDomaine(List<Point> listePoint, Point p) ;
+    
         /**
      * Remplit l'image en utilisant le morphisme simple.
      * @param matrix la matrice de couleurs
