@@ -37,8 +37,16 @@ public class PointDeControle {
         this.pointsMap = new LinkedHashMap<>(pointsMap);
     }
 
-    public void ajouter(Point key, Point value) {
-        this.pointsMap.put(key, value);
+   public void ajouter(Point key, Point value) {
+        if (isValidPoint(key) && isValidPoint(value)) {
+            this.pointsMap.put(key, value);
+        } else {
+            throw new IllegalArgumentException("Les coordonnées des points doivent être comprises entre 0 et 600.");
+        }
+    }
+    
+    private boolean isValidPoint(Point p) {
+        return p.getX() >= 0 && p.getX() <= 600 && p.getY() >= 0 && p.getY() <= 600;
     }
 
     @Override
