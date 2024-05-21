@@ -2,7 +2,6 @@ package src.projet;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 
 public abstract class FormesFX {
     protected Canvas canvasA;
@@ -14,17 +13,6 @@ public abstract class FormesFX {
         this.canvasA = canvasA;
         this.canvasB = canvasB;
         this.pointsDeControle = pointsDeControle;
-    }
-
-    public static FormesFX createForme(TypeForme type, Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
-        switch (type) {
-            case LINEAIRE:
-                return new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
-            case ARRONDI:
-                return new FormesArrondiesFX(canvasA, canvasB, pointsDeControle);
-            default:
-                throw new IllegalArgumentException("Type de forme non supporté: " + type);
-        }
     }
 
     public abstract void handleMousePressed(MouseEvent mouseEvent, boolean isImageA);

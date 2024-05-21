@@ -42,7 +42,7 @@ public class FormesArrondiesFX extends FormesFX {
             }
         }
     }
-
+    
     @Override
     public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         isDragged = true;
@@ -173,12 +173,11 @@ public class FormesArrondiesFX extends FormesFX {
                 gc.moveTo(points[0].getX(), points[0].getY());
                 gc.bezierCurveTo(points[1].getX(), points[1].getY(), points[2].getX(), points[2].getY(), points[3].getX(), points[3].getY());
                 gc.stroke();
-                // Prepare for next curve
-                points[0] = points[3]; // Last point becomes the first point of the next curve
+                points[0] = points[3]; //Le dernier point devient le premier de la nouvelle courbe
                 points[1] = null;
                 points[2] = null;
                 points[3] = null;
-                index = 1; // Start new group with the last point
+                index = 1; 
             }
         }
     }

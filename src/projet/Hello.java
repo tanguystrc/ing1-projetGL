@@ -1,5 +1,8 @@
 package src.projet;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -9,8 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,33 +25,25 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import javafx.scene.shape.Rectangle;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
 public class Hello extends Application {
 
-    private static int asciiDuA = 65;
 
     private PointDeControle pointsDeControle;
-    private Point selectedPoint = null;
     private Canvas canvasA;
     private Canvas canvasB;
-    private boolean isDragging = false;
     private boolean isClickValid = true;
     private boolean isPipetteMode = false;
     private Color selectedColor;
     private Image startImage;
     private Image endImage;
     private Rectangle colorDisplay;
-
     private FormesFX currentForme;
 
+    
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
@@ -65,6 +58,13 @@ public class Hello extends Application {
         return button;
     }
 
+    /**
+     * Crée et retourne un StackPane contenant une ImageView et un Canvas.
+     * 
+     * @param i L'ImageView à ajouter au StackPane.
+     * @param isImageA Un booléen indiquant si l'ImageView est associée à l'image A.
+     * @return Le StackPane contenant l'ImageView et le Canvas.
+     */
     private StackPane imgDansPane(ImageView i, boolean isImageA) {
         StackPane pane = new StackPane();
         pane.getChildren().add(i);
@@ -111,14 +111,22 @@ public class Hello extends Application {
         if (isPipetteMode) {
             pickColor(mouseEvent, isImageA);
             isPipetteMode = false; // Désactiver le mode pipette après utilisation
-            canvasA.setCursor(Cursor.DEFAULT); // Reset cursor
-            canvasB.setCursor(Cursor.DEFAULT); // Reset cursor
+            canvasA.setCursor(Cursor.DEFAULT); 
+            canvasB.setCursor(Cursor.DEFAULT); 
         } else if (isClickValid && currentForme != null) {
             currentForme.handleMouseClicked(mouseEvent, isImageA);
         }
         isClickValid = true;
     }
 
+
+
+    /**
+     * Sélectionne la couleur à partir des coordonnées de la souris sur une image donnée.
+     * 
+     * @param mouseEvent L'événement de la souris contenant les coordonnées de la souris.
+     * @param isImageA   Un indicateur pour spécifier si l'image est l'image A ou l'image B.
+     */
     private void pickColor(MouseEvent mouseEvent, boolean isImageA) {
         Image image = isImageA ? startImage : endImage;
         if (image != null) {
@@ -140,13 +148,13 @@ public class Hello extends Application {
         Button linearButton = new Button("Formes Linéaires");
         linearButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;");
         linearButton.setOnAction(e -> {
-            currentForme = FormesFX.createForme(TypeForme.LINEAIRE, canvasA, canvasB, pointsDeControle);
+            currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle); 
         });
 
         Button roundedButton = new Button("Formes Arrondies");
         roundedButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;");
         roundedButton.setOnAction(e -> {
-            currentForme = FormesFX.createForme(TypeForme.ARRONDI, canvasA, canvasB, pointsDeControle);
+            currentForme = new FormesArrondiesFX(canvasA, canvasB, pointsDeControle); 
         });
 
         menu.getChildren().addAll(linearButton, roundedButton);
@@ -156,7 +164,7 @@ public class Hello extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
-        this.currentForme = FormesFX.createForme(TypeForme.LINEAIRE, canvasA, canvasB, pointsDeControle);
+        this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle); 
 
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
@@ -230,7 +238,7 @@ public class Hello extends Application {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
                     formeLineaire.setSelectedColor(selectedColor); 
-                    formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
+                    formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
                     Platform.runLater(() -> {
                         try {
                             GIFViewer.display("GIF Viewer", "animation.gif");
