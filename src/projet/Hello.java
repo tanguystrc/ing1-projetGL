@@ -234,9 +234,15 @@ public class Hello extends Application {
             if (startImage != null) {
                 try {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
-                    FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
-                    formeLineaire.setSelectedColor(selectedColor);
-                    formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
+                    if (currentForme instanceof FormesLineaireFX) {
+                        FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
+                        formeLineaire.setSelectedColor(selectedColor);
+                        formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
+                    } else if (currentForme instanceof FormesArrondiesFX) {
+                        FormeArrondie formeArrondie = new FormeArrondie(pointsDeControle, nbFrames, null, null);
+                        formeArrondie.setSelectedColor(selectedColor);
+                        formeArrondie.morphisme(bufferedImage, pointsDeControle, nbFrames);
+                    }
                     Platform.runLater(() -> {
                         try {
                             GIFViewer.display("GIF Viewer", "animation.gif");
@@ -249,6 +255,7 @@ public class Hello extends Application {
                 }
             }
         });
+
 
         HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, pipetteButton, colorDisplay);
         buttonBox2.setAlignment(Pos.CENTER);
