@@ -16,6 +16,17 @@ public abstract class FormesFX {
         this.pointsDeControle = pointsDeControle;
     }
 
+    public static FormesFX createForme(TypeForme type, Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
+        switch (type) {
+            case LINEAIRE:
+                return new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
+            case ARRONDI:
+                return new FormesArrondiesFX(canvasA, canvasB, pointsDeControle);
+            default:
+                throw new IllegalArgumentException("Type de forme non supporté: " + type);
+        }
+    }
+
     public abstract void handleMousePressed(MouseEvent mouseEvent, boolean isImageA);
 
     public abstract void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA);

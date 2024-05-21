@@ -1,9 +1,5 @@
 package src.projet;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map.Entry;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -11,7 +7,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -33,6 +28,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import javafx.scene.shape.Rectangle;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Hello extends Application {
 
@@ -141,13 +140,13 @@ public class Hello extends Application {
         Button linearButton = new Button("Formes Linéaires");
         linearButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;");
         linearButton.setOnAction(e -> {
-            currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle); 
+            currentForme = FormesFX.createForme(TypeForme.LINEAIRE, canvasA, canvasB, pointsDeControle);
         });
 
         Button roundedButton = new Button("Formes Arrondies");
         roundedButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;");
         roundedButton.setOnAction(e -> {
-            currentForme = new FormesArrondiesFX(canvasA, canvasB, pointsDeControle); 
+            currentForme = FormesFX.createForme(TypeForme.ARRONDI, canvasA, canvasB, pointsDeControle);
         });
 
         menu.getChildren().addAll(linearButton, roundedButton);
@@ -157,7 +156,7 @@ public class Hello extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
-        this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle); 
+        this.currentForme = FormesFX.createForme(TypeForme.LINEAIRE, canvasA, canvasB, pointsDeControle);
 
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
@@ -231,7 +230,7 @@ public class Hello extends Application {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
                     formeLineaire.setSelectedColor(selectedColor); 
-                    formeLineaire.morphismeSimple(bufferedImage, pointsDeControle, nbFrames);
+                    formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
                     Platform.runLater(() -> {
                         try {
                             GIFViewer.display("GIF Viewer", "animation.gif");
