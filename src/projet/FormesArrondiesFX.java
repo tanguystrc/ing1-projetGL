@@ -20,6 +20,7 @@ public class FormesArrondiesFX extends FormesFX {
     private Point selectedPoint = null;
     private boolean isDragging = false;
     private boolean isMousePressed = false;
+    private boolean isDragged = false;
 
     public FormesArrondiesFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
         super(canvasA, canvasB, pointsDeControle);
@@ -30,6 +31,7 @@ public class FormesArrondiesFX extends FormesFX {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         isMousePressed = true;
+        isDragged = false;
         
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point point = isImageA ? entry.getKey() : entry.getValue();
@@ -43,6 +45,7 @@ public class FormesArrondiesFX extends FormesFX {
 
     @Override
     public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
+        isDragged = true;
         if (isDragging && selectedPoint != null) {
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
@@ -69,7 +72,7 @@ public class FormesArrondiesFX extends FormesFX {
 
     @Override
     public void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
-        if (!isMousePressed) { // Ensure this is not a drag
+        if (!isDragged && !isMousePressed) { // Ensure this is not a drag
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
             Point point;
@@ -145,47 +148,38 @@ public class FormesArrondiesFX extends FormesFX {
         gcA.setStroke(Color.RED);
         gcB.setStroke(Color.RED);
 
-        Point startPointA = null, startPointB = null;
-        Point controlPoint1A = null, controlPoint1B = null;
-        Point controlPoint2A = null, controlPoint2B = null;
-        Point endPointA = null, endPointB = null;
-
         int index = 0;
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point key = entry.getKey();
             Point value = entry.getValue();
-
-            if (index == 0) {
-                startPointA = key;
-                startPointB = value;
-            } else if (index == 1) {
-                controlPoint1A = key;
-                controlPoint1B = value;
-            } else if (index == 2) {
-                controlPoint2A = key;
-                controlPoint2B = value;
-            } else if (index == 3) {
-                endPointA = key;
-                endPointB = value;
-            }
-
             gcA.strokeText("." + (index + 1), key.getX(), key.getY());
             gcB.strokeText("." + (index + 1), value.getX(), value.getY());
             index++;
         }
 
-        if (startPointA != null && controlPoint1A != null && controlPoint2A != null && endPointA != null) {
-            gcA.beginPath();
-            gcA.moveTo(startPointA.getX(), startPointA.getY());
-            gcA.bezierCurveTo(controlPoint1A.getX(), controlPoint1A.getY(), controlPoint2A.getX(), controlPoint2A.getY(), endPointA.getX(), endPointA.getY());
-            gcA.stroke();
-        }
+        drawBezierCurves(gcA, true);
+        drawBezierCurves(gcB, false);
+    }
 
-        if (startPointB != null && controlPoint1B != null && controlPoint2B != null && endPointB != null) {
-            gcB.beginPath();
-            gcB.moveTo(startPointB.getX(), startPointB.getY());
-            gcB.bezierCurveTo(controlPoint1B.getX(), controlPoint1B.getY(), controlPoint2B.getX(), controlPoint2B.getY(), endPointB.getX(), endPointB.getY());
-            gcB.stroke();
+    private void drawBezierCurves(GraphicsContext gc, boolean isImageA) {
+        int index = 0;
+        Point[] points = new Point[4];
+
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            points[index % 4] = isImageA ? entry.getKey() : entry.getValue();
+            index++;
+            if (index % 4 == 0 && index >= 4) {
+                gc.beginPath();
+                gc.moveTo(points[0].getX(), points[0].getY());
+                gc.bezierCurveTo(points[1].getX(), points[1].getY(), points[2].getX(), points[2].getY(), points[3].getX(), points[3].getY());
+                gc.stroke();
+                // Prepare for next curve
+                points[0] = points[3]; // Last point becomes the first point of the next curve
+                points[1] = null;
+                points[2] = null;
+                points[3] = null;
+                index = 1; // Start new group with the last point
+            }
         }
     }
 
