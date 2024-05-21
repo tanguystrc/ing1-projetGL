@@ -2,7 +2,6 @@ package src.projet;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 
 public abstract class FormesFX {
     protected Canvas canvasA;
