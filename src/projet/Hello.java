@@ -236,7 +236,7 @@ public class Hello extends Application {
             if (startImage != null) {
                 try {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
-                    FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
+                    FormeArrondie formeLineaire = new FormeArrondie(pointsDeControle, nbFrames, null, null);
                     formeLineaire.setSelectedColor(selectedColor); 
                     formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
                     Platform.runLater(() -> {

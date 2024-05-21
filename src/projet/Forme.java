@@ -153,31 +153,27 @@ public abstract class Forme {
         output.close();
     }
     
-
-    public abstract boolean estDomaine(List<Point> listePoint, Point p) ;
-    
-        /**
-     * Remplit l'image en utilisant le morphisme simple.
-     * @param matrix la matrice de couleurs
-     * @param couleur la couleur à utiliser pour remplir l'intérieur du polygone
-     * @param autreCouleur la couleur à utiliser pour remplir l'extérieur du polygone
-     * @param points la liste des points
-     * @return l'image remplie
-     */
     public BufferedImage morphismeRemplissage(Color[][] matrix, Color couleur, Color autreCouleur, List<Point> points) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
+        Color[][] newMatrix = new Color[hauteur][largeur];
+    
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 if (estDomaine(points, new Point(x, y))) {
-                    matrix[y][x] = couleur; // Correction : matrix[y][x] au lieu de matrix[x][y]
+                    newMatrix[y][x] = couleur;
                 } else {
-                    matrix[y][x] = autreCouleur; // Correction : matrix[y][x] au lieu de matrix[x][y]
+                    newMatrix[y][x] = autreCouleur;
                 }
             }
         }
-        return genereImage(matrix);
+    
+        return genereImage(newMatrix);
     }
+    
+    
+
+    public abstract boolean estDomaine(List<Point> listePoint, Point p) ;
 
     
     
