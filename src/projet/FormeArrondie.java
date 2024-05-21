@@ -3,11 +3,12 @@ package src.projet;
 import java.awt.Color;
 import java.util.List;
 
-public class FormeArrondie {
+public class FormeArrondie extends Forme{
     private Color[][] matrice1;
     private Color[][] matrice2;
 
-    public FormeArrondie(Color[][] matrice1, Color[][] matrice2) {
+    public FormeArrondie(PointDeControle pointsDeControle, int nbFrame, Color[][] matrice1, Color[][] matrice2) {
+        super(pointsDeControle, null, null, nbFrame);
         this.matrice1 = matrice1;
         this.matrice2 = matrice2;
     }
