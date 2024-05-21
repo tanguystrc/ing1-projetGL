@@ -13,7 +13,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
-
 import java.util.Map.Entry;
 
 public class FormesLineaireFX extends FormesFX {
@@ -21,6 +20,7 @@ public class FormesLineaireFX extends FormesFX {
     private Point selectedPoint = null;
     private boolean isDragging = false;
     private boolean isMousePressed = false;
+    private boolean isDragged = false;
 
     public FormesLineaireFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
         super(canvasA, canvasB, pointsDeControle);
@@ -31,6 +31,7 @@ public class FormesLineaireFX extends FormesFX {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         isMousePressed = true;
+        isDragged = false;
 
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point point = isImageA ? entry.getKey() : entry.getValue();
@@ -44,6 +45,7 @@ public class FormesLineaireFX extends FormesFX {
 
     @Override
     public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
+        isDragged = true;
         if (isDragging && selectedPoint != null) {
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
@@ -71,7 +73,7 @@ public class FormesLineaireFX extends FormesFX {
 
     @Override
     public void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
-        if (!isMousePressed) { // Ensure this is not a drag
+        if (!isDragged && !isMousePressed) { // Ensure this is not a drag
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
             Point point;
