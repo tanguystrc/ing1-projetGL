@@ -13,9 +13,7 @@ import javax.imageio.stream.ImageOutputStream;
 
 import java.awt.Color;
 
-/**
- * Classe abstraite représentant une forme avec des points de contrôle et des images associées.
- */
+
 public abstract class Forme {
     
     protected PointDeControle pointsDeControle;
@@ -35,12 +33,7 @@ public abstract class Forme {
         this.selectedColor = selectedColor;
     }
 
-    /**
-     * Génère une matrice de couleurs à partir d'une image.
-     * 
-     * @param image l'image source.
-     * @return une matrice 2D de couleurs représentant les pixels de l'image.
-     */
+
     public Color[][] genererMatrice(BufferedImage image) {
         int largeur = image.getWidth();
         int hauteur = image.getHeight();
@@ -55,12 +48,7 @@ public abstract class Forme {
         return colorMatrix;
     }
 
-    /**
-     * Génère une image à partir d'une matrice de couleurs.
-     * 
-     * @param matrix la matrice 2D de couleurs.
-     * @return une image BufferedImage créée à partir de la matrice de couleurs.
-     */
+
     public BufferedImage genereImage(Color[][] matrix) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
@@ -77,23 +65,13 @@ public abstract class Forme {
         }
         return image;
     }
-        /**
-     * Calcule le vecteur entre deux points.
-     * @param p1 le premier point
-     * @param p2 le deuxième point
-     * @return le vecteur résultant du calcul
-     */
+
     public static Point calculerVecteur(Point p1, Point p2) {
         double deltaX = p2.getX() - p1.getX();
         double deltaY = p2.getY() - p1.getY();
         return new Point(deltaX, deltaY);
     }
-        /**
-     * Calcule les indices pour chaque paire de points de contrôle.
-     * @param pointsDeControle les points de contrôle
-     * @param nbFrame le nombre de frames
-     * @return une liste de points représentant les indices
-     */
+
     public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
         List<Point> p = new ArrayList<>();
         for (Map.Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
@@ -106,13 +84,8 @@ public abstract class Forme {
         }
         return p;
     }
-     /**
-     * Applique le morphisme simple pour générer une animation GIF.
-     * @param image1 l'image source
-     * @param pointsDeControle les points de contrôle
-     * @param nbFrame le nombre de frames
-     * @throws IOException si une erreur d'entrée/sortie se produit
-     */
+
+
     public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
         Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
@@ -141,7 +114,6 @@ public abstract class Forme {
             gifWriter.writeToSequence(frameImage);
         }
     
-        // Ajouter l'image d'arrivée en utilisant les valeurs de la map en entrée
         List<Point> listPointArrivee = new ArrayList<>();
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             listPointArrivee.add(entry.getValue());
@@ -176,15 +148,6 @@ public abstract class Forme {
     public abstract boolean estDomaine(List<Point> listePoint, Point p) ;
 
     
-    
-
-    /**
-     * Cherche une couleur à l'intérieur d'un polygone dans une matrice de couleurs.
-     * 
-     * @param matrix la matrice 2D de couleurs.
-     * @param pts la liste des points définissant le polygone.
-     * @return la couleur trouvée à l'intérieur du polygone, ou null si aucune couleur n'est trouvée.
-     */
     public Color chercheCouleur(Color[][] matrix, List<Point> pts) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
@@ -195,7 +158,6 @@ public abstract class Forme {
                 p.setX(x);
                 p.setY(y);
                 if (estDomaine(pts, p)) {
-                    //afficher la couleur trouvée
                     System.out.println("Couleur trouvée : " + matrix[y][x]);
                     return matrix[y][x];
                 }
@@ -205,13 +167,6 @@ public abstract class Forme {
         return null;
     }
 
-    /**
-     * Cherche une couleur à l'extérieur d'un polygone dans une matrice de couleurs.
-     * 
-     * @param matrix la matrice 2D de couleurs.
-     * @param pts la liste des points définissant le polygone.
-     * @return la couleur trouvée à l'extérieur du polygone, ou null si aucune couleur n'est trouvée.
-     */
     public Color chercheAutreCouleur(Color[][] matrix, List<Point> pts) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
