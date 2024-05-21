@@ -31,7 +31,6 @@ import javafx.scene.shape.Rectangle;
 
 public class Hello extends Application {
 
-
     private PointDeControle pointsDeControle;
     private Canvas canvasA;
     private Canvas canvasB;
@@ -43,7 +42,12 @@ public class Hello extends Application {
     private Rectangle colorDisplay;
     private FormesFX currentForme;
 
-    
+    private Button linearButton;
+    private Button roundedButton;
+
+    private static final String SELECTED_STYLE = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;";
+    private static final String DEFAULT_STYLE = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;";
+
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
@@ -53,24 +57,16 @@ public class Hello extends Application {
 
     private Button createImageButton(String label) {
         Button button = new Button(label);
-        button.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        button.setStyle(DEFAULT_STYLE);
         button.setPrefSize(200, 50);
         return button;
     }
 
-    /**
-     * Crée et retourne un StackPane contenant une ImageView et un Canvas.
-     * 
-     * @param i L'ImageView à ajouter au StackPane.
-     * @param isImageA Un booléen indiquant si l'ImageView est associée à l'image A.
-     * @return Le StackPane contenant l'ImageView et le Canvas.
-     */
     private StackPane imgDansPane(ImageView i, boolean isImageA) {
         StackPane pane = new StackPane();
         pane.getChildren().add(i);
         pane.setStyle("-fx-border-color: #000000; -fx-border-width: 1px;");
 
-        // canvas des points :
         Canvas canvas = new Canvas(600, 600);
         if (isImageA) {
             canvasA = canvas;
@@ -83,7 +79,7 @@ public class Hello extends Application {
         canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased(isImageA));
         canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
 
-        StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien aligner le Canvas en haut à gauche (et superposer)
+        StackPane.setAlignment(canvas, Pos.TOP_LEFT);
         pane.getChildren().add(canvas);
 
         return pane;
@@ -110,23 +106,15 @@ public class Hello extends Application {
     private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
         if (isPipetteMode) {
             pickColor(mouseEvent, isImageA);
-            isPipetteMode = false; // Désactiver le mode pipette après utilisation
-            canvasA.setCursor(Cursor.DEFAULT); 
-            canvasB.setCursor(Cursor.DEFAULT); 
+            isPipetteMode = false;
+            canvasA.setCursor(Cursor.DEFAULT);
+            canvasB.setCursor(Cursor.DEFAULT);
         } else if (isClickValid && currentForme != null) {
             currentForme.handleMouseClicked(mouseEvent, isImageA);
         }
         isClickValid = true;
     }
 
-
-
-    /**
-     * Sélectionne la couleur à partir des coordonnées de la souris sur une image donnée.
-     * 
-     * @param mouseEvent L'événement de la souris contenant les coordonnées de la souris.
-     * @param isImageA   Un indicateur pour spécifier si l'image est l'image A ou l'image B.
-     */
     private void pickColor(MouseEvent mouseEvent, boolean isImageA) {
         Image image = isImageA ? startImage : endImage;
         if (image != null) {
@@ -145,26 +133,36 @@ public class Hello extends Application {
         menu.setPadding(new Insets(10));
         menu.setStyle("-fx-background-color: #2c3e50; -fx-padding: 20px;");
         
-        Button linearButton = new Button("Formes Linéaires");
-        linearButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;");
+        linearButton = new Button("Formes Linéaires");
+        linearButton.setStyle(DEFAULT_STYLE);
         linearButton.setOnAction(e -> {
-            currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle); 
+            currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
+            currentForme.resetPoints();
+            updateButtonStyles(linearButton);
         });
 
-        Button roundedButton = new Button("Formes Arrondies");
-        roundedButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;");
+        roundedButton = new Button("Formes Arrondies");
+        roundedButton.setStyle(DEFAULT_STYLE);
         roundedButton.setOnAction(e -> {
-            currentForme = new FormesArrondiesFX(canvasA, canvasB, pointsDeControle); 
+            currentForme = new FormesArrondiesFX(canvasA, canvasB, pointsDeControle);
+            currentForme.resetPoints();
+            updateButtonStyles(roundedButton);
         });
 
         menu.getChildren().addAll(linearButton, roundedButton);
         return menu;
     }
 
+    private void updateButtonStyles(Button selectedButton) {
+        linearButton.setStyle(DEFAULT_STYLE);
+        roundedButton.setStyle(DEFAULT_STYLE);
+        selectedButton.setStyle(SELECTED_STYLE);
+    }
+
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
-        this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle); 
+        this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
 
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
@@ -193,19 +191,19 @@ public class Hello extends Application {
         buttonBox1.setAlignment(Pos.CENTER);
 
         Button resetButton = new Button("Réinitialiser");
-        resetButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        resetButton.setStyle(DEFAULT_STYLE);
         resetButton.setOnAction(e -> currentForme.resetPoints());
 
         Button deleteButton = new Button("Supprimer");
-        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        deleteButton.setStyle(DEFAULT_STYLE);
         deleteButton.setOnAction(e -> currentForme.showDeletePointDialog());
 
         Button pipetteButton = new Button("Pipette");
-        pipetteButton.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        pipetteButton.setStyle(DEFAULT_STYLE);
         pipetteButton.setOnAction(e -> {
             isPipetteMode = true;
-            canvasA.setCursor(Cursor.CROSSHAIR); 
-            canvasB.setCursor(Cursor.CROSSHAIR); 
+            canvasA.setCursor(Cursor.CROSSHAIR);
+            canvasB.setCursor(Cursor.CROSSHAIR);
         });
 
         TextField framesTextField = new TextField();
@@ -219,7 +217,7 @@ public class Hello extends Application {
         textFieldBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
-        startButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        startButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;");
         startButton.setOnAction(e -> {
             System.out.println(pointsDeControle.toString());
             int nbFrames;
@@ -237,7 +235,7 @@ public class Hello extends Application {
                 try {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
-                    formeLineaire.setSelectedColor(selectedColor); 
+                    formeLineaire.setSelectedColor(selectedColor);
                     formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
                     Platform.runLater(() -> {
                         try {
@@ -288,6 +286,8 @@ public class Hello extends Application {
                 endImageView.setImage(endImage);
             }
         });
+
+        updateButtonStyles(linearButton); // Set initial button style
     }
 
     public static void main(String[] args) {
