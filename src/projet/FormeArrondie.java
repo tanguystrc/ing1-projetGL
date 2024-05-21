@@ -31,26 +31,36 @@ public class FormeArrondie extends Forme{
 
     public boolean estDomaine(List<Point> listePoints, Point point) {
         int traversées = 0;
+        int nbPts = listePoints.size();
     
-        // Utilisation correcte de la liste de points en incrémentant par 3
-        for (int i = 0; i < listePoints.size() - 3; i += 3) {
+        // Boucle pour traiter chaque courbe de Bézier
+        for (int i = 0; i < nbPts - 1; i += 3) {
             Point p0 = listePoints.get(i);
-            Point p1 = listePoints.get(i + 1);
-            Point p2 = listePoints.get(i + 2);
-            Point p3 = listePoints.get(i + 3);
+            Point p1 = listePoints.get((i + 1) % nbPts);
+            Point p2 = listePoints.get((i + 2) % nbPts);
+            Point p3 = listePoints.get((i + 3) % nbPts);
     
-            if (traverseCourbe(p0, p1, p2, p3, point)) {
-                traversées++;
-            }
+            traversées += traverseCourbe(p0, p1, p2, p3, point);
+        }
+    
+        // Ajouter une courbe pour relier le dernier point au premier point
+        if (nbPts % 3 == 0) {
+            Point p0 = listePoints.get(nbPts - 1);
+            Point p1 = listePoints.get((nbPts - 2 + nbPts) % nbPts);
+            Point p2 = listePoints.get((nbPts - 3 + nbPts) % nbPts);
+            Point p3 = listePoints.get(0);
+    
+            traversées += traverseCourbe(p0, p1, p2, p3, point);
         }
     
         return (traversées % 2 != 0);
     }
     
-    private boolean traverseCourbe(Point p0, Point p1, Point p2, Point p3, Point point) {
+    private int traverseCourbe(Point p0, Point p1, Point p2, Point p3, Point point) {
         final int etapes = 20; // Nombre de points d'évaluation sur la courbe
         double[] xPoints = new double[etapes];
         double[] yPoints = new double[etapes];
+        int traversées = 0;
     
         for (int i = 0; i < etapes; i++) {
             double t = (double) i / (etapes - 1);
@@ -69,19 +79,27 @@ public class FormeArrondie extends Forme{
     
         for (int i = 0; i < etapes - 1; i++) {
             if (segmentTraverseLigne(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1], point.getX(), point.getY())) {
-                return true;
+                traversées++;
             }
         }
     
-        return false;
+        return traversées;
     }
     
     private boolean segmentTraverseLigne(double x1, double y1, double x2, double y2, double px, double py) {
-        if (((y1 <= py && py < y2) || (y2 <= py && py < y1)) &&
-            px < ((x2 - x1) * (py - y1) / (y2 - y1) + x1)) {
-            return true;
+        // Évite les segments horizontaux pour le comptage des traversées
+        if (y1 == y2) {
+            return false;
         }
     
-        return false;
-    }    
+        // Évite les segments verticaux pour le comptage des traversées
+        if (x1 == x2) {
+            return px == x1 && ((y1 <= py && py <= y2) || (y2 <= py && py <= y1));
+        }
+    
+        // Vérifie les traversées pour les segments non horizontaux et non verticaux
+        boolean intersect = ((y1 > py) != (y2 > py)) && (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1);
+        return intersect;
+    }
+    
 }
