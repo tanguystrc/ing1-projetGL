@@ -3,7 +3,6 @@ package src.projet;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -11,11 +10,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,29 +25,25 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import javafx.scene.shape.Rectangle;
 
 public class Hello extends Application {
 
-    private static int asciiDuA = 65;
 
     private PointDeControle pointsDeControle;
-    private Point selectedPoint = null;
     private Canvas canvasA;
     private Canvas canvasB;
-    private boolean isDragging = false;
     private boolean isClickValid = true;
     private boolean isPipetteMode = false;
     private Color selectedColor;
     private Image startImage;
     private Image endImage;
     private Rectangle colorDisplay;
-
     private FormesFX currentForme;
 
+    
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
@@ -66,6 +58,13 @@ public class Hello extends Application {
         return button;
     }
 
+    /**
+     * Crée et retourne un StackPane contenant une ImageView et un Canvas.
+     * 
+     * @param i L'ImageView à ajouter au StackPane.
+     * @param isImageA Un booléen indiquant si l'ImageView est associée à l'image A.
+     * @return Le StackPane contenant l'ImageView et le Canvas.
+     */
     private StackPane imgDansPane(ImageView i, boolean isImageA) {
         StackPane pane = new StackPane();
         pane.getChildren().add(i);
@@ -112,14 +111,22 @@ public class Hello extends Application {
         if (isPipetteMode) {
             pickColor(mouseEvent, isImageA);
             isPipetteMode = false; // Désactiver le mode pipette après utilisation
-            canvasA.setCursor(Cursor.DEFAULT); // Reset cursor
-            canvasB.setCursor(Cursor.DEFAULT); // Reset cursor
+            canvasA.setCursor(Cursor.DEFAULT); 
+            canvasB.setCursor(Cursor.DEFAULT); 
         } else if (isClickValid && currentForme != null) {
             currentForme.handleMouseClicked(mouseEvent, isImageA);
         }
         isClickValid = true;
     }
 
+
+
+    /**
+     * Sélectionne la couleur à partir des coordonnées de la souris sur une image donnée.
+     * 
+     * @param mouseEvent L'événement de la souris contenant les coordonnées de la souris.
+     * @param isImageA   Un indicateur pour spécifier si l'image est l'image A ou l'image B.
+     */
     private void pickColor(MouseEvent mouseEvent, boolean isImageA) {
         Image image = isImageA ? startImage : endImage;
         if (image != null) {
