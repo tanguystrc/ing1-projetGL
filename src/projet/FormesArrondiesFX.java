@@ -25,6 +25,16 @@ public class FormesArrondiesFX extends FormesFX {
     public FormesArrondiesFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
         super(canvasA, canvasB, pointsDeControle);
     }
+    private void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point point = isImageA ? entry.getKey() : entry.getValue();
+            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { 
+                selectedPoint.setX(point.getX());
+                selectedPoint.setY(point.getY());
+                return;
+            }
+        }
+    }
 
     @Override
     public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
@@ -52,6 +62,8 @@ public class FormesArrondiesFX extends FormesFX {
             try {
                 selectedPoint.setX(mouseX);
                 selectedPoint.setY(mouseY);
+                checkForProximityAndMerge(mouseX, mouseY, isImageA);
+
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 return;
