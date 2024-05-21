@@ -1,12 +1,19 @@
 package src.projet;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
+
+import java.awt.Color;
 
 /** 
  * Classe pour le morphing d'image
@@ -154,12 +161,52 @@ public class Visage {
                     }
                 }
             }
-
             morphs1.add(morphImage1);
             morphs2.add(morphImage2);
         }
     }
 
+    /**
+     * Calcule la couleur intermédiaire entre deux couleurs RGB en fonction d'un pourcentage.
+     * @param rgb1 Première couleur en format entier RGB
+     * @param rgb2 Deuxième couleur en format entier RGB
+     * @param percentage Pourcentage de la première couleur (0.0 à 1.0)
+     * @return Couleur intermédiaire en format entier RGB
+     */
+    public static int getIntermediateColor(int rgb1, int rgb2, double percentage) {
+        if (percentage < 0.0 || percentage > 1.0) {
+            throw new IllegalArgumentException("Percentage must be between 0.0 and 1.0");
+        }
+        Color color1 = new Color(rgb1);
+        Color color2 = new Color(rgb2);
+
+        int r = (int) (color1.getRed() * percentage + color2.getRed() * (1.0 - percentage));
+        int g = (int) (color1.getGreen() * percentage + color2.getGreen() * (1.0 - percentage));
+        int b = (int) (color1.getBlue() * percentage + color2.getBlue() * (1.0 - percentage));
+
+        return new Color(r, g, b).getRGB();
+    }
+
     //TO DO morphisme visage (bufferedimage*2 list(point de controle) nb frame)
+    public List<BufferedImage> morph(int nbFrame){
+        List<BufferedImage> morphFinal = new ArrayList<>();
+        morphFinal.add(image1);
+        List<BufferedImage> morphs1 = new ArrayList<>();
+        List<BufferedImage> morphs2 = new ArrayList<>();
+
+        demiMorph(morphs1, morphs2, nbFrame);
+
+        for(int k=1; k<nbFrame-1;k++){
+            BufferedImage image = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
+            for(int i=0; i<image.getWidth();i++){
+                for(int j=0; j<image.getHeight();j++){
+                    image.setRGB(i, j, getIntermediateColor(morphs1.get(k-1).getRGB(i, j),morphs2.get(k-1).getRGB(i, j),((double)k/(double)(nbFrame-1))));
+                }
+            }
+            morphFinal.add(image);
+        }
+        morphFinal.add(image2);
+        return morphFinal;
+    }
     
 } 
