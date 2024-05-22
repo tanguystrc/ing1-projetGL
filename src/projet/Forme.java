@@ -157,19 +157,18 @@ public class Forme {
         int hauteur = image.getHeight();
         int largeur = image.getWidth();
         Point p = new Point();
+        System.out.println("ici");
         int autreCouleur = chercheAutreCouleur(image, pts);
-        int couleur;
 
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 p.setX(x);
                 p.setY(y);
-                couleur = image.getRGB(x+5, y+5);
-                if (autreCouleur!=couleur && estDomaine(pts, p)) {
-                    return couleur;
+                if (autreCouleur!=image.getRGB(x, y) && estDomaine(pts, p)) {
+                    return image.getRGB(x+5, y+5);
                 }
             }
         }
-        return 0; // Default color if none found
+        return 0; 
     }
 }
