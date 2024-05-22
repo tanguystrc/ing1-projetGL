@@ -64,19 +64,8 @@ public class GIFViewer extends Application {
         slider.setSnapToTicks(true);
         slider.setDisable(true);
         slider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (!slider.isValueChanging() && isSliderMode) {
+            if (isSliderMode) {
                 imageView.setImage(gifFrames.get(newVal.intValue()));
-            }
-        });
-        slider.setOnMousePressed(e -> {
-            if (isSliderMode) {
-                slider.setValueChanging(true);
-            }
-        });
-        slider.setOnMouseReleased(e -> {
-            if (isSliderMode) {
-                slider.setValueChanging(false);
-                imageView.setImage(gifFrames.get((int) slider.getValue()));
             }
         });
 
