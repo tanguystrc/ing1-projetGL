@@ -191,7 +191,7 @@ public class Hello extends Application {
         pictureButton.setOnAction(e -> {
             faceGroupPoints.setVisible(true);
             nvGroupePointsButton.setVisible(true);
-            currentForme = new PhotoFX(canvasA, canvasB, pointsDeControle);
+            currentForme = new PhotoFX(canvasA, canvasB, pointsDeControle, pointsDeControleLies);
             currentForme.resetPoints();
             updateButtonStyles(pictureButton);
         });
@@ -327,7 +327,7 @@ public class Hello extends Application {
         		// Copie profonde du groupe actuel terminé :
         		pointsDeControleLies.remove(pointsDeControle);
                 pointsDeControleLies.add(new PointDeControle(pointsDeControle));
-                // Nouveau groupe :
+                // Nouveau groupe :                
                 pointsDeControle.getPointsMap().clear();
                 pointsDeControleLies.add(pointsDeControle);
                 
