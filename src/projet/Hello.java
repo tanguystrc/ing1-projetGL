@@ -257,7 +257,7 @@ public class Hello extends Application {
         framesTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 
         TextField durationTextField = new TextField();
-        durationTextField.setPromptText("Durée (ms)");
+        durationTextField.setPromptText("Durée (s)");
         durationTextField.setMaxWidth(120);
         durationTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 
@@ -338,11 +338,15 @@ public class Hello extends Application {
                 };
 
                 ProgressBar progressBar = new ProgressBar();
-                progressBar.progressProperty().bind(task.progressProperty());
-                Scene loadingScene = new Scene(new VBox(10, new Label("Loading..."), progressBar), 300, 100);
-                loadingStage.setScene(loadingScene);
+        progressBar.progressProperty().bind(task.progressProperty());
+        VBox vbox = new VBox(10, new Label("GIF en cours de création..."), progressBar);
+        vbox.setAlignment(Pos.CENTER);  
+        vbox.setPadding(new Insets(20));
+        Scene loadingScene = new Scene(vbox, 300, 100);
+        loadingStage.setScene(loadingScene);
 
-                new Thread(task).start();
+        new Thread(task).start();
+        loadingStage.show();
             }
         });
 
@@ -386,8 +390,7 @@ public class Hello extends Application {
 
     private Stage createLoadingDialog(Stage primaryStage) {
         Stage loadingStage = new Stage();
-        loadingStage.initModality(Modality.WINDOW_MODAL);
-        loadingStage.initOwner(primaryStage);
+        loadingStage.initModality(Modality.APPLICATION_MODAL);
         loadingStage.setTitle("Loading");
 
         ProgressBar progressBar = new ProgressBar();
