@@ -3,8 +3,6 @@ package src.projet;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
