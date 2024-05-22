@@ -25,7 +25,28 @@ public class PointDeControle {
     }
 
     public void supprimer(Point pointA) {
-        pointsMap.remove(pointA);
+        System.out.println("A Map : "+pointsMap);
+        pointsMap.remove(pointA);    
+        System.out.println("B Map : "+pointsMap);   
+    }
+
+    public void modifierPoint(Point oldPointA, Point newPointA){
+
+        if (pointsMap.containsKey(oldPointA)) {
+            // On doit recreer la map si on veut garder le même ordre (aaaAAAAAAA)
+            // Optimisation bonjouuuur
+            Map<Point, Point> newMap = new LinkedHashMap<>();
+            Point pointB = pointsMap.get(oldPointA);//donne la valeur, donc le pointB
+            for (Entry<Point, Point> entry : pointsMap.entrySet()) {
+                if (entry.getKey().equals(oldPointA)) {
+                    newMap.put(newPointA, pointB);
+                } else {
+                    newMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+            pointsMap.clear();
+            pointsMap = newMap;
+        }
     }
 
     public Map<Point, Point> getPointsMap() {

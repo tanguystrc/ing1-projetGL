@@ -1,9 +1,8 @@
 package src.projet;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -188,6 +187,35 @@ public class Hello extends Application {
         }
     }
     
+    private void generateFace() {
+    	resetPoints();
+    	// Coordonnées :
+    	LinkedList<LinkedList<Point>> listeCoord = new LinkedList<>();
+    	LinkedList<Point> g1 = new LinkedList<>(Arrays.asList(new Point(200.0,299.0), new Point(267.0,308.0)));
+    	LinkedList<Point> g2 = new LinkedList<>(Arrays.asList(new Point(415.0,297.0), new Point(345.0,307.0)));
+    	LinkedList<Point> g3 = new LinkedList<>(Arrays.asList(new Point(181.0,262.0), new Point(201.0,252.0),new Point(259.0,263.0)));
+    	LinkedList<Point> g4 = new LinkedList<>(Arrays.asList(new Point(429.0,258.0), new Point(407.0,247.0),new Point(349.0,266.0)));
+    	LinkedList<Point> g5 = new LinkedList<>(Arrays.asList(new Point(272.0,406.0), new Point(305.0,320.0),new Point(337.0,404.0)));
+    	LinkedList<Point> g6 = new LinkedList<>(Arrays.asList(new Point(255.0,461.0), new Point(358.0,458.0)));
+    	LinkedList<Point> g7 = new LinkedList<>(Arrays.asList(new Point(158.0,220.0), new Point(197.0,139.0),new Point(422.0,139.0),new Point(449.0,220.0)));
+    	LinkedList<Point> g8 = new LinkedList<>(Arrays.asList(new Point(169.0,392.0), new Point(190.0,458.0),new Point(212.0,501.0),new Point(270.0,541.0),
+    														  new Point(329.0,545.0), new Point(388.0,504.0),new Point(413.0,461.0),new Point(438.0,386.0)));
+    	LinkedList<Point> g9 = new LinkedList<>(Arrays.asList(new Point(198.0,502.0), new Point(194.0,561.0),new Point(163.0,591.0)));
+    	LinkedList<Point> g10 = new LinkedList<>(Arrays.asList(new Point(403.0,509.0), new Point(406.0,552.0),new Point(436.0,591.0)));
+    	listeCoord.addAll(Arrays.asList(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10));
+    	
+    	for(LinkedList<Point> groupe : listeCoord) {
+    		for(Point p : groupe) {
+    			pointsDeControle.ajouter(p, new Point(p.getX(), p.getY()));
+    		}
+    		pointsDeControleLies.remove(pointsDeControle);
+            pointsDeControleLies.add(new PointDeControle(pointsDeControle));
+            pointsDeControle.getPointsMap().clear();
+            pointsDeControleLies.add(pointsDeControle);    		
+    	}    	
+    	redrawPoints();    	
+    }
+    
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index, int numGroupe) {
         // lettre de l'alphabet au début, chiffres après
@@ -333,6 +361,8 @@ public class Hello extends Application {
     	return res;
     }
 
+    
+    
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
@@ -400,10 +430,19 @@ public class Hello extends Application {
                 pointsDeControle.getPointsMap().clear();
                 pointsDeControleLies.add(pointsDeControle);
                 
+                System.out.println(pointsDeControleLies);
                 
             }
         });
-    
+        
+        // Bouton pour creer automatiquement des groupes de PointsDeControle pour les visages :
+        Button faceGroupPoints = new Button("Visage");
+        faceGroupPoints.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        faceGroupPoints.setOnAction(e -> {
+        	generateFace();
+        });
+        
+        
         // Bouton pipette
         Button pipetteButton = new Button("Pipette");
         pipetteButton.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
@@ -460,7 +499,7 @@ public class Hello extends Application {
         });
     
     
-        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, nvGroupePointsButton, pipetteButton, colorDisplay);
+        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, nvGroupePointsButton, faceGroupPoints, pipetteButton, colorDisplay);
         buttonBox2.setAlignment(Pos.CENTER);
     
         // Configuration du BorderPane
