@@ -13,7 +13,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
 import java.util.Map.Entry;
 
 public class FormesLineaireFX extends FormesFX {
@@ -28,23 +27,7 @@ public class FormesLineaireFX extends FormesFX {
     
     }
 
-    public void loadExample() {
-        // Définir des images de départ et d'arrivée prédéfinies
-        Image startImage = new Image(getClass().getResource("/img/carre.png").toString());
-        Image endImage = new Image(getClass().getResource("/img/triangle.png").toString());
-        // Charger les images sur les canvas
-        canvasA.getGraphicsContext2D().drawImage(startImage, 0, 0);
-        canvasB.getGraphicsContext2D().drawImage(endImage, 0, 0);
-
-        // Définir des points de contrôle prédéfinis
-        pointsDeControle.getPointsMap().clear();
-        pointsDeControle.ajouter(new Point(88.0, 97), new Point(301, 100));
-        pointsDeControle.ajouter(new Point(497, 97), new Point(301, 100));
-        pointsDeControle.ajouter(new Point(499, 492), new Point(509, 474));
-        pointsDeControle.ajouter(new Point(85, 490), new Point(93, 474));
-
-        redrawPoints();
-    }
+  
 
     @Override
     public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
@@ -170,7 +153,7 @@ public class FormesLineaireFX extends FormesFX {
         }
     }
 
-    private void redrawPoints() {
+    public void redrawPoints() {
         canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 

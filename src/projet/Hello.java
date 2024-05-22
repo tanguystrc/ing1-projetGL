@@ -47,6 +47,8 @@ public class Hello extends Application {
 
     private Button linearButton;
     private Button roundedButton;
+    private ImageView startImageView;
+    private ImageView endImageView;
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -157,22 +159,59 @@ public class Hello extends Application {
 
         Button exampleButton = new Button("Exemple");
         exampleButton.setStyle(DEFAULT_STYLE);
-        exampleButton.setOnAction(e -> {
-            if (currentForme != null) {
-                currentForme.loadExample();
-            }
-        });
+        exampleButton.setOnAction(e -> loadExample());
 
         menu.getChildren().addAll(linearButton, roundedButton, exampleButton);
         return menu;
     }
 
+    private void loadExample() {
+       
+        
+        if (currentForme instanceof FormesLineaireFX) {
+             startImage = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
+             endImage = new Image("file:./src/projet/img/triangle.png",600,600,true,true);
+            
+            pointsDeControle.getPointsMap().clear();
+            pointsDeControle.ajouter(new Point(88.0, 97), new Point(301, 100));
+            pointsDeControle.ajouter(new Point(497, 97), new Point(301, 100));
+            pointsDeControle.ajouter(new Point(499, 492), new Point(509, 474));
+            pointsDeControle.ajouter(new Point(85, 490), new Point(93, 474));
+            
+        } else if (currentForme instanceof FormesArrondiesFX) {
+            startImage = new Image("file:./src/projet/img/coeur.png", 600, 600, true, true);
+             endImage = new Image("file:./src/projet/img/croissant.png",600,600,true,true);
+            
+            
+            pointsDeControle.getPointsMap().clear();
+            pointsDeControle.ajouter(new Point(298.0, 204.0), new Point(394.0, 32.0));
+            pointsDeControle.ajouter(new Point(402.0, 8.0), new Point(311.0, 111.0));
+            pointsDeControle.ajouter(new Point(583.0, 154.0), new Point(284.0, 170.0));
+            pointsDeControle.ajouter(new Point(508.0, 296.0), new Point(277.0, 267.0));
+            pointsDeControle.ajouter(new Point(478.0, 368.0), new Point(273.0, 339.0));
+            pointsDeControle.ajouter(new Point(407.0, 437.0), new Point(290.0, 444.0));
+            pointsDeControle.ajouter(new Point(299.0, 510.0), new Point(396.0, 540.0));
+            pointsDeControle.ajouter(new Point(166.0, 434.0), new Point(181.0, 539.0));
+            pointsDeControle.ajouter(new Point(40.0, 297.0), new Point(124.0, 288.0));
+            pointsDeControle.ajouter(new Point(75.0, 181.0), new Point(179.0, 182.0));
+            pointsDeControle.ajouter(new Point(93.0, 116.0), new Point(199.0, 130.0));
+            pointsDeControle.ajouter(new Point(223.0, 52.0), new Point(272.0, 30.0));
+            pointsDeControle.ajouter(new Point(298.1, 204.0), new Point(394.0, 32.0));
+            
+        }
+    
+        startImageView.setImage(startImage);
+        endImageView.setImage(endImage);
+    
+        currentForme.redrawPoints();
+    }
+    
+    
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
         this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
         
-
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
 
@@ -184,10 +223,8 @@ public class Hello extends Application {
                 + "Cliquez sur la 1ère image pour ajouter un nouveau point de contrôle là où vous le souhaitez, puis sur la seconde pour son second emplacement."
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF.");
 
-        ImageView startImageView = createImageView();
-        startImageView.getStyleClass().add("imageViewA");
-        ImageView endImageView = createImageView();
-        endImageView.getStyleClass().add("imageViewB");
+        startImageView = createImageView();
+        endImageView = createImageView();
 
         StackPane paneA = imgDansPane(startImageView, true);
         StackPane paneB = imgDansPane(endImageView, false);
@@ -247,9 +284,9 @@ public class Hello extends Application {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
                     Forme forme;
                     if (currentForme instanceof FormesLineaireFX) {
-                        forme = new Forme(pointsDeControle, null, null, nbFrames);
+                        forme = new FormeLineaire(pointsDeControle, nbFrames, null, null);
                     } else {
-                        forme = new FormeArrondie(pointsDeControle, nbFrames);
+                        forme = new FormeArrondie(pointsDeControle, nbFrames, null, null);
                     }
                     forme.setSelectedColor(selectedColor);
                     forme.morphisme(bufferedImage, pointsDeControle, nbFrames);

@@ -27,5 +27,5 @@ public abstract class FormesFX {
 
     public abstract void showDeletePointDialog();
 
-    public abstract void loadExample();
+    public abstract void redrawPoints();
 }
