@@ -1,7 +1,9 @@
 package src.projet;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
+import java.awt.image.BufferedImage;
 
 public class FormeArrondie extends Forme{
     private Color[][] matrice1;
@@ -29,72 +31,51 @@ public class FormeArrondie extends Forme{
         this.matrice2 = matrice2;
     }
 
-    public boolean estDomaine(List<Point> listePoints, Point point) {
-        int traversées = 0;
-        int nbPts = listePoints.size();
-    
-        for (int i = 0; i < nbPts - 1; i += 3) {
-            Point p0 = listePoints.get(i);
-            Point p1 = listePoints.get((i + 1) % nbPts);
-            Point p2 = listePoints.get((i + 2) % nbPts);
-            Point p3 = listePoints.get((i + 3) % nbPts);
-    
-            traversées += traverseCourbe(p0, p1, p2, p3, point);
-        }
-    
-        if (nbPts % 3 == 0) {
-            Point p0 = listePoints.get(nbPts - 1);
-            Point p1 = listePoints.get((nbPts - 2 + nbPts) % nbPts);
-            Point p2 = listePoints.get((nbPts - 3 + nbPts) % nbPts);
-            Point p3 = listePoints.get(0);
-    
-            traversées += traverseCourbe(p0, p1, p2, p3, point);
-        }
-    
-        return (traversées % 2 != 0);
-    }
-    
-    private int traverseCourbe(Point p0, Point p1, Point p2, Point p3, Point point) {
-        final int etapes = 20; 
-        double[] xPoints = new double[etapes];
-        double[] yPoints = new double[etapes];
-        int traversées = 0;
-    
-        for (int i = 0; i < etapes; i++) {
-            double t = (double) i / (etapes - 1);
-            double x = Math.pow(1 - t, 3) * p0.getX() +
-                       3 * t * Math.pow(1 - t, 2) * p1.getX() +
-                       3 * Math.pow(t, 2) * (1 - t) * p2.getX() +
-                       Math.pow(t, 3) * p3.getX();
-            double y = Math.pow(1 - t, 3) * p0.getY() +
-                       3 * t * Math.pow(1 - t, 2) * p1.getY() +
-                       3 * Math.pow(t, 2) * (1 - t) * p2.getY() +
-                       Math.pow(t, 3) * p3.getY();
-    
-            xPoints[i] = x;
-            yPoints[i] = y;
-        }
-    
-        for (int i = 0; i < etapes - 1; i++) {
-            if (segmentTraverseLigne(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1], point.getX(), point.getY())) {
-                traversées++;
+
+
+    @Override
+    public BufferedImage morphismeRemplissage(Color[][] matrix, Color couleur, Color autreCouleur, List<Point> points) {
+        int hauteur = matrix.length;
+        int largeur = matrix[0].length;
+        Color[][] newMatrix = new Color[hauteur][largeur];
+        List<Point> pointsIntermediaires =  calculerPointsBezier(points);
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+                if (estDomaine(pointsIntermediaires, new Point(x, y))) {
+                    newMatrix[y][x] = couleur;
+                } else {
+                    newMatrix[y][x] = autreCouleur;
+                }
             }
         }
     
-        return traversées;
+        return genereImage(newMatrix);
     }
+
+
+    public List<Point> calculerPointsBezier(List<Point> listePoints) {
+        List<Point> pointsIntermediaires = new ArrayList<>();
+        final int etapes = 120;
+        for (int i = 0; i < listePoints.size() - 3; i += 3) {
+            Point p0 = listePoints.get(i);
+            Point p1 = listePoints.get(i + 1);
+            Point p2 = listePoints.get(i + 2);
+            Point p3 = listePoints.get(i + 3);
     
-    private boolean segmentTraverseLigne(double x1, double y1, double x2, double y2, double px, double py) {
-        if (y1 == y2) {
-            return false;
+            for (int j = 0; j < etapes; j++) {
+                double t = (double) j / (etapes - 1);
+                double x = Math.pow(1 - t, 3) * p0.getX() +
+                           3 * t * Math.pow(1 - t, 2) * p1.getX() +
+                           3 * Math.pow(t, 2) * (1 - t) * p2.getX() +
+                           Math.pow(t, 3) * p3.getX();
+                double y = Math.pow(1 - t, 3) * p0.getY() +
+                           3 * t * Math.pow(1 - t, 2) * p1.getY() +
+                           3 * Math.pow(t, 2) * (1 - t) * p2.getY() +
+                           Math.pow(t, 3) * p3.getY();
+    
+                pointsIntermediaires.add(new Point(x, y));
+            }
         }
-    
-        if (x1 == x2) {
-            return px == x1 && ((y1 <= py && py <= y2) || (y2 <= py && py <= y1));
-        }
-    
-        boolean intersect = ((y1 > py) != (y2 > py)) && (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1);
-        return intersect;
+        return pointsIntermediaires;
     }
-    
 }
