@@ -13,7 +13,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
 import java.util.Map.Entry;
 
 public class FormesArrondiesFX extends FormesFX {
@@ -28,23 +27,7 @@ public class FormesArrondiesFX extends FormesFX {
     }
 
 
-    public void loadExample() {
-        // Définir des images de départ et d'arrivée prédéfinies
-        Image startImage = new Image("file:img/carre.png");
-        Image endImage = new Image("file:img/triangle.png");
-        // Charger les images sur les canvas
-        canvasA.getGraphicsContext2D().drawImage(startImage, 0, 0);
-        canvasB.getGraphicsContext2D().drawImage(endImage, 0, 0);
-
-        // Définir des points de contrôle prédéfinis
-        pointsDeControle.getPointsMap().clear();
-        pointsDeControle.ajouter(new Point(100, 100), new Point(500, 100));
-        pointsDeControle.ajouter(new Point(200, 200), new Point(400, 200));
-        pointsDeControle.ajouter(new Point(300, 300), new Point(300, 300));
-        pointsDeControle.ajouter(new Point(400, 400), new Point(200, 400));
-
-        redrawPoints();
-    }
+ 
 
     private void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
@@ -170,7 +153,7 @@ public class FormesArrondiesFX extends FormesFX {
         dialog.show();
     }
 
-    private void redrawPoints() {
+    public void redrawPoints() {
         canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
