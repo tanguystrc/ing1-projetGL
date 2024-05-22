@@ -1,6 +1,9 @@
 package src.projet;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 
 /** 
  * Classe pour le morphing d'image avec la méthode des ségments
@@ -69,7 +75,7 @@ public class Visage {
         
         return p;
     }
-    
+
     /**
      * Forme les ensembles des segments pour le demiMorphisme
      * @param pSImage1 Ensemble de pair de segment initialisé mais vide comptenant les segments de l'image1 et ceux de l'image intermédiaire n
@@ -180,22 +186,36 @@ public class Visage {
         Color color1 = new Color(rgb1);
         Color color2 = new Color(rgb2);
 
-        int r = (int) (color1.getRed() * percentage + color2.getRed() * (1.0 - percentage));
-        int g = (int) (color1.getGreen() * percentage + color2.getGreen() * (1.0 - percentage));
-        int b = (int) (color1.getBlue() * percentage + color2.getBlue() * (1.0 - percentage));
+        int r = (int) (color2.getRed() * percentage + color1.getRed() * (1.0 - percentage));
+        int g = (int) (color2.getGreen() * percentage + color1.getGreen() * (1.0 - percentage));
+        int b = (int) (color2.getBlue() * percentage + color1.getBlue() * (1.0 - percentage));
 
         return new Color(r, g, b).getRGB();
     }
 
-    //TO DO morphisme visage (bufferedimage*2 list(point de controle) nb frame)
-    public List<BufferedImage> morph(int nbFrame){
+    /**
+     * Fonction pour le morphisme avec les droites
+     * @param nbFrame Nombre totale de frame
+     * @return Une liste de BufferedImage
+     * @throws IOException 
+     * @throws FileNotFoundException 
+     */
+    public List<BufferedImage> morph(int nbFrame) throws FileNotFoundException, IOException{
         List<BufferedImage> morphFinal = new ArrayList<>();
-        morphFinal.add(image1);
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
+        //Variable pour le gif
+        ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
+
         demiMorph(morphs1, morphs2, nbFrame);
 
+        //Ajout de la première image
+        morphFinal.add(image1);
+        gifWriter.writeToSequence(image1);
+
+        //Assemblage des images
         for(int k=1; k<nbFrame-1;k++){
             BufferedImage image = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
             for(int i=0; i<image.getWidth();i++){
@@ -204,9 +224,20 @@ public class Visage {
                 }
             }
             morphFinal.add(image);
+            gifWriter.writeToSequence(image);
         }
+
+        //Ajout de l'image finale
         morphFinal.add(image2);
+        gifWriter.writeToSequence(image2);
+
+        //Finalisation du gif
+        gifWriter.close();
+        output.close();
+
         return morphFinal;
     }
+
+    
     
 } 
