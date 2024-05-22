@@ -11,7 +11,7 @@ REM Écrit le contenu dans settings.json
 echo {
 echo     "java.project.referencedLibraries": [
 echo         "lib/**/*.jar",
-echo         "./lib/javafx-sdk-22-winodws/**/*.jar"
+echo         "./lib/javafx-sdk-22-windows/**/*.jar"
 echo     ]
 echo }
 ) > .vscode\settings.json
@@ -30,7 +30,7 @@ echo             "name": "Hello",
 echo             "request": "launch",
 echo             "mainClass": "src.projet.Hello",
 echo             "projectName": "ing1-projetGL_3d0b975c",
-echo             "vmArgs": "--module-path \"./lib/javafx-sdk-22-winodws/lib\" --add-modules javafx.controls,javafx.fxml"
+echo             "vmArgs": "--module-path \"./lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
 echo         }
 echo     ]
 echo }
