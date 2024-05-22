@@ -164,7 +164,7 @@ public class Forme {
             for (int x = 0; x < largeur; x++) {
                 p.setX(x);
                 p.setY(y);
-                couleur = image.getRGB(x, y);
+                couleur = image.getRGB(x+5, y+5);
                 if (autreCouleur!=couleur && estDomaine(pts, p)) {
                     return couleur;
                 }
