@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.gif;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Iterator;
