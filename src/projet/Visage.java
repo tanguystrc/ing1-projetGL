@@ -88,6 +88,9 @@ public class Visage {
             List<Point> indices = listIndice.get(i);
             Map<Point,Point> pointDeControle = new HashMap<>(this.getSegments().get(i).getPointsMap());
             List<Point> pointsList = new ArrayList<>(pointDeControle.keySet());
+            if (pointDeControle.size()==1) {
+            	throw new PointDeControleInvalide("La Map PointDeControle est invalide.");
+            }
             for(int j=0;j<pointsList.size()-1;j++){
                 Point debut = pointsList.get(j);
                 Point fin = pointsList.get(j+1);
@@ -205,17 +208,15 @@ public class Visage {
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
-        //Variable pour le gif
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
 
         demiMorph(morphs1, morphs2, nbFrame);
 
-        //Ajout de la première image
+
         morphFinal.add(image1);
         gifWriter.writeToSequence(image1);
 
-        //Assemblage des images
         for(int k=1; k<nbFrame-1;k++){
             BufferedImage image = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
             for(int i=0; i<image.getWidth();i++){
@@ -226,15 +227,10 @@ public class Visage {
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
         }
-
-        //Ajout de l'image finale
         morphFinal.add(image2);
         gifWriter.writeToSequence(image2);
-
-        //Finalisation du gif
         gifWriter.close();
         output.close();
-
         return morphFinal;
     }
 
