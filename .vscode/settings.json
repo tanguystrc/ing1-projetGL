@@ -1,9 +1,6 @@
 {
-  "java.configuration.runtimes": [
-    {
-      "name": "JavaSE-22",
-      "path": "${env:JAVA_HOME}",
-      "default": true
-    }
-  ]
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "./lib/javafx-sdk-22-linux/**/*.jar"
+    ]
 }

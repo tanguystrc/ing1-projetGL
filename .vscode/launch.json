@@ -1,20 +1,16 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "type": "java",
-            "name": "GIFViewer",
-            "request": "launch",
-            "mainClass": "src.projet.GIFViewer",
-            "projectName": "ing1-projetGL",
-            "vmArgs": "--module-path \"${workspaceFolder}/lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
-        },
         {
             "type": "java",
             "name": "Hello",
             "request": "launch",
             "mainClass": "src.projet.Hello",
-            "vmArgs": "--module-path \"${workspaceFolder}/lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+            "projectName": "ing1-projetGL_3d0b975c",
+            "vmArgs": "--module-path \"./lib/javafx-sdk-22-linux/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }
