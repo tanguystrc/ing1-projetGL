@@ -291,7 +291,7 @@ public class Hello extends Application {
             }
 
             if (startImage != null) {
-                // Create and show the loading dialog
+                
                 Stage loadingStage = createLoadingDialog(primaryStage);
 
                 Task<Void> task = new Task<Void>() {
