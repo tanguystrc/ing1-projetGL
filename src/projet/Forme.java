@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
 import java.awt.Color;
 
-/**
- * Classe abstraite représentant une forme avec des points de contrôle et des images associées.
- */
+
 public abstract class Forme {
     
     protected PointDeControle pointsDeControle;
@@ -35,12 +34,7 @@ public abstract class Forme {
         this.selectedColor = selectedColor;
     }
 
-    /**
-     * Génère une matrice de couleurs à partir d'une image.
-     * 
-     * @param image l'image source.
-     * @return une matrice 2D de couleurs représentant les pixels de l'image.
-     */
+
     public Color[][] genererMatrice(BufferedImage image) {
         int largeur = image.getWidth();
         int hauteur = image.getHeight();
@@ -55,12 +49,7 @@ public abstract class Forme {
         return colorMatrix;
     }
 
-    /**
-     * Génère une image à partir d'une matrice de couleurs.
-     * 
-     * @param matrix la matrice 2D de couleurs.
-     * @return une image BufferedImage créée à partir de la matrice de couleurs.
-     */
+
     public BufferedImage genereImage(Color[][] matrix) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
@@ -77,23 +66,13 @@ public abstract class Forme {
         }
         return image;
     }
-        /**
-     * Calcule le vecteur entre deux points.
-     * @param p1 le premier point
-     * @param p2 le deuxième point
-     * @return le vecteur résultant du calcul
-     */
+
     public static Point calculerVecteur(Point p1, Point p2) {
         double deltaX = p2.getX() - p1.getX();
         double deltaY = p2.getY() - p1.getY();
         return new Point(deltaX, deltaY);
     }
-        /**
-     * Calcule les indices pour chaque paire de points de contrôle.
-     * @param pointsDeControle les points de contrôle
-     * @param nbFrame le nombre de frames
-     * @return une liste de points représentant les indices
-     */
+
     public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
         List<Point> p = new ArrayList<>();
         for (Map.Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
@@ -106,13 +85,8 @@ public abstract class Forme {
         }
         return p;
     }
-     /**
-     * Applique le morphisme simple pour générer une animation GIF.
-     * @param image1 l'image source
-     * @param pointsDeControle les points de contrôle
-     * @param nbFrame le nombre de frames
-     * @throws IOException si une erreur d'entrée/sortie se produit
-     */
+
+
     public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
         Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
@@ -141,7 +115,6 @@ public abstract class Forme {
             gifWriter.writeToSequence(frameImage);
         }
     
-        // Ajouter l'image d'arrivée en utilisant les valeurs de la map en entrée
         List<Point> listPointArrivee = new ArrayList<>();
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             listPointArrivee.add(entry.getValue());
@@ -153,42 +126,57 @@ public abstract class Forme {
         output.close();
     }
     
-
-    public abstract boolean estDomaine(List<Point> listePoint, Point p) ;
-    
-        /**
-     * Remplit l'image en utilisant le morphisme simple.
-     * @param matrix la matrice de couleurs
-     * @param couleur la couleur à utiliser pour remplir l'intérieur du polygone
-     * @param autreCouleur la couleur à utiliser pour remplir l'extérieur du polygone
-     * @param points la liste des points
-     * @return l'image remplie
-     */
     public BufferedImage morphismeRemplissage(Color[][] matrix, Color couleur, Color autreCouleur, List<Point> points) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
+        Color[][] newMatrix = new Color[hauteur][largeur];
+    
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 if (estDomaine(points, new Point(x, y))) {
-                    matrix[y][x] = couleur; // Correction : matrix[y][x] au lieu de matrix[x][y]
+                    newMatrix[y][x] = couleur;
                 } else {
-                    matrix[y][x] = autreCouleur; // Correction : matrix[y][x] au lieu de matrix[x][y]
+                    newMatrix[y][x] = autreCouleur;
                 }
             }
         }
-        return genereImage(matrix);
+    
+        return genereImage(newMatrix);
+    }
+    
+    
+
+    public boolean estDomaine(List<Point> listePoint, Point p) {
+        int compteur = 0;
+        int nbPts = listePoint.size();
+        Point dernierPoint = listePoint.get(nbPts - 1);
+    
+        for (Point pointActuel : listePoint) {
+            if (pointActuel.getY() == p.getY() && dernierPoint.getY() == p.getY()) {
+                if ((pointActuel.getX() <= p.getX() && p.getX() <= dernierPoint.getX()) || 
+                    (dernierPoint.getX() <= p.getX() && p.getX() <= pointActuel.getX())) {
+                    return true; 
+                }
+            } else if (pointActuel.getX() == p.getX() && dernierPoint.getX() == p.getX()) {
+                if ((pointActuel.getY() <= p.getY() && p.getY() <= dernierPoint.getY()) || 
+                    (dernierPoint.getY() <= p.getY() && p.getY() <= pointActuel.getY())) {
+                    return true; 
+                }
+            } else {
+                if ((pointActuel.getY() < p.getY() && dernierPoint.getY() >= p.getY()) || 
+                    (pointActuel.getY() >= p.getY() && dernierPoint.getY() < p.getY())) {
+                    double intersectX = pointActuel.getX() + (p.getY() - pointActuel.getY()) * (dernierPoint.getX() - pointActuel.getX()) / (dernierPoint.getY() - pointActuel.getY());
+                    if (p.getX() < intersectX) {
+                        compteur++;
+                    }
+                }
+            }
+            dernierPoint = pointActuel;
+        }
+        return compteur % 2 != 0;
     }
 
     
-    
-
-    /**
-     * Cherche une couleur à l'intérieur d'un polygone dans une matrice de couleurs.
-     * 
-     * @param matrix la matrice 2D de couleurs.
-     * @param pts la liste des points définissant le polygone.
-     * @return la couleur trouvée à l'intérieur du polygone, ou null si aucune couleur n'est trouvée.
-     */
     public Color chercheCouleur(Color[][] matrix, List<Point> pts) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
@@ -199,7 +187,6 @@ public abstract class Forme {
                 p.setX(x);
                 p.setY(y);
                 if (estDomaine(pts, p)) {
-                    //afficher la couleur trouvée
                     System.out.println("Couleur trouvée : " + matrix[y][x]);
                     return matrix[y][x];
                 }
@@ -209,13 +196,6 @@ public abstract class Forme {
         return null;
     }
 
-    /**
-     * Cherche une couleur à l'extérieur d'un polygone dans une matrice de couleurs.
-     * 
-     * @param matrix la matrice 2D de couleurs.
-     * @param pts la liste des points définissant le polygone.
-     * @return la couleur trouvée à l'extérieur du polygone, ou null si aucune couleur n'est trouvée.
-     */
     public Color chercheAutreCouleur(Color[][] matrix, List<Point> pts) {
         int hauteur = matrix.length;
         int largeur = matrix[0].length;
