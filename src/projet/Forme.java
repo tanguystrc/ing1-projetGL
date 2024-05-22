@@ -8,14 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
-import java.awt.Color;
-
-
-public abstract class Forme {
+public class Forme {
     
     protected PointDeControle pointsDeControle;
     protected BufferedImage image1;
@@ -32,39 +28,6 @@ public abstract class Forme {
 
     public void setSelectedColor(javafx.scene.paint.Color selectedColor) {
         this.selectedColor = selectedColor;
-    }
-
-
-    public Color[][] genererMatrice(BufferedImage image) {
-        int largeur = image.getWidth();
-        int hauteur = image.getHeight();
-        Color[][] colorMatrix = new Color[hauteur][largeur];
-
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < largeur; x++) {
-                int rgb = image.getRGB(x, y);
-                colorMatrix[y][x] = new Color(rgb, true);
-            }
-        }
-        return colorMatrix;
-    }
-
-
-    public BufferedImage genereImage(Color[][] matrix) {
-        int hauteur = matrix.length;
-        int largeur = matrix[0].length;
-        BufferedImage image = new BufferedImage(largeur, hauteur, BufferedImage.TYPE_INT_ARGB);
-        
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < largeur; x++) {
-                if (matrix[y][x] != null) {
-                    Color color = matrix[y][x];
-                    int rgb = color.getRGB();
-                    image.setRGB(x, y, rgb);
-                }
-            }
-        }
-        return image;
     }
 
     public static Point calculerVecteur(Point p1, Point p2) {
@@ -86,19 +49,17 @@ public abstract class Forme {
         return p;
     }
 
-
     public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
-        Color[][] matrix = genererMatrice(image1);
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
         List<Point> pointsKeys = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
-        Color couleur = (selectedColor != null) ? new Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)) : chercheCouleur(matrix, pointsKeys);
-        Color autreCouleur = chercheAutreCouleur(matrix, pointsKeys);
+        int couleur = (selectedColor != null) ? new java.awt.Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)).getRGB() : chercheCouleur(image1, pointsKeys);
+        int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
     
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 42, true);
     
-        int hauteur = matrix.length;
-        int largeur = matrix[0].length;
+        int hauteur = image1.getHeight();
+        int largeur = image1.getWidth();
     
         for (int i = 0; i < nbFrame; i++) {
             List<Point> listPoint = new ArrayList<>(); 
@@ -110,7 +71,7 @@ public abstract class Forme {
                 Point p1 = new Point(x, y); 
                 listPoint.add(p1);
             }
-            BufferedImage frameImage = morphismeRemplissage(matrix, couleur, autreCouleur, listPoint);
+            BufferedImage frameImage = morphismeRemplissage(image1, couleur, autreCouleur, listPoint);
             
             gifWriter.writeToSequence(frameImage);
         }
@@ -119,33 +80,31 @@ public abstract class Forme {
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             listPointArrivee.add(entry.getValue());
         }
-        BufferedImage imageArrivee = morphismeRemplissage(matrix, couleur, autreCouleur, listPointArrivee);
+        BufferedImage imageArrivee = morphismeRemplissage(image1, couleur, autreCouleur, listPointArrivee);
         gifWriter.writeToSequence(imageArrivee);
     
         gifWriter.close();
         output.close();
     }
     
-    public BufferedImage morphismeRemplissage(Color[][] matrix, Color couleur, Color autreCouleur, List<Point> points) {
-        int hauteur = matrix.length;
-        int largeur = matrix[0].length;
-        Color[][] newMatrix = new Color[hauteur][largeur];
+    public BufferedImage morphismeRemplissage(BufferedImage image, int couleur, int autreCouleur, List<Point> points) {
+        int hauteur = image.getHeight();
+        int largeur = image.getWidth();
+        BufferedImage newImage = new BufferedImage(largeur, hauteur, BufferedImage.TYPE_INT_ARGB);
     
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 if (estDomaine(points, new Point(x, y))) {
-                    newMatrix[y][x] = couleur;
+                    newImage.setRGB(x, y, couleur);
                 } else {
-                    newMatrix[y][x] = autreCouleur;
+                    newImage.setRGB(x, y, autreCouleur);
                 }
             }
         }
     
-        return genereImage(newMatrix);
+        return newImage;
     }
     
-    
-
     public boolean estDomaine(List<Point> listePoint, Point p) {
         int compteur = 0;
         int nbPts = listePoint.size();
@@ -176,10 +135,9 @@ public abstract class Forme {
         return compteur % 2 != 0;
     }
 
-    
-    public Color chercheCouleur(Color[][] matrix, List<Point> pts) {
-        int hauteur = matrix.length;
-        int largeur = matrix[0].length;
+    public int chercheCouleur(BufferedImage image, List<Point> pts) {
+        int hauteur = image.getHeight();
+        int largeur = image.getWidth();
         Point p = new Point();
 
         for (int y = 0; y < hauteur; y++) {
@@ -187,18 +145,15 @@ public abstract class Forme {
                 p.setX(x);
                 p.setY(y);
                 if (estDomaine(pts, p)) {
-                    System.out.println("Couleur trouvée : " + matrix[y][x]);
-                    return matrix[y][x];
+                    return image.getRGB(x, y);
                 }
             }
         }
-        
-        return null;
+        return 0; // Default color if none found
     }
-
-    public Color chercheAutreCouleur(Color[][] matrix, List<Point> pts) {
-        int hauteur = matrix.length;
-        int largeur = matrix[0].length;
+    public int chercheAutreCouleur(BufferedImage image, List<Point> pts) {
+        int hauteur = image.getHeight();
+        int largeur = image.getWidth();
         Point p = new Point();
 
         for (int y = 0; y < hauteur; y++) {
@@ -206,10 +161,10 @@ public abstract class Forme {
                 p.setX(x);
                 p.setY(y);
                 if (!estDomaine(pts, p)) {
-                    return matrix[y][x];
+                    return image.getRGB(x, y);
                 }
             }
         }
-        return null;
+        return 0; // Default color if none found
     }
 }
