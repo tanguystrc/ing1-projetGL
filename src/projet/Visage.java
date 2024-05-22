@@ -1,22 +1,16 @@
 package src.projet;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
-
-import java.awt.Color;
-
 /** 
- * Classe pour le morphing d'image
+ * Classe pour le morphing d'image avec la méthode des ségments
 */
 public class Visage {
      
@@ -54,6 +48,11 @@ public class Visage {
         this.segments = segments;
     }
 
+    /**
+     * Retourne les vecteurs de déplacement pour chaque point entre chaques images de transition
+     * @param nbFrame Nombre d'image totale
+     * @return La liste des listes de vecteurs déplacement
+     */
     public List<List<Point>> listIndice(int nbFrame) {
         List<List<Point>> p = new ArrayList<>();
         for (int i=0;i < segments.size();i++){
@@ -70,6 +69,7 @@ public class Visage {
         
         return p;
     }
+    
     /**
      * Forme les ensembles des segments pour le demiMorphisme
      * @param pSImage1 Ensemble de pair de segment initialisé mais vide comptenant les segments de l'image1 et ceux de l'image intermédiaire n
