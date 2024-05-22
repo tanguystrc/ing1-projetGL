@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

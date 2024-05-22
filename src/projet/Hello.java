@@ -27,6 +27,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import src.projet.fx.FormesArrondiesFX;
+import src.projet.fx.FormesFX;
+import src.projet.fx.FormesLineaireFX;
+import src.projet.gif.GIFViewer;
+import src.projet.traitement.Forme;
+import src.projet.traitement.FormeArrondie;
+import src.projet.traitement.Point;
+import src.projet.traitement.PointDeControle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
@@ -371,6 +380,9 @@ public class Hello extends Application {
         primaryStage.show();
 
         FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
         selectStartImageButton.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {

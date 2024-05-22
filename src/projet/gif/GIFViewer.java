@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.gif;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -46,7 +46,7 @@ public class GIFViewer extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        primaryStage.setTitle("GIF Viewer");
+        primaryStage.setTitle("Lecteur de GIF");
         primaryStage.setAlwaysOnTop(true);
 
         File file = new File(gifFilePath);
