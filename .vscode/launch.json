@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "GIFViewer",
+            "request": "launch",
+            "mainClass": "src.projet.GIFViewer",
+            "projectName": "ing1-projetGL",
+            "vmArgs": "--module-path \"${workspaceFolder}/lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "Hello",
+            "request": "launch",
+            "mainClass": "src.projet.Hello",
+            "vmArgs": "--module-path \"${workspaceFolder}/lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+        }
+    ]
+}

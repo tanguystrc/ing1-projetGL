@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
