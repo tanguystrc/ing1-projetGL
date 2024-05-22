@@ -24,7 +24,10 @@ public class FormesLineaireFX extends FormesFX {
 
     public FormesLineaireFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
         super(canvasA, canvasB, pointsDeControle);
+    
     }
+
+  
 
     @Override
     public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
@@ -150,7 +153,7 @@ public class FormesLineaireFX extends FormesFX {
         }
     }
 
-    private void redrawPoints() {
+    public void redrawPoints() {
         canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 

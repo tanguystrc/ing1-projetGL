@@ -31,6 +31,9 @@ import javafx.scene.shape.Rectangle;
 
 public class Hello extends Application {
 
+    private static final String DEFAULT_STYLE = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;";
+    private static final String SELECTED_STYLE = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;";
+
     private PointDeControle pointsDeControle;
     private Canvas canvasA;
     private Canvas canvasB;
@@ -44,9 +47,8 @@ public class Hello extends Application {
 
     private Button linearButton;
     private Button roundedButton;
-
-    private static final String SELECTED_STYLE = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;";
-    private static final String DEFAULT_STYLE = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;";
+    private ImageView startImageView;
+    private ImageView endImageView;
 
     private ImageView createImageView() {
         ImageView imageView = new ImageView();
@@ -128,11 +130,17 @@ public class Hello extends Application {
         }
     }
 
+    private void updateButtonStyles(Button selectedButton) {
+        linearButton.setStyle(DEFAULT_STYLE);
+        roundedButton.setStyle(DEFAULT_STYLE);
+        selectedButton.setStyle(SELECTED_STYLE);
+    }
+
     private VBox createMenu() {
         VBox menu = new VBox(10);
         menu.setPadding(new Insets(10));
         menu.setStyle("-fx-background-color: #2c3e50; -fx-padding: 20px;");
-        
+
         linearButton = new Button("Formes Linéaires");
         linearButton.setStyle(DEFAULT_STYLE);
         linearButton.setOnAction(e -> {
@@ -149,21 +157,61 @@ public class Hello extends Application {
             updateButtonStyles(roundedButton);
         });
 
-        menu.getChildren().addAll(linearButton, roundedButton);
+        Button exampleButton = new Button("Exemple");
+        exampleButton.setStyle(DEFAULT_STYLE);
+        exampleButton.setOnAction(e -> loadExample());
+
+        menu.getChildren().addAll(linearButton, roundedButton, exampleButton);
         return menu;
     }
 
-    private void updateButtonStyles(Button selectedButton) {
-        linearButton.setStyle(DEFAULT_STYLE);
-        roundedButton.setStyle(DEFAULT_STYLE);
-        selectedButton.setStyle(SELECTED_STYLE);
+    private void loadExample() {
+       
+        
+        if (currentForme instanceof FormesLineaireFX) {
+             startImage = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
+             endImage = new Image("file:./src/projet/img/triangle.png",600,600,true,true);
+            
+            pointsDeControle.getPointsMap().clear();
+            pointsDeControle.ajouter(new Point(88.0, 97), new Point(301, 100));
+            pointsDeControle.ajouter(new Point(497, 97), new Point(301, 100));
+            pointsDeControle.ajouter(new Point(499, 492), new Point(509, 474));
+            pointsDeControle.ajouter(new Point(85, 490), new Point(93, 474));
+            
+        } else if (currentForme instanceof FormesArrondiesFX) {
+            startImage = new Image("file:./src/projet/img/coeur.png", 600, 600, true, true);
+             endImage = new Image("file:./src/projet/img/croissant.png",600,600,true,true);
+            
+            
+            pointsDeControle.getPointsMap().clear();
+            pointsDeControle.ajouter(new Point(298.0, 204.0), new Point(394.0, 32.0));
+            pointsDeControle.ajouter(new Point(402.0, 8.0), new Point(311.0, 111.0));
+            pointsDeControle.ajouter(new Point(583.0, 154.0), new Point(284.0, 170.0));
+            pointsDeControle.ajouter(new Point(508.0, 296.0), new Point(277.0, 267.0));
+            pointsDeControle.ajouter(new Point(478.0, 368.0), new Point(273.0, 339.0));
+            pointsDeControle.ajouter(new Point(407.0, 437.0), new Point(290.0, 444.0));
+            pointsDeControle.ajouter(new Point(299.0, 510.0), new Point(396.0, 540.0));
+            pointsDeControle.ajouter(new Point(166.0, 434.0), new Point(181.0, 539.0));
+            pointsDeControle.ajouter(new Point(40.0, 297.0), new Point(124.0, 288.0));
+            pointsDeControle.ajouter(new Point(75.0, 181.0), new Point(179.0, 182.0));
+            pointsDeControle.ajouter(new Point(93.0, 116.0), new Point(199.0, 130.0));
+            pointsDeControle.ajouter(new Point(223.0, 52.0), new Point(272.0, 30.0));
+            pointsDeControle.ajouter(new Point(298.1, 204.0), new Point(394.0, 32.0));
+            
+        }
+    
+        startImageView.setImage(startImage);
+        endImageView.setImage(endImage);
+    
+        currentForme.redrawPoints();
     }
-
+    
+    
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
         this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
-
+        
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
 
@@ -172,11 +220,11 @@ public class Hello extends Application {
         texteInstruction.setWrappingWidth(1000);
         texteInstruction.setTextAlignment(TextAlignment.JUSTIFY);
         texteInstruction.setText("Vos images doivent être de même dimension.\n"
-                + "Cliquez sur la 1ère image pour ajouter un nouveau point de controle là où vous le souhaitez, puis sur la seconde pour son second emplacement."
+                + "Cliquez sur la 1ère image pour ajouter un nouveau point de contrôle là où vous le souhaitez, puis sur la seconde pour son second emplacement."
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF.");
 
-        ImageView startImageView = createImageView();
-        ImageView endImageView = createImageView();
+        startImageView = createImageView();
+        endImageView = createImageView();
 
         StackPane paneA = imgDansPane(startImageView, true);
         StackPane paneB = imgDansPane(endImageView, false);
@@ -217,7 +265,7 @@ public class Hello extends Application {
         textFieldBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
-        startButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;");
+        startButton.setStyle(SELECTED_STYLE);
         startButton.setOnAction(e -> {
             System.out.println(pointsDeControle.toString());
             int nbFrames;
@@ -234,15 +282,14 @@ public class Hello extends Application {
             if (startImage != null) {
                 try {
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
+                    Forme forme;
                     if (currentForme instanceof FormesLineaireFX) {
-                        FormeLineaire formeLineaire = new FormeLineaire(pointsDeControle, nbFrames, null, null);
-                        formeLineaire.setSelectedColor(selectedColor);
-                        formeLineaire.morphisme(bufferedImage, pointsDeControle, nbFrames);
-                    } else if (currentForme instanceof FormesArrondiesFX) {
-                        FormeArrondie formeArrondie = new FormeArrondie(pointsDeControle, nbFrames, null, null);
-                        formeArrondie.setSelectedColor(selectedColor);
-                        formeArrondie.morphisme(bufferedImage, pointsDeControle, nbFrames);
+                        forme = new Forme(pointsDeControle, null, null, nbFrames);
+                    } else {
+                        forme = new FormeArrondie(pointsDeControle, nbFrames);
                     }
+                    forme.setSelectedColor(selectedColor);
+                    forme.morphisme(bufferedImage, pointsDeControle, nbFrames);
                     Platform.runLater(() -> {
                         try {
                             GIFViewer.display("GIF Viewer", "animation.gif");
@@ -255,7 +302,6 @@ public class Hello extends Application {
                 }
             }
         });
-
 
         HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, pipetteButton, colorDisplay);
         buttonBox2.setAlignment(Pos.CENTER);
@@ -293,8 +339,6 @@ public class Hello extends Application {
                 endImageView.setImage(endImage);
             }
         });
-
-        updateButtonStyles(linearButton); // Set initial button style
     }
 
     public static void main(String[] args) {
