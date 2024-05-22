@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -25,6 +27,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import javafx.scene.shape.Rectangle;
@@ -166,23 +169,19 @@ public class Hello extends Application {
     }
 
     private void loadExample() {
-       
-        
         if (currentForme instanceof FormesLineaireFX) {
-             startImage = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
-             endImage = new Image("file:./src/projet/img/triangle.png",600,600,true,true);
-            
+            startImage = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
+            endImage = new Image("file:./src/projet/img/triangle.png", 600, 600, true, true);
+
             pointsDeControle.getPointsMap().clear();
             pointsDeControle.ajouter(new Point(88.0, 97), new Point(301, 100));
             pointsDeControle.ajouter(new Point(497, 97), new Point(301, 100));
             pointsDeControle.ajouter(new Point(499, 492), new Point(509, 474));
             pointsDeControle.ajouter(new Point(85, 490), new Point(93, 474));
-            
         } else if (currentForme instanceof FormesArrondiesFX) {
             startImage = new Image("file:./src/projet/img/coeur.png", 600, 600, true, true);
-             endImage = new Image("file:./src/projet/img/croissant.png",600,600,true,true);
-            
-            
+            endImage = new Image("file:./src/projet/img/croissant.png", 600, 600, true, true);
+
             pointsDeControle.getPointsMap().clear();
             pointsDeControle.ajouter(new Point(298.0, 204.0), new Point(394.0, 32.0));
             pointsDeControle.ajouter(new Point(402.0, 8.0), new Point(311.0, 111.0));
@@ -197,21 +196,19 @@ public class Hello extends Application {
             pointsDeControle.ajouter(new Point(93.0, 116.0), new Point(199.0, 130.0));
             pointsDeControle.ajouter(new Point(223.0, 52.0), new Point(272.0, 30.0));
             pointsDeControle.ajouter(new Point(298.1, 204.0), new Point(394.0, 32.0));
-            
         }
-    
+
         startImageView.setImage(startImage);
         endImageView.setImage(endImage);
-    
+
         currentForme.redrawPoints();
     }
-    
-    
+
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();
         this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
-        
+
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
 
@@ -259,9 +256,18 @@ public class Hello extends Application {
         framesTextField.setMaxWidth(120);
         framesTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 
+        TextField durationTextField = new TextField();
+        durationTextField.setPromptText("Durée (ms)");
+        durationTextField.setMaxWidth(120);
+        durationTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+
         Label framesLabel = new Label("Nombre de frames");
         framesLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
-        VBox textFieldBox = new VBox(5, framesLabel, framesTextField);
+
+        Label durationLabel = new Label("Durée du GIF");
+        durationLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
+
+        VBox textFieldBox = new VBox(5, framesLabel, framesTextField, durationLabel, durationTextField);
         textFieldBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
@@ -269,37 +275,74 @@ public class Hello extends Application {
         startButton.setOnAction(e -> {
             System.out.println(pointsDeControle.toString());
             int nbFrames;
+            int duration;
             try {
                 nbFrames = Integer.parseInt(framesTextField.getText());
                 if (nbFrames < 5 || nbFrames > 144) {
                     throw new NumberFormatException();
                 }
+                duration = Integer.parseInt(durationTextField.getText());
+                if (duration < 0) {
+                    throw new NumberFormatException();
+                }
             } catch (NumberFormatException ex) {
-                System.out.println("Le nombre de frames doit être compris entre 5 et 144.");
+                System.out.println("Le nombre de frames doit être compris entre 5 et 144 et la durée doit être positive.");
                 return;
             }
 
             if (startImage != null) {
-                try {
-                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(startImage, null);
-                    Forme forme;
-                    if (currentForme instanceof FormesLineaireFX) {
-                        forme = new Forme(pointsDeControle, null, null, nbFrames);
-                    } else {
-                        forme = new FormeArrondie(pointsDeControle, nbFrames);
-                    }
-                    forme.setSelectedColor(selectedColor);
-                    forme.morphisme(bufferedImage, pointsDeControle, nbFrames);
-                    Platform.runLater(() -> {
-                        try {
-                            GIFViewer.display("GIF Viewer", "animation.gif");
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
+                // Create and show the loading dialog
+                Stage loadingStage = createLoadingDialog(primaryStage);
+
+                Task<Void> task = new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        updateProgress(0, nbFrames);
+
+                        Forme forme;
+                        if (currentForme instanceof FormesLineaireFX) {
+                            forme = new Forme(pointsDeControle, null, null, nbFrames);
+                        } else {
+                            forme = new FormeArrondie(pointsDeControle, nbFrames);
                         }
-                    });
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                        forme.setSelectedColor(selectedColor);
+
+                        try {
+                            forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
+
+                        Platform.runLater(() -> {
+                            try {
+                                GIFViewer.display("GIF Viewer", "animation.gif");
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                        });
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void succeeded() {
+                        super.succeeded();
+                        loadingStage.close();
+                    }
+
+                    @Override
+                    protected void failed() {
+                        super.failed();
+                        loadingStage.close();
+                    }
+                };
+
+                ProgressBar progressBar = new ProgressBar();
+                progressBar.progressProperty().bind(task.progressProperty());
+                Scene loadingScene = new Scene(new VBox(10, new Label("Loading..."), progressBar), 300, 100);
+                loadingStage.setScene(loadingScene);
+
+                new Thread(task).start();
             }
         });
 
@@ -339,6 +382,23 @@ public class Hello extends Application {
                 endImageView.setImage(endImage);
             }
         });
+    }
+
+    private Stage createLoadingDialog(Stage primaryStage) {
+        Stage loadingStage = new Stage();
+        loadingStage.initModality(Modality.WINDOW_MODAL);
+        loadingStage.initOwner(primaryStage);
+        loadingStage.setTitle("Loading");
+
+        ProgressBar progressBar = new ProgressBar();
+        VBox vbox = new VBox(new Label("Loading..."), progressBar);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(20));
+
+        Scene scene = new Scene(vbox, 300, 100);
+        loadingStage.setScene(scene);
+
+        return loadingStage;
     }
 
     public static void main(String[] args) {

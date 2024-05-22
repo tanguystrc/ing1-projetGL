@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -50,18 +51,18 @@ public class Forme {
         return p;
     }
 
-    public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame) throws IOException {
+   public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame, int dureeGIF, BiConsumer<Integer, Integer> progressUpdater) throws IOException {
         List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
         List<Point> pointsKeys = new ArrayList<>(pointsDeControle.getPointsMap().keySet());
         int couleur = (selectedColor != null) ? new java.awt.Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)).getRGB() : chercheCouleur(image1, pointsKeys);
         int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
-    
+
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 42, true);
-    
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF*1000)/nbFrame, true);
+
         int hauteur = image1.getHeight();
         int largeur = image1.getWidth();
-    
+
         for (int i = 0; i < nbFrame; i++) {
             List<Point> listPoint = new ArrayList<>(); 
             for (int j = 0; j < pointsKeys.size(); j++) {
@@ -73,20 +74,21 @@ public class Forme {
                 listPoint.add(p1);
             }
             BufferedImage frameImage = morphismeRemplissage(image1, couleur, autreCouleur, listPoint);
-            
             gifWriter.writeToSequence(frameImage);
+            progressUpdater.accept(i + 1, nbFrame); // Update progress here
         }
-    
+
         List<Point> listPointArrivee = new ArrayList<>();
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             listPointArrivee.add(entry.getValue());
         }
         BufferedImage imageArrivee = morphismeRemplissage(image1, couleur, autreCouleur, listPointArrivee);
         gifWriter.writeToSequence(imageArrivee);
-    
+
         gifWriter.close();
         output.close();
     }
+
     
     public BufferedImage morphismeRemplissage(BufferedImage image, int couleur, int autreCouleur, List<Point> points) {
         int hauteur = image.getHeight();
@@ -136,22 +138,6 @@ public class Forme {
         return compteur % 2 != 0;
     }
 
-    public int chercheCouleur(BufferedImage image, List<Point> pts) {
-        int hauteur = image.getHeight();
-        int largeur = image.getWidth();
-        Point p = new Point();
-
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < largeur; x++) {
-                p.setX(x);
-                p.setY(y);
-                if (estDomaine(pts, p)) {
-                    return image.getRGB(x, y);
-                }
-            }
-        }
-        return 0; // Default color if none found
-    }
     public int chercheAutreCouleur(BufferedImage image, List<Point> pts) {
         int hauteur = image.getHeight();
         int largeur = image.getWidth();
@@ -167,5 +153,23 @@ public class Forme {
             }
         }
         return 0; // Default color if none found
+    }
+    public int chercheCouleur(BufferedImage image, List<Point> pts) {
+        int hauteur = image.getHeight();
+        int largeur = image.getWidth();
+        Point p = new Point();
+        System.out.println("ici");
+        int autreCouleur = chercheAutreCouleur(image, pts);
+
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+                p.setX(x);
+                p.setY(y);
+                if (autreCouleur!=image.getRGB(x, y) && estDomaine(pts, p)) {
+                    return image.getRGB(x+5, y+5);
+                }
+            }
+        }
+        return 0; 
     }
 }

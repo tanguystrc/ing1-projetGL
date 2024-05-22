@@ -33,7 +33,7 @@ public class FormeArrondie extends Forme {
 
     public List<Point> calculerPointsBezier(List<Point> listePoints) {
         List<Point> pointsIntermediaires = new ArrayList<>();
-        final int etapes = 60;
+        final int etapes = 30;
         for (int i = 0; i < listePoints.size() - 3; i += 3) {
             Point p0 = listePoints.get(i);
             Point p1 = listePoints.get(i + 1);
