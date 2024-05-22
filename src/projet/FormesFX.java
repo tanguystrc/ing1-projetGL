@@ -1,7 +1,9 @@
 package src.projet;
 
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+
 
 public abstract class FormesFX {
     protected Canvas canvasA;
@@ -28,4 +30,7 @@ public abstract class FormesFX {
     public abstract void showDeletePointDialog();
 
     public abstract void redrawPoints();
+
+    
+
 }
