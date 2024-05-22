@@ -5,29 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormeArrondie extends Forme {
-    private int[][] matrice1;
-    private int[][] matrice2;
 
-    public FormeArrondie(PointDeControle pointsDeControle, int nbFrame, int[][] matrice1, int[][] matrice2) {
+    public FormeArrondie(PointDeControle pointsDeControle, int nbFrame) {
         super(pointsDeControle, null, null, nbFrame);
-        this.matrice1 = matrice1;
-        this.matrice2 = matrice2;
-    }
-
-    public int[][] getMatrice1() {
-        return matrice1;
-    }
-
-    public void setMatrice1(int[][] matrice1) {
-        this.matrice1 = matrice1;
-    }
-
-    public int[][] getMatrice2() {
-        return matrice2;
-    }
-
-    public void setMatrice2(int[][] matrice2) {
-        this.matrice2 = matrice2;
     }
 
     @Override

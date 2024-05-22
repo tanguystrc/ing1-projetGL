@@ -56,7 +56,7 @@ public class Forme {
         int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
     
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 42, true);
     
         int hauteur = image1.getHeight();
         int largeur = image1.getWidth();
