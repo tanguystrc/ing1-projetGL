@@ -335,7 +335,7 @@ public class Hello extends Application {
         texteInstruction.setWrappingWidth(1200);
         texteInstruction.setTextAlignment(TextAlignment.JUSTIFY);
         texteInstruction.setText("Privilégiez les images en carré étant données qu'elles seront redimenssionées en 600x600.\n"
-                + "Cliquez sur une des zones d'images pour creer un point, que vous pourrez ensuite déplacer à votre guise."
+                + "Cliquez sur la zone de gauche pour creer un point sur les deux images, que vous pourrez ensuite déplacer à votre guise."
                 + "Si ce n'est déjà fait, merci de ne pas oublier de préciser à l'aide de la pipette la couleur correspondant à votre forme unie."
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF - il s'affichera dès la fin de son traitement.");
 
@@ -518,7 +518,7 @@ public class Hello extends Application {
             }
         });
 
-        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, nvGroupePointsButton, faceGroupPoints, pipetteButton, colorDisplay);
+        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, pipetteButton, colorDisplay, nvGroupePointsButton, faceGroupPoints);
         buttonBox2.setAlignment(Pos.CENTER);
 
         VBox menu = createMenu();
