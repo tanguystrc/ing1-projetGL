@@ -159,7 +159,7 @@ public abstract class FormesFX {
         }
     }
 
-    private Point getPointFromIndex(int index, boolean isImageA) {
+    public Point getPointFromIndex(int index, boolean isImageA) {
         int i = 0;
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             if (i == index) {

@@ -29,9 +29,16 @@ public class FormesLineaireFX extends FormesFX {
     }
 
     private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
-        String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
+        // lettre de l'alphabet au début, chiffres après
+    	String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
 
-        gc.setStroke(Color.RED);
-        gc.strokeText("." + pointLabel, mouseX, mouseY);
+        gc.setStroke(isImageA ? Color.RED : Color.BLUE);
+        gc.strokeText("." + pointLabel, mouseX, mouseY);  
+        
+        //On a un point précédant du même groupe, on le lie avec le nouveau :
+        if(index > 0 ) {      	       	
+        	gc.setStroke(isImageA ? Color.BLUE : Color.RED);        	
+        	gc.strokeLine(getPointFromIndex(index-1, isImageA).getX(),getPointFromIndex(index-1, isImageA).getY(),mouseX,mouseY);
+        }  
     }
 }
