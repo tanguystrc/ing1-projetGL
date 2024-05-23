@@ -238,7 +238,7 @@ public class Hello extends Application {
             startImage = new Image("file:./src/projet/img/visage1.png", 600, 600, true, true);
             endImage = new Image("file:./src/projet/img/visage2.png", 600, 600, true, true);            
             pointsDeControle.getPointsMap().clear();
-            generateFace();
+            generateFace(true);
         }
 
         startImageView.setImage(startImage);
@@ -247,7 +247,7 @@ public class Hello extends Application {
         currentForme.redrawPoints();
     }
 
-     private void generateFace() {
+    private void generateFace(boolean deuxTypes) {
     	currentForme.resetPoints();
     	// Coordonnées :
         LinkedList<LinkedList<Couple<Point,Point>>> listeCoord = new LinkedList<>();
@@ -306,15 +306,28 @@ public class Hello extends Application {
         ));
         listeCoord.addAll(Arrays.asList(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10));
     	
-    	for(LinkedList<Couple<Point,Point>> groupe : listeCoord) {
-    		for (Couple<Point, Point> p : groupe) {
-                pointsDeControle.ajouter(p.getA(), p.getB());
-            }
-    		pointsDeControleLies.remove(pointsDeControle);
-            pointsDeControleLies.add(new PointDeControle(pointsDeControle));
-            pointsDeControle.getPointsMap().clear();
-            pointsDeControleLies.add(pointsDeControle);    		
-    	}    	
+        if(deuxTypes){
+            for(LinkedList<Couple<Point,Point>> groupe : listeCoord) {
+                for (Couple<Point, Point> p : groupe) {
+                    pointsDeControle.ajouter(p.getA(), p.getB());
+                }
+                pointsDeControleLies.remove(pointsDeControle);
+                pointsDeControleLies.add(new PointDeControle(pointsDeControle));
+                pointsDeControle.getPointsMap().clear();
+                pointsDeControleLies.add(pointsDeControle);    		
+            }    
+        }else{
+            for(LinkedList<Couple<Point,Point>> groupe : listeCoord) {
+                for (Couple<Point, Point> p : groupe) {
+                    pointsDeControle.ajouter(p.getA(), p.getA());
+                }
+                pointsDeControleLies.remove(pointsDeControle);
+                pointsDeControleLies.add(new PointDeControle(pointsDeControle));
+                pointsDeControle.getPointsMap().clear();
+                pointsDeControleLies.add(pointsDeControle);    		
+            }    
+        }
+    		
     	currentForme.redrawPoints();    	
     }
 
@@ -385,7 +398,7 @@ public class Hello extends Application {
         faceGroupPoints = new Button("Visage");
         faceGroupPoints.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
         faceGroupPoints.setOnAction(e -> {
-            generateFace();
+            generateFace(false);
         });
         faceGroupPoints.setVisible(false);
 
