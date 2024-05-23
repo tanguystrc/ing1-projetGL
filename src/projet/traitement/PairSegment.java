@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 
 public class PairSegment {
 	

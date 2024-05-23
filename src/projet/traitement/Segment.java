@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 /**
  * Class représentant les segments pour le morphisme de visage
  */

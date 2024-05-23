@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import src.projet.gif.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
