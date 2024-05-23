@@ -30,8 +30,7 @@ public class Visage {
         this.image1 = image1;
         this.image2 = image2;
         this.nbFrame = nbFrame;
-        this.segments = segments;   
-        System.out.println(segments);         
+        this.segments = segments;          
     }
 
     public BufferedImage getImage1() {
