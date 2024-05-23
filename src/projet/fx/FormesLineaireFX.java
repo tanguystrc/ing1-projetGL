@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.fx;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,43 +9,35 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import src.projet.traitement.Point;
+import src.projet.traitement.PointDeControle;
 import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 import java.util.Map.Entry;
 
-public class FormesArrondiesFX extends FormesFX {
+public class FormesLineaireFX extends FormesFX {
 
     private Point selectedPoint = null;
     private boolean isDragging = false;
     private boolean isMousePressed = false;
     private boolean isDragged = false;
 
-    public FormesArrondiesFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
+    public FormesLineaireFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
         super(canvasA, canvasB, pointsDeControle);
+    
     }
 
+  
 
- 
-
-    private void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
-        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
-            Point point = isImageA ? entry.getKey() : entry.getValue();
-            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { 
-                selectedPoint.setX(point.getX());
-                selectedPoint.setY(point.getY());
-                return;
-            }
-        }
-    }
     @Override
     public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         isMousePressed = true;
         isDragged = false;
-        
+
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point point = isImageA ? entry.getKey() : entry.getValue();
             if (point.distance(new Point(mouseX, mouseY)) < 10) { 
@@ -55,7 +47,7 @@ public class FormesArrondiesFX extends FormesFX {
             }
         }
     }
-    
+
     @Override
     public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         isDragged = true;
@@ -66,7 +58,6 @@ public class FormesArrondiesFX extends FormesFX {
                 selectedPoint.setX(mouseX);
                 selectedPoint.setY(mouseY);
                 checkForProximityAndMerge(mouseX, mouseY, isImageA);
-
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 return;
@@ -153,47 +144,28 @@ public class FormesArrondiesFX extends FormesFX {
         dialog.show();
     }
 
+    private void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
+        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
+            Point point = isImageA ? entry.getKey() : entry.getValue();
+            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { 
+                selectedPoint.setX(point.getX());
+                selectedPoint.setY(point.getY());
+                return;
+            }
+        }
+    }
+
     public void redrawPoints() {
         canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
-
-        GraphicsContext gcA = canvasA.getGraphicsContext2D();
-        GraphicsContext gcB = canvasB.getGraphicsContext2D();
-
-        gcA.setStroke(Color.RED);
-        gcB.setStroke(Color.RED);
 
         int index = 0;
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point key = entry.getKey();
             Point value = entry.getValue();
-            gcA.strokeText("." + (index + 1), key.getX(), key.getY());
-            gcB.strokeText("." + (index + 1), value.getX(), value.getY());
+            draw(canvasA.getGraphicsContext2D(), key.getX(), key.getY(), true, index);
+            draw(canvasB.getGraphicsContext2D(), value.getX(), value.getY(), false, index);
             index++;
-        }
-
-        drawBezierCurves(gcA, true);
-        drawBezierCurves(gcB, false);
-    }
-
-    private void drawBezierCurves(GraphicsContext gc, boolean isImageA) {
-        int index = 0;
-        Point[] points = new Point[4];
-
-        for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
-            points[index % 4] = isImageA ? entry.getKey() : entry.getValue();
-            index++;
-            if (index % 4 == 0 && index >= 4) {
-                gc.beginPath();
-                gc.moveTo(points[0].getX(), points[0].getY());
-                gc.bezierCurveTo(points[1].getX(), points[1].getY(), points[2].getX(), points[2].getY(), points[3].getX(), points[3].getY());
-                gc.stroke();
-                points[0] = points[3]; //Le dernier point devient le premier de la nouvelle courbe
-                points[1] = null;
-                points[2] = null;
-                points[3] = null;
-                index = 1; 
-            }
         }
     }
 
@@ -206,5 +178,12 @@ public class FormesArrondiesFX extends FormesFX {
             i++;
         }
         return null;
+    }
+
+    private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index) {
+        String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
+
+        gc.setStroke(Color.RED);
+        gc.strokeText("." + pointLabel, mouseX, mouseY);
     }
 }

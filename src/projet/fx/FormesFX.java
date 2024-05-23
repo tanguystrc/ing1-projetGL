@@ -1,8 +1,9 @@
-package src.projet;
+package src.projet.fx;
 
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+import src.projet.traitement.PointDeControle;
 
 
 public abstract class FormesFX {
