@@ -235,7 +235,7 @@ public class Hello extends Application {
             pointsDeControle.ajouter(new Point(298.1, 204.0), new Point(394.0, 32.0));
         }else if (currentForme instanceof PhotoFX){            
             startImage = new Image("file:./src/projet/img/visage1.png", 600, 600, true, true);
-            endImage = new Image("file:./src/projet/img/visage1.png", 600, 600, true, true);            
+            endImage = new Image("file:./src/projet/img/visage2.png", 600, 600, true, true);            
             pointsDeControle.getPointsMap().clear();
             generateFace();
         }
@@ -319,6 +319,14 @@ public class Hello extends Application {
         deleteButton.setStyle(DEFAULT_STYLE);
         deleteButton.setOnAction(e -> currentForme.showDeletePointDialog());
 
+        Button pipetteButton = new Button("Pipette");
+        pipetteButton.setStyle(DEFAULT_STYLE);
+        pipetteButton.setOnAction(e -> {
+            isPipetteMode = true;
+            canvasA.setCursor(Cursor.CROSSHAIR);
+            canvasB.setCursor(Cursor.CROSSHAIR);
+        });
+
         // Bouton pour creer un nouveau groupe de points :
         nvGroupePointsButton = new Button("Nouveau Groupe de point");
         nvGroupePointsButton.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
@@ -346,13 +354,7 @@ public class Hello extends Application {
         });
         faceGroupPoints.setVisible(false);
 
-        Button pipetteButton = new Button("Pipette");
-        pipetteButton.setStyle(DEFAULT_STYLE);
-        pipetteButton.setOnAction(e -> {
-            isPipetteMode = true;
-            canvasA.setCursor(Cursor.CROSSHAIR);
-            canvasB.setCursor(Cursor.CROSSHAIR);
-        });
+       
 
         TextField framesTextField = new TextField();
         framesTextField.setPromptText("Frames (5-144)");
@@ -475,7 +477,7 @@ public class Hello extends Application {
             }
         });
 
-        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, nvGroupePointsButton, faceGroupPoints, pipetteButton, colorDisplay);
+        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton,pipetteButton,colorDisplay, nvGroupePointsButton, faceGroupPoints);
         buttonBox2.setAlignment(Pos.CENTER);
 
         VBox menu = createMenu();
