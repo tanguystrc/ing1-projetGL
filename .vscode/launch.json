@@ -9,17 +9,8 @@
             "name": "Hello",
             "request": "launch",
             "mainClass": "src.projet.Hello",
-            "projectName": "ing1-projetGL_1a99d06a",
-            "vmArgs": "--module-path \"./lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
-
-        },
-        {
-            "type": "java",
-            "name": "Hello",
-            "request": "launch",
-            "mainClass": "src.projet.Hello",
             "projectName": "ing1-projetGL_3d0b975c",
-            "vmArgs": "--module-path \"./lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+            "vmArgs": "--module-path \"./lib/javafx-sdk-22-linux/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }
