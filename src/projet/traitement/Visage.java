@@ -16,6 +16,7 @@ import src.projet.gif.GifSequenceWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+import javafx.scene.image.Image;
 import javafx.scene.web.WebHistory.Entry;
 
 /** 
@@ -29,10 +30,14 @@ public class Visage {
     protected int nbFrame;
 
     public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame) {
+
+        System.out.println(image1.getWidth()+"x"+image1.getHeight());
+        System.out.println(image2.getWidth()+"x"+image2.getHeight());
         this.image1 = image1;
         this.image2 = image2;
         this.nbFrame = nbFrame;
-        this.segments = segments;            
+        this.segments = segments;
+
     }
 
     public BufferedImage getImage1() {
@@ -125,7 +130,7 @@ public class Visage {
             BufferedImage morphImage1 = new BufferedImage(image1.getWidth(),image1.getHeight(),image1.getType());
             Set<PairSegment> sPImage1 = new HashSet<>();
 
-            BufferedImage morphImage2 = new BufferedImage(image1.getWidth(),image1.getHeight(),image1.getType());
+            BufferedImage morphImage2 = new BufferedImage(image2.getWidth(),image2.getHeight(),image2.getType());
             Set<PairSegment> sPImage2 = new HashSet<>();
 
             this.ensemblePairSegment(sPImage1,sPImage2,k,listIndice);
@@ -210,8 +215,9 @@ public class Visage {
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
-        //test
-        System.out.println(segments);
+        //test 
+        System.out.println(image1.getWidth()+"x"+image1.getHeight());
+        System.out.println(image2.getWidth()+"x"+image2.getHeight());
 
         //Variable pour le gif
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
@@ -244,8 +250,5 @@ public class Visage {
         output.close();
 
         //return morphFinal;
-    }
-
-    
-    
+    }    
 } 
