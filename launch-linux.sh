@@ -26,7 +26,6 @@ cat <<EOL > .vscode/launch.json
             "name": "Hello",
             "request": "launch",
             "mainClass": "src.projet.Hello",
-            "projectName": "ing1-projetGL_3d0b975c",
             "vmArgs": "--module-path \"./lib/javafx-sdk-22-linux/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
