@@ -40,6 +40,7 @@ import src.projet.fx.PhotoFX;
 import src.projet.gif.GIFViewer;
 import src.projet.traitement.Forme;
 import src.projet.traitement.FormeArrondie;
+import src.projet.traitement.Visage;
 import src.projet.traitement.Point;
 import src.projet.traitement.PointDeControle;
 
@@ -372,6 +373,7 @@ public class Hello extends Application {
         VBox textFieldBox = new VBox(5, framesLabel, framesTextField, durationLabel, durationTextField);
         textFieldBox.setAlignment(Pos.CENTER);
 
+        /* - - -  START - - - */ 
         Button startButton = new Button("Start");
         startButton.setStyle(SELECTED_STYLE);
         startButton.setOnAction(e -> {
@@ -395,25 +397,46 @@ public class Hello extends Application {
             if (startImage != null) {
                 
                 Stage loadingStage = createLoadingDialog(primaryStage);
-
+                
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
                         updateProgress(0, nbFrames);
 
-                        Forme forme;
-                        if (currentForme instanceof FormesLineaireFX) {
-                            forme = new Forme(pointsDeControle, null, null, nbFrames);
-                        } else {
+                        
+                        if (currentForme instanceof PhotoFX) {
+                            Visage visage; 
+                            System.out.println("Traitement d'une photo");
+                            visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames);
+                            try {
+                                visage.morph();
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
+                        }else if(currentForme instanceof FormesArrondiesFX){
+                            Forme forme;
+                            System.out.println("Traitement d'une forme unie arrondie");
                             forme = new FormeArrondie(pointsDeControle, nbFrames);
+                            forme.setSelectedColor(selectedColor);
+                            try {
+                                forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
+                        }else{
+                            Forme forme;
+                            System.out.println("Traitement d'une forme unie linéaire");
+                            forme = new Forme(pointsDeControle, null, null, nbFrames);
+                            forme.setSelectedColor(selectedColor);
+                            try {
+                                forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
                         }
-                        forme.setSelectedColor(selectedColor);
+                        
 
-                        try {
-                            forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
-                        } catch (IOException ioException) {
-                            ioException.printStackTrace();
-                        }
+                        
 
                         Platform.runLater(() -> {
                             try {

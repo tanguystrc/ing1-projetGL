@@ -21,14 +21,16 @@ import javax.imageio.stream.ImageOutputStream;
 */
 public class Visage {
      
-    private BufferedImage image1;
-    private BufferedImage image2;
     private List<PointDeControle> segments;
+    protected BufferedImage image1;
+    protected BufferedImage image2;
+    protected int nbFrame;
 
-    public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments) {
+    public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame) {
         this.image1 = image1;
         this.image2 = image2;
-        this.segments = segments;
+        this.nbFrame = nbFrame;
+        this.segments = segments;            
     }
 
     public BufferedImage getImage1() {
@@ -201,7 +203,7 @@ public class Visage {
      * @throws IOException 
      * @throws FileNotFoundException 
      */
-    public List<BufferedImage> morph(int nbFrame) throws FileNotFoundException, IOException{
+    public void morph() throws FileNotFoundException, IOException{
         List<BufferedImage> morphFinal = new ArrayList<>();
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
@@ -236,7 +238,7 @@ public class Visage {
         gifWriter.close();
         output.close();
 
-        return morphFinal;
+        //return morphFinal;
     }
 
     
