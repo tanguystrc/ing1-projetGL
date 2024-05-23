@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,23 +11,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import src.projet.gif.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
+
+import javafx.scene.web.WebHistory.Entry;
 
 /** 
  * Classe pour le morphing d'image avec la méthode des ségments
 */
 public class Visage {
      
-    private BufferedImage image1;
-    private BufferedImage image2;
     private List<PointDeControle> segments;
+    protected BufferedImage image1;
+    protected BufferedImage image2;
+    protected int nbFrame;
 
-    public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments) {
+    public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame) {
         this.image1 = image1;
         this.image2 = image2;
-        this.segments = segments;
+        this.nbFrame = nbFrame;
+        this.segments = segments;            
     }
 
     public BufferedImage getImage1() {
@@ -88,9 +93,6 @@ public class Visage {
             List<Point> indices = listIndice.get(i);
             Map<Point,Point> pointDeControle = new HashMap<>(this.getSegments().get(i).getPointsMap());
             List<Point> pointsList = new ArrayList<>(pointDeControle.keySet());
-            if (pointDeControle.size()==1) {
-            	throw new PointDeControleInvalide("La Map PointDeControle est invalide.");
-            }
             for(int j=0;j<pointsList.size()-1;j++){
                 Point debut = pointsList.get(j);
                 Point fin = pointsList.get(j+1);
@@ -203,20 +205,25 @@ public class Visage {
      * @throws IOException 
      * @throws FileNotFoundException 
      */
-    public List<BufferedImage> morph(int nbFrame) throws FileNotFoundException, IOException{
+    public void morph() throws FileNotFoundException, IOException{
         List<BufferedImage> morphFinal = new ArrayList<>();
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
+        //test
+        System.out.println(segments);
+
+        //Variable pour le gif
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
 
         demiMorph(morphs1, morphs2, nbFrame);
 
-
+        //Ajout de la première image
         morphFinal.add(image1);
         gifWriter.writeToSequence(image1);
 
+        //Assemblage des images
         for(int k=1; k<nbFrame-1;k++){
             BufferedImage image = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
             for(int i=0; i<image.getWidth();i++){
@@ -227,11 +234,16 @@ public class Visage {
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
         }
+
+        //Ajout de l'image finale
         morphFinal.add(image2);
         gifWriter.writeToSequence(image2);
+
+        //Finalisation du gif
         gifWriter.close();
         output.close();
-        return morphFinal;
+
+        //return morphFinal;
     }
 
     

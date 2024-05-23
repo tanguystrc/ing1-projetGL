@@ -1,14 +1,26 @@
-package src.projet;
+package src.projet.traitement;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Map.Entry;
 
 public class PointDeControle {
     private Map<Point, Point> pointsMap;
 
     public PointDeControle() {
         this.pointsMap = new LinkedHashMap<>();
+    }
+
+    /**
+     * Constructeur qui a ses valeurs en copie profonde
+     * @param p
+     */
+    public PointDeControle(PointDeControle p) {
+        this.pointsMap = new LinkedHashMap<>();
+        for (Entry<Point, Point> entry : p.getPointsMap().entrySet()) {        
+        	ajouter( new Point(entry.getKey().getX(),entry.getKey().getY()), new Point(entry.getValue().getX(),entry.getValue().getY()));
+        }
     }
 
     public Map<Point, Point> getPointsMap() {
