@@ -28,6 +28,7 @@ public class GIFViewer extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("GIF Viewer");
+        primaryStage.setAlwaysOnTop(true);
 
         File file = new File(gifFilePath);
         Image gifImage = new Image(file.toURI().toString());
