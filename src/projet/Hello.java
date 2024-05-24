@@ -338,7 +338,7 @@ public class Hello extends Application {
         this.pointsDeControle = new PointDeControle();        
         this.pointsDeControleLies = new LinkedList<>();         
         this.pointsDeControleLies.add(pointsDeControle);// il aura tjrs pointsDeControle, qui est la dernière liste
-        this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
+        //this.currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
 
         colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
         colorDisplay.setStroke(Color.BLACK);
@@ -386,10 +386,7 @@ public class Hello extends Application {
                 pointsDeControleLies.add(new PointDeControle(pointsDeControle));
                 // Nouveau groupe :                
                 pointsDeControle.getPointsMap().clear();
-                pointsDeControleLies.add(pointsDeControle);
-                
-                System.out.println(pointsDeControleLies);
-                
+                pointsDeControleLies.add(pointsDeControle);                
             }
         });
         nvGroupePointsButton.setVisible(false);

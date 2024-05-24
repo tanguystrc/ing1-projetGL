@@ -50,7 +50,6 @@ public abstract class FormesFX {
             }
 
             if (isImageA) {
-                System.out.println("Création du point.");
                 pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); 
                 redrawPoints();
             }
@@ -92,7 +91,6 @@ public abstract class FormesFX {
     }
 
     public void handleMouseReleased(boolean isImageA) {
-        System.out.println("released!");
         if (isDragging) {
             isDragging = false;            
             selectedPoint = null;
@@ -109,7 +107,7 @@ public abstract class FormesFX {
     }
 
     //TODO : normalement ya toujours le truc comme quoi 
-    //on peut pas supp un couple de point si on a déplacé le point de l'img A
+    // on peut pas supp un couple de point si on a déplacé le point de l'img A
     // -> à résoudre lorsqu'on passera des matrices <point,point> à des listes pour les ptn de controles
     public void showDeletePointDialog() {
         Stage dialog = new Stage();
