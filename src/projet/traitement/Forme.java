@@ -139,22 +139,6 @@ public class Forme {
         return compteur % 2 != 0;
     }
 
-    public int chercheCouleur(BufferedImage image, List<Point> pts) {
-        int hauteur = image.getHeight();
-        int largeur = image.getWidth();
-        Point p = new Point();
-
-        for (int y = 0; y < hauteur; y++) {
-            for (int x = 0; x < largeur; x++) {
-                p.setX(x);
-                p.setY(y);
-                if (estDomaine(pts, p)) {
-                    return image.getRGB(x, y);
-                }
-            }
-        }
-        return 0; // Default color if none found
-    }
     public int chercheAutreCouleur(BufferedImage image, List<Point> pts) {
         int hauteur = image.getHeight();
         int largeur = image.getWidth();
@@ -169,6 +153,23 @@ public class Forme {
                 }
             }
         }
-        return 0; // Default color if none found
+        return 0; 
+    }
+    public int chercheCouleur(BufferedImage image, List<Point> pts) {
+        int hauteur = image.getHeight();
+        int largeur = image.getWidth();
+        Point p = new Point();
+        int autreCouleur=chercheAutreCouleur(image, pts);
+
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+                p.setX(x);
+                p.setY(y);
+                if (autreCouleur!= image.getRGB(x,y) && estDomaine(pts, p)) {
+                    return image.getRGB(x+5, y+5);
+                }
+            }
+        }
+        return 0; 
     }
 }
