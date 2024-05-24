@@ -33,6 +33,8 @@ public class PhotoFX extends FormesFX {
 
     @Override
     public void resetPoints() {
+        isDragging = false;
+        isMousePressed = false;
         pointsDeControle.getPointsMap().clear();
         pointsDeControleLies.clear();
         pointsDeControleLies.add(pointsDeControle);
@@ -48,8 +50,10 @@ public class PhotoFX extends FormesFX {
         	for (Entry<Point, Point> entry : groupe.getPointsMap().entrySet()) {
                 Point point = isImageA ? entry.getKey() : entry.getValue();
                 if (point.distance(new Point(mouseX, mouseY)) < 10) { // zone de 10pixels autour du point pour la selection
+                    System.out.println("isdragging now!");
                     selectedPoint = point;
                     isDragging = true;
+                    isClickValid = false;
                     break;
                 }
             }

@@ -114,7 +114,7 @@ public class Hello extends Application {
     }
 
     private void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
-        if (currentForme != null) {
+        if (currentForme != null) {         
             currentForme.handleMousePressed(mouseEvent, isImageA);
         }
     }
