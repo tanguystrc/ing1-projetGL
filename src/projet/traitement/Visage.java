@@ -13,6 +13,8 @@ import java.util.function.BiConsumer;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
+
+import javafx.application.Platform;
 import src.projet.gif.GifSequenceWriter;
 
 /**
@@ -165,7 +167,7 @@ public class Visage {
         List<BufferedImage> morphs2 = new ArrayList<>();
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF*1000)/nbFrame, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF*1000)/this.nbFrame, true);
 
         demiMorph(morphs1, morphs2, nbFrame);
 
@@ -181,7 +183,8 @@ public class Visage {
             }
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
-            progressUpdater.accept(k + 1, nbFrame); // Update progress here
+            final int progress = k + 1;
+            Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));
         }
 
         morphFinal.add(image2);
