@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
@@ -75,6 +76,8 @@ public abstract class FormesFX {
 
     public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
         if (isDragging && selectedPoint != null) {
+            canvasA.setCursor(Cursor.HAND);
+            canvasB.setCursor(Cursor.HAND);
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
             try {
@@ -94,6 +97,8 @@ public abstract class FormesFX {
         if (isDragging) {
             isDragging = false;            
             selectedPoint = null;
+            canvasA.setCursor(Cursor.DEFAULT);
+            canvasB.setCursor(Cursor.DEFAULT);
             redrawPoints();
         }
         isMousePressed = false;
