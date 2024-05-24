@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -158,13 +159,13 @@ public class Visage {
      * @param nbFrame Nombre total de frames
      * @throws IOException
      */
-    public void morph() throws IOException {
+    public void morph(int dureeGIF,BiConsumer<Integer, Integer> progressUpdater) throws IOException {
         List<BufferedImage> morphFinal = new ArrayList<>();
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF*1000)/nbFrame, true);
 
         demiMorph(morphs1, morphs2, nbFrame);
 
@@ -180,10 +181,12 @@ public class Visage {
             }
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
+            progressUpdater.accept(k + 1, nbFrame); // Update progress here
         }
 
         morphFinal.add(image2);
         gifWriter.writeToSequence(image2);
+        
 
         gifWriter.close();
         output.close();
