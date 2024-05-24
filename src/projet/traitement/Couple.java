@@ -29,19 +29,16 @@ public class Couple<A, B> {
 
     @Override
     public String toString() {
-        return "Duo{" +
-                "pointA=" + pointA +
-                ", pointB=" + pointB +
-                '}';
+        return "Couple{" +"pointA=" + pointA +", pointB=" + pointB +'}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Couple<?, ?> duo = (Couple<?, ?>) o;
-        return Objects.equals(pointA, duo.pointA) &&
-                Objects.equals(pointB, duo.pointB);
+        Couple<?, ?> couple = (Couple<?, ?>) o;
+        return Objects.equals(pointA, couple.pointA) &&
+                Objects.equals(pointB, couple.pointB);
     }
 
     @Override

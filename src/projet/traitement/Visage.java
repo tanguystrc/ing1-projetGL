@@ -6,14 +6,15 @@ import java.io.IOException;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
+
+import javafx.application.Platform;
 import src.projet.gif.GifSequenceWriter;
 
 /**
@@ -50,9 +51,9 @@ public class Visage {
         List<List<Point>> p = new ArrayList<>();
         for (PointDeControle segment : segments) {
             List<Point> lp = new ArrayList<>();
-            for (Map.Entry<Point, Point> entry : segment.getPointsMap().entrySet()) {
-                Point keyPoint = entry.getKey();
-                Point valuePoint = entry.getValue();
+            for (Couple<Point, Point> couple : segment.getPointsList()) {
+                Point keyPoint = couple.getA();
+                Point valuePoint = couple.getB();
                 Point indice = valuePoint.soustraction(keyPoint);
                 indice.setX(indice.getX() / (nbFrame - 1));
                 indice.setY(indice.getY() / (nbFrame - 1));
@@ -66,25 +67,23 @@ public class Visage {
     /**
      * Forme les ensembles des segments pour le demiMorphisme
      * @param pSImage1 Ensemble de pair de segment initialisé mais vide comptenant les segments de l'image1 et ceux de l'image intermédiaire n
-     * @param pSImage2 Ensemble de pair de segment initialisé mais vide comptenant les segments de l'image2 et ceux de l'image intermédiaire n
+     * @param pSImage2 Ensemble de pair de segment initialisé mais vide comptant les segments de l'image2 et ceux de l'image intermédiaire n
      * @param n Frame actuelle
      * @param listIndice Liste des indices de déplacement
      */
     public void ensemblePairSegment(Set<PairSegment> pSImage1, Set<PairSegment> pSImage2, int n, List<List<Point>> listIndice) {
         for (int i = 0; i < segments.size(); i++) {
             List<Point> indices = listIndice.get(i);
-            Map<Point, Point> pointDeControle = new HashMap<>(segments.get(i).getPointsMap());
-            List<Point> pointsList = new ArrayList<>(pointDeControle.keySet());
-            for (int j = 0; j < pointsList.size() - 1; j++) {
-                Point debut = pointsList.get(j);
-                Point fin = pointsList.get(j + 1);
+            List<Couple<Point, Point>> pointsDeControle = new ArrayList<>(segments.get(i).getPointsList());
+            for (int j = 0; j < pointsDeControle.size() - 1; j++) {
+                Point debut = pointsDeControle.get(j).getA();
+                Point fin = pointsDeControle.get(j + 1).getA();
                 Segment s1 = new Segment(debut, fin);
-                Segment s2 = new Segment(pointDeControle.get(debut), pointDeControle.get(fin));
+                Segment s2 = new Segment(pointsDeControle.get(j).getB(), pointsDeControle.get(j + 1).getB());
                 Segment sn = new Segment(debut.somme(indices.get(j).produit(n).pixel()), fin.somme(indices.get(j + 1).produit(n).pixel()));
                 pSImage1.add(new PairSegment(s1, sn));
                 pSImage2.add(new PairSegment(s2, sn));
             }
-            
         }
     }
 
@@ -162,13 +161,13 @@ public class Visage {
      * @param nbFrame Nombre total de frames
      * @throws IOException
      */
-    public void morph() throws IOException {
+    public void morph(int dureeGIF,BiConsumer<Integer, Integer> progressUpdater) throws IOException {
         List<BufferedImage> morphFinal = new ArrayList<>();
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF*1000)/this.nbFrame, true);
 
         demiMorph(morphs1, morphs2, nbFrame);
 
@@ -184,10 +183,13 @@ public class Visage {
             }
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
+            final int progress = k + 1;
+            Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));
         }
 
         morphFinal.add(image2);
         gifWriter.writeToSequence(image2);
+        
 
         gifWriter.close();
         output.close();
