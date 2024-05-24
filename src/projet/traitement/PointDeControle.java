@@ -1,46 +1,46 @@
 package src.projet.traitement;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Map.Entry;
 
 public class PointDeControle {
-    private Map<Point, Point> pointsMap;
+    private List<Couple<Point, Point>> pointsList;
 
     public PointDeControle() {
-        this.pointsMap = new LinkedHashMap<>();
+        this.pointsList = new LinkedList<>();
     }
 
     /**
-     * Constructeur qui a ses valeurs en copie profonde
+     * Constructeur qui fait une copie profonde des valeurs.
      * @param p
      */
     public PointDeControle(PointDeControle p) {
-        this.pointsMap = new LinkedHashMap<>();
-        for (Entry<Point, Point> entry : p.getPointsMap().entrySet()) {        
-        	ajouter( new Point(entry.getKey().getX(),entry.getKey().getY()), new Point(entry.getValue().getX(),entry.getValue().getY()));
+        this.pointsList = new LinkedList<>();
+        for (Couple<Point, Point> couple : p.getPointsList()) {
+            ajouter(new Point(couple.getA().getX(), couple.getA().getY()),
+                    new Point(couple.getB().getX(), couple.getB().getY()));
         }
     }
 
-    public Map<Point, Point> getPointsMap() {
-        return pointsMap;
+    public List<Couple<Point, Point>> getPointsList() {
+        return pointsList;
     }
 
-    public void setPointsMap(Map<Point, Point> pointsMap) {
-        this.pointsMap = new LinkedHashMap<>(pointsMap);
+    public void setPointsList(List<Couple<Point, Point>> pointsList) {
+        this.pointsList = new LinkedList<>(pointsList);
     }
 
     public void ajouter(Point key, Point value) {
         if (isValidPoint(key) && isValidPoint(value)) {
-            this.pointsMap.put(key, value);
+            this.pointsList.add(new Couple<>(key, value));
         } else {
             throw new IllegalArgumentException("Les coordonnées des points doivent être comprises entre 0 et 600.");
         }
     }
 
     public void supprimer(Point key) {
-        this.pointsMap.remove(key);
+        pointsList.removeIf(couple -> couple.getA().equals(key));
     }
 
     private boolean isValidPoint(Point p) {
@@ -50,15 +50,15 @@ public class PointDeControle {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (Map.Entry<Point, Point> entry : pointsMap.entrySet()) {
-            builder.append("Key: ").append(entry.getKey().toString()).append(" -> Value: ").append(entry.getValue().toString()).append("\n");
+        for (Couple<Point, Point> couple : pointsList) {
+            builder.append("Key: ").append(couple.getA().toString()).append(" -> Value: ").append(couple.getB().toString()).append("\n");
         }
         return builder.toString();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pointsMap);
+        return Objects.hash(pointsList);
     }
 
     @Override
@@ -70,6 +70,6 @@ public class PointDeControle {
         if (getClass() != obj.getClass())
             return false;
         PointDeControle other = (PointDeControle) obj;
-        return Objects.equals(pointsMap, other.pointsMap);
+        return Objects.equals(pointsList, other.pointsList);
     }
 }
