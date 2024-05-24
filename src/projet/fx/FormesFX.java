@@ -27,7 +27,7 @@ public abstract class FormesFX {
     protected Point selectedPoint = null;
     protected boolean isDragging = false;
     protected boolean isMousePressed = false;
-    protected boolean isDragged = false;
+    protected boolean isClickValid = true;
 
     public abstract void redrawPoints();
 
@@ -37,24 +37,43 @@ public abstract class FormesFX {
         this.pointsDeControle = pointsDeControle;
     }
 
+    public void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {        
+        if (isClickValid) { // Ensure this is not a drag            
+            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
+            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
+            Point point;
+            try {
+                point = new Point(mouseX, mouseY);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+
+            if (isImageA) {
+                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); 
+                redrawPoints();
+            }
+        }
+        isClickValid = true;
+    }
+
     public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         isMousePressed = true;
-        isDragged = false;
         
         for (Entry<Point, Point> entry : pointsDeControle.getPointsMap().entrySet()) {
             Point point = isImageA ? entry.getKey() : entry.getValue();
             if (point.distance(new Point(mouseX, mouseY)) < 10) { 
                 selectedPoint = point;
                 isDragging = true;
+                isClickValid = false;
                 break;
             }
         }
     }
 
     public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
-        isDragged = true;
         if (isDragging && selectedPoint != null) {
             double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
@@ -73,39 +92,22 @@ public abstract class FormesFX {
 
     public void handleMouseReleased(boolean isImageA) {
         if (isDragging) {
-            isDragging = false;
+            isDragging = false;            
             selectedPoint = null;
             redrawPoints();
         }
         isMousePressed = false;
     }
 
-    public void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
-        if (!isDragged && !isMousePressed) { // Ensure this is not a drag
-            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
-            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
-            Point point;
-            try {
-                point = new Point(mouseX, mouseY);
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-                return;
-            }
-
-            if (isImageA) {
-                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); 
-                redrawPoints();
-            }
-        }
-    }
-
     public void resetPoints() {
+        isDragging = false;
+        isMousePressed = false;
         pointsDeControle.getPointsMap().clear();
         redrawPoints();
     }
 
     //TODO : normalement ya toujours le truc comme quoi 
-    //on peut pas supp un couple de point si on a déplacé le point de l'img A
+    // on peut pas supp un couple de point si on a déplacé le point de l'img A
     // -> à résoudre lorsqu'on passera des matrices <point,point> à des listes pour les ptn de controles
     public void showDeletePointDialog() {
         Stage dialog = new Stage();
