@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,9 +16,6 @@ import src.projet.gif.GifSequenceWriter;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
-
-import javafx.scene.image.Image;
-import javafx.scene.web.WebHistory.Entry;
 
 /** 
  * Classe pour le morphing d'image avec la méthode des ségments
@@ -30,14 +28,18 @@ public class Visage {
     protected int nbFrame;
 
     public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame) {
+        this.image1 = new BufferedImage(600, 600, image1.getType());
+        Graphics2D g1 = this.image1.createGraphics();
+        g1.drawImage(image1, 0, 0, 600, 600, null);
+        g1.dispose();
 
-        System.out.println(image1.getWidth()+"x"+image1.getHeight());
-        System.out.println(image2.getWidth()+"x"+image2.getHeight());
-        this.image1 = image1;
-        this.image2 = image2;
+        this.image2 = new BufferedImage(600, 600, image2.getType());
+        Graphics2D g2 = this.image2.createGraphics();
+        g2.drawImage(image2, 0, 0, 600, 600, null);
+        g2.dispose();
+
         this.nbFrame = nbFrame;
         this.segments = segments;
-
     }
 
     public BufferedImage getImage1() {
@@ -127,10 +129,10 @@ public class Visage {
         // Traitement de chaque frame avec un parallèle le traitement depuis l'image source et l'image destination
         for (int k=1;k<nbFrame-1;k++){
 
-            BufferedImage morphImage1 = new BufferedImage(image1.getWidth(),image1.getHeight(),image1.getType());
+            BufferedImage morphImage1 = new BufferedImage(600,600,image1.getType());
             Set<PairSegment> sPImage1 = new HashSet<>();
 
-            BufferedImage morphImage2 = new BufferedImage(image2.getWidth(),image2.getHeight(),image2.getType());
+            BufferedImage morphImage2 = new BufferedImage(600,600,image1.getType());
             Set<PairSegment> sPImage2 = new HashSet<>();
 
             this.ensemblePairSegment(sPImage1,sPImage2,k,listIndice);
@@ -215,10 +217,6 @@ public class Visage {
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
-        //test 
-        System.out.println(image1.getWidth()+"x"+image1.getHeight());
-        System.out.println(image2.getWidth()+"x"+image2.getHeight());
-
         //Variable pour le gif
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
@@ -231,7 +229,7 @@ public class Visage {
 
         //Assemblage des images
         for(int k=1; k<nbFrame-1;k++){
-            BufferedImage image = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
+            BufferedImage image = new BufferedImage(600, 600, image1.getType());
             for(int i=0; i<image.getWidth();i++){
                 for(int j=0; j<image.getHeight();j++){
                     image.setRGB(i, j, getIntermediateColor(morphs1.get(k-1).getRGB(i, j),morphs2.get(k-1).getRGB(i, j),((double)k/(double)(nbFrame-1))));
@@ -250,5 +248,8 @@ public class Visage {
         output.close();
 
         //return morphFinal;
-    }    
+    }
+
+    
+    
 } 

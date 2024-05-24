@@ -463,10 +463,6 @@ public class Hello extends Application {
                         if (currentForme instanceof PhotoFX) {
                             Visage visage; 
                             System.out.println("Traitement d'une photo");
-                            
-                            System.out.println(startImage.getWidth()+"x"+startImage.getWidth()+"bloup");
-                            BufferedImage b = SwingFXUtils.fromFXImage(startImage, null);
-                            System.out.println(b.getWidth()+"x"+b.getWidth()+"bloup");
                             visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames);
                             try {
                                 visage.morph();
