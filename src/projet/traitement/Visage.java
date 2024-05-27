@@ -93,7 +93,7 @@ public class Visage {
      * @param morphs2 Liste des images intermédiaires pour l'image destination
      * @param nbFrame Nombre de frames
      */
-    public void demiMorph(List<BufferedImage> morphs1, List<BufferedImage> morphs2, int nbFrame) {
+    public void demiMorph(List<BufferedImage> morphs1, List<BufferedImage> morphs2, int nbFrame,BiConsumer<Integer, Integer> progressUpdater) {
         morphs1.clear();
         morphs2.clear();
         List<List<Point>> listIndice = listIndice(nbFrame);
@@ -115,6 +115,8 @@ public class Visage {
 
             morphs1.add(morphImage1);
             morphs2.add(morphImage2);
+            final int progress = k + 1;
+            Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));
         }
     }
 
@@ -180,7 +182,7 @@ public class Visage {
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / this.nbFrame, true);
 
-        demiMorph(morphs1, morphs2, nbFrame);
+        demiMorph(morphs1, morphs2, nbFrame, progressUpdater);
 
         morphFinal.add(image1);
         gifWriter.writeToSequence(image1);
@@ -190,12 +192,15 @@ public class Visage {
             for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
                     image.setRGB(i, j, getIntermediateColor(morphs1.get(k - 1).getRGB(i, j), morphs2.get(k - 1).getRGB(i, j), (double) k / (double) (nbFrame - 1)));
+                    
                 }
+   
             }
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
             final int progress = k + 1;
             Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));
+           
         }
 
         morphFinal.add(image2);
