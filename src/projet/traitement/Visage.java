@@ -33,7 +33,7 @@ public class Visage {
         this.segments = segments;
         this.nbFrame = nbFrame;
     }
-    
+
     /**
      * Retourne les vecteurs de déplacement pour chaque point entre chaques images de transition
      * @param nbFrame Nombre d'images total
@@ -178,7 +178,7 @@ public class Visage {
         gifWriter.writeToSequence(image1);
 
         for (int k = 1; k < nbFrame - 1; k++) {
-            BufferedImage image = new BufferedImage(600, 600, image1.getType());
+            BufferedImage image = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
             for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
                     image.setRGB(i, j, getIntermediateColor(morphs1.get(k - 1).getRGB(i, j), morphs2.get(k - 1).getRGB(i, j), (double) k / (double) (nbFrame - 1)));
