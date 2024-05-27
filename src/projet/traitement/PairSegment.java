@@ -66,7 +66,7 @@ public class PairSegment {
 		double dist = this.distance(xD);
 		double p = 1;//Entre 0 et 1, à 0 toute les lignes on la mm influance peut importe leur longeur.
 		double a = 0.000000000000000001;//Trés proche de 0 pour que on ne divise jamais par 0
-		double b = 0.5;//Dans l'idéal entre 0.5 et 2 plus il est petit plus le pixel sont affecté par les segments les plus lointain.
+		double b = 2;//Dans l'idéal entre 0.5 et 2 plus il est petit plus le pixel sont affecté par les segments les plus lointain.
 		
 		return Math.pow(Math.pow(taille, p)/(a+dist), b);
 	}
