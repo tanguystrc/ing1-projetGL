@@ -9,9 +9,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
+
+import javafx.application.Platform;
 import src.projet.gif.GifSequenceWriter;
 
 /**
@@ -63,7 +66,7 @@ public class Visage {
 
     /**
      * Forme les ensembles des segments pour le demiMorphisme
-     * @param pSImage1 Ensemble de pair de segment initialisé mais vide comptenant les segments de l'image1 et ceux de l'image intermédiaire n
+     * @param pSImage1 Ensemble de pair de segment initialisé mais vide comptant les segments de l'image1 et ceux de l'image intermédiaire n
      * @param pSImage2 Ensemble de pair de segment initialisé mais vide comptant les segments de l'image2 et ceux de l'image intermédiaire n
      * @param n Frame actuelle
      * @param listIndice Liste des indices de déplacement
@@ -94,7 +97,7 @@ public class Visage {
         morphs1.clear();
         morphs2.clear();
         List<List<Point>> listIndice = listIndice(nbFrame);
-        for (int k = 1; k < nbFrame-1; k++) {
+        for (int k = 1; k < nbFrame - 1; k++) {
             BufferedImage morphImage1 = new BufferedImage(600, 600, image1.getType());
             BufferedImage morphImage2 = new BufferedImage(600, 600, image2.getType());
             Set<PairSegment> sPImage1 = new HashSet<>();
@@ -125,11 +128,22 @@ public class Visage {
             poidsSomme += poids;
         }
         Point xS = p.somme(depSomme.produit(1 / poidsSomme));
-        Point pixS = new Point((double) Math.round(xS.getX()), (double) Math.round(xS.getY()));
-        if (pixS.getX() < image.getWidth() && pixS.getX() >= 0 && pixS.getY() < image.getHeight() && pixS.getY() >= 0) {
-            return image.getRGB((int) pixS.getX(), (int) pixS.getY());
+        return getSafeRGB(image, xS);
+    }
+
+    private int getSafeRGB(BufferedImage image, Point p) {
+        int x = (int) Math.round(p.getX());
+        int y = (int) Math.round(p.getY());
+        if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) {
+            return getBoundaryColor(image, x, y);
         }
-        return Color.BLACK.getRGB();
+        return image.getRGB(x, y);
+    }
+
+    private int getBoundaryColor(BufferedImage image, int x, int y) {
+        x = Math.max(0, Math.min(image.getWidth() - 1, x));
+        y = Math.max(0, Math.min(image.getHeight() - 1, y));
+        return image.getRGB(x, y);
     }
 
     /**
@@ -158,28 +172,30 @@ public class Visage {
      * @param nbFrame Nombre total de frames
      * @throws IOException
      */
-    public void morph() throws IOException {
+    public void morph(int dureeGIF, BiConsumer<Integer, Integer> progressUpdater) throws IOException {
         List<BufferedImage> morphFinal = new ArrayList<>();
         List<BufferedImage> morphs1 = new ArrayList<>();
         List<BufferedImage> morphs2 = new ArrayList<>();
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), 100, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / this.nbFrame, true);
 
         demiMorph(morphs1, morphs2, nbFrame);
 
         morphFinal.add(image1);
         gifWriter.writeToSequence(image1);
 
-        for (int k = 1; k < nbFrame-1; k++) {
+        for (int k = 1; k < nbFrame - 1; k++) {
             BufferedImage image = new BufferedImage(600, 600, image1.getType());
             for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
-                    image.setRGB(i, j, getIntermediateColor(morphs1.get(k - 1).getRGB(i, j), morphs2.get(k - 1).getRGB(i, j), (double)k/(double)(nbFrame-1)));
+                    image.setRGB(i, j, getIntermediateColor(morphs1.get(k - 1).getRGB(i, j), morphs2.get(k - 1).getRGB(i, j), (double) k / (double) (nbFrame - 1)));
                 }
             }
             morphFinal.add(image);
             gifWriter.writeToSequence(image);
+            final int progress = k + 1;
+            Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));
         }
 
         morphFinal.add(image2);

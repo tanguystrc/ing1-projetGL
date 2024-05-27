@@ -458,7 +458,7 @@ public class Hello extends Application {
                             System.out.println("Traitement d'une photo");
                             visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames);
                             try {
-                                visage.morph();
+                                visage.morph(duration, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
