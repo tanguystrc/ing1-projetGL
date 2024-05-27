@@ -26,12 +26,16 @@ public class Visage {
     protected BufferedImage image1;
     protected BufferedImage image2;
     protected int nbFrame;
+    protected File ajouteGIF;
+    protected boolean avant;
 
-    public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame) {
+    public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame, File ajouteGIF, boolean avant) {
         this.image1 = resizeImage(image1, 600, 600);
         this.image2 = resizeImage(image2, 600, 600);
         this.segments = segments;
         this.nbFrame = nbFrame;
+        this.ajouteGIF = ajouteGIF;
+        this.avant = avant;
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
@@ -178,7 +182,7 @@ public class Visage {
         List<BufferedImage> morphs2 = new ArrayList<>();
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / this.nbFrame, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / this.nbFrame, true, ajouteGIF, avant);
 
         demiMorph(morphs1, morphs2, nbFrame);
 

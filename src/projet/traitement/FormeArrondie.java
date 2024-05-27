@@ -1,13 +1,14 @@
 package src.projet.traitement;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FormeArrondie extends Forme {
 
-    public FormeArrondie(PointDeControle pointsDeControle, int nbFrame) {
-        super(pointsDeControle, null, null, nbFrame);
+    public FormeArrondie(PointDeControle pointsDeControle, int nbFrame, File ajouteGIF, boolean avant) {
+        super(pointsDeControle, null, null, nbFrame, ajouteGIF, avant);
     }
 
     @Override

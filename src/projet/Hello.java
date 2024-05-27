@@ -67,6 +67,8 @@ public class Hello extends Application {
     private Color selectedColor;
     private Image startImage;
     private Image endImage;
+    private File ajouteGif;
+    private boolean avant;
     private Rectangle colorDisplay;
     private FormesFX currentForme;
 
@@ -435,13 +437,14 @@ public class Hello extends Application {
         RadioButton rb2 = new RadioButton("Après");
         rb2.setToggleGroup(groupeRb);
         rb2.setSelected(false);
-        HBox addGifBox = new HBox(15, addGif,rb1,rb2);
+        Label nomFichierLabel = new Label("GIF : aucune fichier selectionné.");
+        nomFichierLabel.setStyle("-fx-font-style: italic; -fx-text-fill: gray;");
+        HBox addGifBox = new HBox(15, addGif,rb1,rb2,nomFichierLabel);
         addGifBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
         startButton.setStyle(SELECTED_STYLE);
         startButton.setOnAction(e -> {
-            System.out.println(pointsDeControle.toString());
             int nbFrames;
             int duration;
             try {
@@ -473,6 +476,7 @@ public class Hello extends Application {
             if (startImage != null) {
                 
                 Stage loadingStage = createLoadingDialog(primaryStage);
+                avant = rb1.isSelected();
                 
                 Task<Void> task = new Task<Void>() {
                     @Override
@@ -483,7 +487,7 @@ public class Hello extends Application {
                         if (currentForme instanceof PhotoFX) {
                             Visage visage; 
                             System.out.println("Traitement d'une photo");
-                            visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames);
+                            visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames,ajouteGif,avant);
                             try {
                                 visage.morph(duration, this::updateProgress);
                             } catch (IOException ioException) {
@@ -492,7 +496,7 @@ public class Hello extends Application {
                         } else if (currentForme instanceof FormesArrondiesFX) {
                             FormeArrondie forme;
                             System.out.println("Traitement d'une forme unie arrondie");
-                            forme = new FormeArrondie(pointsDeControle, nbFrames);
+                            forme = new FormeArrondie(pointsDeControle, nbFrames,ajouteGif,avant);
                             forme.setSelectedColor(selectedColor);
                             try {
                                 forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
@@ -502,7 +506,7 @@ public class Hello extends Application {
                         } else {
                             Forme forme;
                             System.out.println("Traitement d'une forme unie linéaire");
-                            forme = new Forme(pointsDeControle, null, null, nbFrames);
+                            forme = new Forme(pointsDeControle, null, null, nbFrames,ajouteGif,avant);
                             forme.setSelectedColor(selectedColor);
                             try {
                                 forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
@@ -589,14 +593,16 @@ public class Hello extends Application {
             }
         });
 
-        /*FileChooser fileChooserGIF = new FileChooser();
-        fileChooserGIF.getExtensionFilters().add(
-            new ExtensionFilter("*.gif")
+        FileChooser fileChooserGIF = new FileChooser();
+        fileChooserGIF.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("GIF Files", "*.gif")
         );
         addGif.setOnAction(e -> {
-            File file = fileChooserGIF.showOpenDialog(primaryStage);
-            
-        });*/
+            ajouteGif = fileChooserGIF.showOpenDialog(primaryStage);
+            if (ajouteGif != null) {
+                nomFichierLabel.setText("GIF : " + ajouteGif.getName());
+            }
+        });
     }
 
     private Stage createLoadingDialog(Stage primaryStage) {
