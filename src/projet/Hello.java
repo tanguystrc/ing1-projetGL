@@ -157,11 +157,14 @@ public class Hello extends Application {
     }
 
     private void updateButtonStyles(Button selectedButton) {
+        currentForme = null;
         linearButton.setStyle(DEFAULT_STYLE);
         roundedButton.setStyle(DEFAULT_STYLE);
         pictureButton.setStyle(DEFAULT_STYLE);
         selectedButton.setStyle(SELECTED_STYLE);
+        
     }
+    
 
     private VBox createMenu() {
         VBox menu = new VBox(10);
@@ -171,31 +174,32 @@ public class Hello extends Application {
         linearButton = new Button("Formes Linéaires");
         linearButton.setStyle(DEFAULT_STYLE);
         linearButton.setOnAction(e -> {
+            updateButtonStyles(linearButton);
             faceGroupPoints.setVisible(false);
             nvGroupePointsButton.setVisible(false);
             currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
             currentForme.resetPoints();
-            updateButtonStyles(linearButton);
         });
 
         roundedButton = new Button("Formes Arrondies");
         roundedButton.setStyle(DEFAULT_STYLE);
         roundedButton.setOnAction(e -> {
+            updateButtonStyles(roundedButton);
             faceGroupPoints.setVisible(false);
             nvGroupePointsButton.setVisible(false);
             currentForme = new FormesArrondiesFX(canvasA, canvasB, pointsDeControle);
             currentForme.resetPoints();
-            updateButtonStyles(roundedButton);
+            
         });
 
         pictureButton = new Button("Photo");
         pictureButton.setStyle(DEFAULT_STYLE);
         pictureButton.setOnAction(e -> {
+            updateButtonStyles(pictureButton);
             faceGroupPoints.setVisible(true);
             nvGroupePointsButton.setVisible(true);
             currentForme = new PhotoFX(canvasA, canvasB, pointsDeControle, pointsDeControleLies);
             currentForme.resetPoints();
-            updateButtonStyles(pictureButton);
         });
 
         Button exampleButton = new Button("Exemple");
