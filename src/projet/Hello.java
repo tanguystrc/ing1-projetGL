@@ -441,7 +441,7 @@ public class Hello extends Application {
             } catch (NumberFormatException ex) {
                 Text t = new Text();        
                 t.setTextAlignment(TextAlignment.JUSTIFY);
-                t.setText("Le nombre de frames doit être compris entre 5 et 144\net la durée doit être positive.");
+                t.setText("Le nombre de frames doit être compris entre 5 et 144\net la durée doit être positive.\nVos valeurs doivent être entière.");
                 VBox tmpvbox = new VBox();
                 tmpvbox.setAlignment(Pos.CENTER);  
                 tmpvbox.setPadding(new Insets(20));
