@@ -153,7 +153,13 @@ public class PhotoFX extends FormesFX {
 
         // On a un point précédent du même groupe, on le lie avec le nouveau
         if (index > 0 && !(index == nbPointsDeControleAutreGroupe)) {
-            gc.setStroke(isImageA ? Color.BLUE : Color.RED);
+            if(numGroupe!=(pointsDeControleLies.size()-1)){
+                gc.setStroke(Color.GREY);
+            }else if(isImageA){
+                gc.setStroke(Color.BLUE);
+            }else{
+                gc.setStroke(Color.RED);
+            }            
             Point previousPoint = getPointFromIndex(index - 1, isImageA, numGroupe);
             if (previousPoint != null) {
                 gc.strokeLine(previousPoint.getX(), previousPoint.getY(), mouseX, mouseY);

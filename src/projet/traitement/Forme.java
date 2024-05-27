@@ -17,12 +17,16 @@ public class Forme {
     protected BufferedImage image2;
     protected int nbFrame;
     private javafx.scene.paint.Color selectedColor;
+    protected File ajouteGIF;
+    protected boolean avant;
 
-    public Forme(PointDeControle pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame) {
+    public Forme(PointDeControle pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame, File ajouteGIF, boolean avant) {
         this.pointsDeControle = pointsDeControle;
         this.image1 = image1;
         this.image2 = image2;
         this.nbFrame = nbFrame;
+        this.ajouteGIF = ajouteGIF;
+        this.avant = avant;
     }
 
     public void setSelectedColor(javafx.scene.paint.Color selectedColor) {
@@ -58,7 +62,7 @@ public class Forme {
         int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / nbFrame, true);
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / nbFrame, true,ajouteGIF, avant);
 
         int hauteur = image1.getHeight();
         int largeur = image1.getWidth();
@@ -169,6 +173,6 @@ public class Forme {
                 }
             }
         }
-        return 0; // Default color if none found
+        return 0; 
     }
 }

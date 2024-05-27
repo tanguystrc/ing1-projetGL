@@ -18,7 +18,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -65,6 +67,8 @@ public class Hello extends Application {
     private Color selectedColor;
     private Image startImage;
     private Image endImage;
+    private File ajouteGif;
+    private boolean avant;
     private Rectangle colorDisplay;
     private FormesFX currentForme;
 
@@ -345,8 +349,8 @@ public class Hello extends Application {
         texteInstruction.setWrappingWidth(1200);
         texteInstruction.setTextAlignment(TextAlignment.JUSTIFY);
         texteInstruction.setText("Privilégiez les images en carré étant données qu'elles seront redimenssionées en 600x600.\n"
-                + "Cliquez sur la zone de gauche pour creer un point sur les deux images, que vous pourrez ensuite déplacer à votre guise."
-                + "Si ce n'est déjà fait, merci de ne pas oublier de préciser à l'aide de la pipette la couleur correspondant à votre forme unie."
+                + "Cliquez sur la zone de gauche pour creer un point sur les deux images, que vous pourrez ensuite déplacer à votre guise. "
+                + "Si ce n'est déjà fait, merci de ne pas oublier de préciser à l'aide de la pipette la couleur correspondant à votre forme unie. "
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF - il s'affichera dès la fin de son traitement.");
 
         startImageView = createImageView();
@@ -383,7 +387,8 @@ public class Hello extends Application {
                 pointsDeControleLies.add(new PointDeControle(pointsDeControle));
                 // Nouveau groupe :
                 pointsDeControle.getPointsList().clear();
-                pointsDeControleLies.add(pointsDeControle);                
+                pointsDeControleLies.add(pointsDeControle);  
+                currentForme.redrawPoints();              
             }
         });
         nvGroupePointsButton.setVisible(false);
@@ -419,14 +424,27 @@ public class Hello extends Application {
 
         Label durationLabel = new Label("Durée du GIF");
         durationLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
-
+        
         VBox textFieldBox = new VBox(5, framesLabel, framesTextField, durationLabel, durationTextField);
         textFieldBox.setAlignment(Pos.CENTER);
+
+        Button addGif = new Button("Ajouter un GIF à celui-ci");
+        addGif.setStyle(DEFAULT_STYLE);        
+        ToggleGroup groupeRb = new ToggleGroup();
+        RadioButton rb1 = new RadioButton("Avant");
+        rb1.setToggleGroup(groupeRb);
+        rb1.setSelected(true);
+        RadioButton rb2 = new RadioButton("Après");
+        rb2.setToggleGroup(groupeRb);
+        rb2.setSelected(false);
+        Label nomFichierLabel = new Label("GIF : aucune fichier selectionné.");
+        nomFichierLabel.setStyle("-fx-font-style: italic; -fx-text-fill: gray;");
+        HBox addGifBox = new HBox(15, addGif,rb1,rb2,nomFichierLabel);
+        addGifBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
         startButton.setStyle(SELECTED_STYLE);
         startButton.setOnAction(e -> {
-            System.out.println(pointsDeControle.toString());
             int nbFrames;
             int duration;
             try {
@@ -439,13 +457,26 @@ public class Hello extends Application {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException ex) {
-                System.out.println("Le nombre de frames doit être compris entre 5 et 144 et la durée doit être positive.");
+                Text t = new Text();        
+                t.setTextAlignment(TextAlignment.JUSTIFY);
+                t.setText("Le nombre de frames doit être compris entre 5 et 144\net la durée doit être positive.\nVos valeurs doivent être entière.");
+                VBox tmpvbox = new VBox();
+                tmpvbox.setAlignment(Pos.CENTER);  
+                tmpvbox.setPadding(new Insets(20));
+                tmpvbox.getChildren().add(t);
+                Scene ErrorScene = new Scene(tmpvbox, 450, 100);
+                Stage ErrorStage = new Stage();
+                ErrorStage.setTitle("Erreur");
+                ErrorStage.setResizable(false);
+                ErrorStage.setScene(ErrorScene);
+                ErrorStage.show();
                 return;
             }
 
             if (startImage != null) {
                 
                 Stage loadingStage = createLoadingDialog(primaryStage);
+                avant = rb1.isSelected();
                 
                 Task<Void> task = new Task<Void>() {
                     @Override
@@ -456,7 +487,7 @@ public class Hello extends Application {
                         if (currentForme instanceof PhotoFX) {
                             Visage visage; 
                             System.out.println("Traitement d'une photo");
-                            visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames);
+                            visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames,ajouteGif,avant);
                             try {
                                 visage.morph(duration, this::updateProgress);
                             } catch (IOException ioException) {
@@ -465,7 +496,7 @@ public class Hello extends Application {
                         } else if (currentForme instanceof FormesArrondiesFX) {
                             FormeArrondie forme;
                             System.out.println("Traitement d'une forme unie arrondie");
-                            forme = new FormeArrondie(pointsDeControle, nbFrames);
+                            forme = new FormeArrondie(pointsDeControle, nbFrames,ajouteGif,avant);
                             forme.setSelectedColor(selectedColor);
                             try {
                                 forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
@@ -475,7 +506,7 @@ public class Hello extends Application {
                         } else {
                             Forme forme;
                             System.out.println("Traitement d'une forme unie linéaire");
-                            forme = new Forme(pointsDeControle, null, null, nbFrames);
+                            forme = new Forme(pointsDeControle, null, null, nbFrames,ajouteGif,avant);
                             forme.setSelectedColor(selectedColor);
                             try {
                                 forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
@@ -526,7 +557,7 @@ public class Hello extends Application {
 
         VBox menu = createMenu();
         VBox mainContent = new VBox();
-        mainContent.getChildren().addAll(texteInstruction, imageBox, buttonBox1, textFieldBox, buttonBox2);
+        mainContent.getChildren().addAll(texteInstruction, imageBox, buttonBox1, textFieldBox, addGifBox, buttonBox2);
         mainContent.setPadding(new Insets(20));
         mainContent.setSpacing(15);
         mainContent.setAlignment(Pos.CENTER);
@@ -541,12 +572,13 @@ public class Hello extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
+        /* Ajouts de fichiers : */
+        FileChooser fileChooserIMG = new FileChooser();
+        fileChooserIMG.getExtensionFilters().addAll(
             new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
         );
         selectStartImageButton.setOnAction(e -> {
-            File file = fileChooser.showOpenDialog(primaryStage);
+            File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
                 startImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
                 startImageView.setImage(startImage);
@@ -554,10 +586,21 @@ public class Hello extends Application {
         });
 
         selectEndImageButton.setOnAction(e -> {
-            File file = fileChooser.showOpenDialog(primaryStage);
+            File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
                 endImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
                 endImageView.setImage(endImage);
+            }
+        });
+
+        FileChooser fileChooserGIF = new FileChooser();
+        fileChooserGIF.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("GIF Files", "*.gif")
+        );
+        addGif.setOnAction(e -> {
+            ajouteGif = fileChooserGIF.showOpenDialog(primaryStage);
+            if (ajouteGif != null) {
+                nomFichierLabel.setText("GIF : " + ajouteGif.getName());
             }
         });
     }
