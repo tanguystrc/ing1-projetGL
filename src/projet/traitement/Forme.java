@@ -1,4 +1,4 @@
-package src.projet;
+package src.projet.traitement;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+import src.projet.gif.GifSequenceWriter;
 public class Forme {
     
     protected PointDeControle pointsDeControle;
