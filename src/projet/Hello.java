@@ -385,7 +385,8 @@ public class Hello extends Application {
                 pointsDeControleLies.add(new PointDeControle(pointsDeControle));
                 // Nouveau groupe :
                 pointsDeControle.getPointsList().clear();
-                pointsDeControleLies.add(pointsDeControle);                
+                pointsDeControleLies.add(pointsDeControle);  
+                currentForme.redrawPoints();              
             }
         });
         nvGroupePointsButton.setVisible(false);
