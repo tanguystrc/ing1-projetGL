@@ -28,20 +28,12 @@ public class Visage {
     protected int nbFrame;
 
     public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame) {
-        this.image1 = resizeImage(image1, 600, 600);
-        this.image2 = resizeImage(image2, 600, 600);
+        this.image1 = image1;
+        this.image2 = image2;
         this.segments = segments;
         this.nbFrame = nbFrame;
     }
-
-    private BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
-        BufferedImage resizedImage = new BufferedImage(width, height, originalImage.getType());
-        Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(originalImage, 0, 0, width, height, null);
-        g.dispose();
-        return resizedImage;
-    }
-
+    
     /**
      * Retourne les vecteurs de déplacement pour chaque point entre chaques images de transition
      * @param nbFrame Nombre d'images total
@@ -98,8 +90,8 @@ public class Visage {
         morphs2.clear();
         List<List<Point>> listIndice = listIndice(nbFrame);
         for (int k = 1; k < nbFrame - 1; k++) {
-            BufferedImage morphImage1 = new BufferedImage(600, 600, image1.getType());
-            BufferedImage morphImage2 = new BufferedImage(600, 600, image2.getType());
+            BufferedImage morphImage1 = new BufferedImage(image1.getWidth(), image1.getHeight(), image1.getType());
+            BufferedImage morphImage2 = new BufferedImage(image2.getWidth(), image2.getHeight(), image2.getType());
             Set<PairSegment> sPImage1 = new HashSet<>();
             Set<PairSegment> sPImage2 = new HashSet<>();
 
