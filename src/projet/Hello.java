@@ -18,7 +18,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -419,9 +421,21 @@ public class Hello extends Application {
 
         Label durationLabel = new Label("Durée du GIF");
         durationLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
-
+        
         VBox textFieldBox = new VBox(5, framesLabel, framesTextField, durationLabel, durationTextField);
         textFieldBox.setAlignment(Pos.CENTER);
+
+        Button addGif = new Button("Ajouter un GIF à celui-ci");
+        addGif.setStyle(DEFAULT_STYLE);        
+        ToggleGroup groupeRb = new ToggleGroup();
+        RadioButton rb1 = new RadioButton("Avant");
+        rb1.setToggleGroup(groupeRb);
+        rb1.setSelected(true);
+        RadioButton rb2 = new RadioButton("Après");
+        rb2.setToggleGroup(groupeRb);
+        rb2.setSelected(false);
+        HBox addGifBox = new HBox(15, addGif,rb1,rb2);
+        addGifBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
         startButton.setStyle(SELECTED_STYLE);
@@ -538,7 +552,7 @@ public class Hello extends Application {
 
         VBox menu = createMenu();
         VBox mainContent = new VBox();
-        mainContent.getChildren().addAll(texteInstruction, imageBox, buttonBox1, textFieldBox, buttonBox2);
+        mainContent.getChildren().addAll(texteInstruction, imageBox, buttonBox1, textFieldBox, addGifBox, buttonBox2);
         mainContent.setPadding(new Insets(20));
         mainContent.setSpacing(15);
         mainContent.setAlignment(Pos.CENTER);
@@ -553,12 +567,13 @@ public class Hello extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
+        /* Ajouts de fichiers : */
+        FileChooser fileChooserIMG = new FileChooser();
+        fileChooserIMG.getExtensionFilters().addAll(
             new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
         );
         selectStartImageButton.setOnAction(e -> {
-            File file = fileChooser.showOpenDialog(primaryStage);
+            File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
                 startImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
                 startImageView.setImage(startImage);
@@ -566,12 +581,21 @@ public class Hello extends Application {
         });
 
         selectEndImageButton.setOnAction(e -> {
-            File file = fileChooser.showOpenDialog(primaryStage);
+            File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
                 endImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
                 endImageView.setImage(endImage);
             }
         });
+
+        /*FileChooser fileChooserGIF = new FileChooser();
+        fileChooserGIF.getExtensionFilters().add(
+            new ExtensionFilter("*.gif")
+        );
+        addGif.setOnAction(e -> {
+            File file = fileChooserGIF.showOpenDialog(primaryStage);
+            
+        });*/
     }
 
     private Stage createLoadingDialog(Stage primaryStage) {
