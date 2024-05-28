@@ -589,7 +589,6 @@ public class Hello extends Application {
             if (file != null) {
                 Image imageBase = new Image("file:" + file.getAbsolutePath());
                 double ratio = Math.max(600 / imageBase.getHeight(), 600 / imageBase.getWidth());
-                System.out.println("ratio : " + ratio);
                 Image imageRed = new Image(imageBase.getUrl(),(int) imageBase.getWidth() * ratio,(int) imageBase.getHeight() * ratio, true, true);
                 System.out.println(imageRed.getWidth() + " " + imageRed.getHeight());
                 startImage = rognerImage(imageRed);
@@ -600,7 +599,11 @@ public class Hello extends Application {
         selectEndImageButton.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                endImage = new Image("file:" + file.getAbsolutePath());
+                Image imageBase2 = new Image("file:" + file.getAbsolutePath());
+                double ratio2 = Math.max(600 / imageBase2.getHeight(), 600 / imageBase2.getWidth());
+                Image imageRed2 = new Image(imageBase2.getUrl(),(int) imageBase2.getWidth() * ratio2,(int) imageBase2.getHeight() * ratio2, true, true);
+                System.out.println(imageRed2.getWidth() + " " + imageRed2.getHeight());
+                endImage = rognerImage(imageRed2);
                 endImageView.setImage(endImage);
             }
         });
