@@ -28,6 +28,7 @@ public class Visage {
     protected int nbFrame;
     protected File ajouteGIF;
     protected boolean avant;
+    private int progress;
 
     public Visage(BufferedImage image1, BufferedImage image2, List<PointDeControle> segments, int nbFrame, File ajouteGIF, boolean avant) {
         this.image1 = resizeImage(image1, 600, 600);
@@ -36,6 +37,7 @@ public class Visage {
         this.nbFrame = nbFrame;
         this.ajouteGIF = ajouteGIF;
         this.avant = avant;
+        this.progress = 1;
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
@@ -97,7 +99,7 @@ public class Visage {
      * @param morphs2 Liste des images intermédiaires pour l'image destination
      * @param nbFrame Nombre de frames
      */
-    public void demiMorph(List<BufferedImage> morphs1, List<BufferedImage> morphs2, int nbFrame) {
+    public void demiMorph(List<BufferedImage> morphs1, List<BufferedImage> morphs2, int nbFrame,BiConsumer<Integer, Integer> progressUpdater) {
         morphs1.clear();
         morphs2.clear();
         List<List<Point>> listIndice = listIndice(nbFrame);
@@ -119,6 +121,10 @@ public class Visage {
 
             morphs1.add(morphImage1);
             morphs2.add(morphImage2);
+
+            // Pour la barre de chargement :
+            progress++;
+            Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));        
         }
     }
 
@@ -184,7 +190,7 @@ public class Visage {
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
         GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / this.nbFrame, true, ajouteGIF, avant);
 
-        demiMorph(morphs1, morphs2, nbFrame);
+        demiMorph(morphs1, morphs2, nbFrame, progressUpdater);
 
         morphFinal.add(image1);
         gifWriter.writeToSequence(image1);
@@ -197,10 +203,12 @@ public class Visage {
                 }
             }
             morphFinal.add(image);
-            gifWriter.writeToSequence(image);
-            final int progress = k + 1;
-            Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));
+            gifWriter.writeToSequence(image);            
         }
+
+        // Pour la barre de chargement :
+        progress++;
+        Platform.runLater(() -> progressUpdater.accept(progress, this.nbFrame));    
 
         morphFinal.add(image2);
         gifWriter.writeToSequence(image2);
