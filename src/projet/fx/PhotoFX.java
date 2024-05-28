@@ -24,34 +24,34 @@ public class PhotoFX extends FormesFX {
     private List<PointDeControle> pointsDeControleLies;
     private int nbPointsDeControleAutreGroupe;
 
-    public PhotoFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle, List<PointDeControle> pointsDeControleLies) {
-        super(canvasA, canvasB, pointsDeControle);
+    public PhotoFX(Canvas zonePointsA, Canvas zonePointsB, PointDeControle pointsDeControle, List<PointDeControle> pointsDeControleLies) {
+        super(zonePointsA, zonePointsB, pointsDeControle);
         this.pointsDeControleLies = pointsDeControleLies;
         this.nbPointsDeControleAutreGroupe = 0;
     }
 
     @Override
-    public void resetPoints() {
-        isDragging = false;
-        isMousePressed = false;
+    public void reinitialiserPoints() {
+        seDeplace = false;
+        sourisClicEnfonce = false;
         pointsDeControle.getPointsList().clear();
         pointsDeControleLies.clear();
         pointsDeControleLies.add(pointsDeControle);
-        redrawPoints();
+        redessinerPoints();
     }
 
     @Override
-    public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
-        double mouseX = mouseEvent.getX();
-        double mouseY = mouseEvent.getY();
+    public void sourisAppuyee(MouseEvent mouseEvent, boolean estImageA) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
 
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
-                Point point = isImageA ? couple.getA() : couple.getB();
-                if (point.distance(new Point(mouseX, mouseY)) < 10) { // zone de 10 pixels autour du point pour la sélection
-                    selectedPoint = point;
-                    isDragging = true;
-                    isClickValid = false;
+                Point point = estImageA ? couple.getA() : couple.getB();
+                if (point.distance(new Point(x, y)) < 10) { // zone de 10 pixels autour du point pour la sélection
+                    pointSelectionne = point;
+                    seDeplace = true;
+                    leClicEstValide = false;
                     break;
                 }
             }
@@ -59,19 +59,19 @@ public class PhotoFX extends FormesFX {
     }
 
     @Override
-    public void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
+    public void verifSuperposerPoint(double x, double y, boolean estImageA) {
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-            Point point = isImageA ? couple.getA() : couple.getB();
-            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { // Merge points within 10 pixels
-                selectedPoint.setX(point.getX());
-                selectedPoint.setY(point.getY());
+            Point point = estImageA ? couple.getA() : couple.getB();
+            if (point != pointSelectionne && point.distance(new Point(x, y)) < 10) { // Merge points within 10 pixels
+                pointSelectionne.setX(point.getX());
+                pointSelectionne.setY(point.getY());
                 return;
             }
         }
     }
 
     @Override
-    public void showDeletePointDialog() {
+    public void fenetreSuppressionPoints() {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Supprimer un couple de point");
@@ -104,7 +104,7 @@ public class PhotoFX extends FormesFX {
             if (selectedIndex != -1 && selectedIndex < calculerNbTotalPoint()) {
                 Point point = getPointFromIndexTotal(selectedIndex, true);
                 pointsDeControleLies.get(calculerNumGroupe(selectedIndex)).supprimer(point);
-                redrawPoints();
+                redessinerPoints();
                 dialog.close();
             }
         });
@@ -119,9 +119,9 @@ public class PhotoFX extends FormesFX {
     }
 
     @Override
-    public void redrawPoints() {
-        canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
-        canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
+    public void redessinerPoints() {
+        zonePointsA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
+        zonePointsB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
         int index;
         int numGroupe = 0;
@@ -136,54 +136,54 @@ public class PhotoFX extends FormesFX {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 Point key = couple.getA();
                 Point value = couple.getB();
-                draw(canvasA.getGraphicsContext2D(), key.getX(), key.getY(), true, index, numGroupe);
-                draw(canvasB.getGraphicsContext2D(), value.getX(), value.getY(), false, index, numGroupe);
+                dessiner(zonePointsA.getGraphicsContext2D(), key.getX(), key.getY(), true, index, numGroupe);
+                dessiner(zonePointsB.getGraphicsContext2D(), value.getX(), value.getY(), false, index, numGroupe);
                 index++;
             }
             numGroupe++;
         }
     }
 
-    private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index, int numGroupe) {
+    private void dessiner(GraphicsContext gc, double x, double y, boolean estImageA, int index, int numGroupe) {
         // lettre de l'alphabet au début, chiffres après
         String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
 
-        gc.setStroke(isImageA ? Color.RED : Color.BLUE);
-        gc.strokeText("." + pointLabel, mouseX, mouseY);
+        gc.setStroke(estImageA ? Color.RED : Color.BLUE);
+        gc.strokeText("." + pointLabel, x, y);
 
         // On a un point précédent du même groupe, on le lie avec le nouveau
         if (index > 0 && !(index == nbPointsDeControleAutreGroupe)) {
             if(numGroupe!=(pointsDeControleLies.size()-1)){
                 gc.setStroke(Color.GREY);
-            }else if(isImageA){
+            }else if(estImageA){
                 gc.setStroke(Color.BLUE);
             }else{
                 gc.setStroke(Color.RED);
             }            
-            Point previousPoint = getPointFromIndex(index - 1, isImageA, numGroupe);
+            Point previousPoint = getPointFromIndex(index - 1, estImageA, numGroupe);
             if (previousPoint != null) {
-                gc.strokeLine(previousPoint.getX(), previousPoint.getY(), mouseX, mouseY);
+                gc.strokeLine(previousPoint.getX(), previousPoint.getY(), x, y);
             }
         }
     }
 
-    private Point getPointFromIndex(int index, boolean isImageA, int numGroupe) {
+    private Point getPointFromIndex(int index, boolean estImageA, int numGroupe) {
         int i = 0;
         for (Couple<Point, Point> couple : pointsDeControleLies.get(numGroupe).getPointsList()) {
             if (i == index - nbPointsDeControleAutreGroupe) {
-                return isImageA ? couple.getA() : couple.getB();
+                return estImageA ? couple.getA() : couple.getB();
             }
             i++;
         }
         return null;
     }
 
-    private Point getPointFromIndexTotal(int index, boolean isImageA) {
+    private Point getPointFromIndexTotal(int index, boolean estImageA) {
         int i = 0;
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 if (i == index) {
-                    return isImageA ? couple.getA() : couple.getB();
+                    return estImageA ? couple.getA() : couple.getB();
                 }
                 i++;
             }

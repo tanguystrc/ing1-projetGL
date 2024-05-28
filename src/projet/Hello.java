@@ -55,32 +55,38 @@ import javafx.scene.shape.Rectangle;
 public class Hello extends Application {
 
     private static final String DEFAULT_STYLE = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;";
-    private static final String SELECTED_STYLE = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;";
+    private static final String SELECTIONNE_STYLE = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;";
 
     private PointDeControle pointsDeControle;
     private List<PointDeControle> pointsDeControleLies;
+    private FormesFX formeActuelle;
 
-    private Canvas canvasA;
-    private Canvas canvasB;
-    private boolean isClickValid = true;
-    private boolean isPipetteMode = false;
-    private Color selectedColor;
-    private Image startImage;
-    private Image endImage;
+    private Canvas zonePointsA;
+    private Canvas zonePointsB;
+    private boolean leClicEstValide = true;
+    private boolean enModePipette = false;
+    private Color couleurSelectionne;
+    private Rectangle rectangleCouleur;
+
+    private Image imageDebut;
+    private Image imageFin;
+    private ImageView imageViewDebut;
+    private ImageView imageViewFin;
+
     private File ajouteGif;
     private boolean avant;
-    private Rectangle colorDisplay;
-    private FormesFX currentForme;
-
-    private Button linearButton;
-    private Button roundedButton;
-    private Button pictureButton;
+    
+    private Button boutonFormeLi;
+    private Button boutonFormeArr;
+    private Button boutonPhoto;
     private Button nvGroupePointsButton;
-    private Button faceGroupPoints;
-    private ImageView startImageView;
-    private ImageView endImageView;
-
-    private ImageView createImageView() {
+    private Button boutonPointsVisage;
+    
+    /**
+     * Créé l'ImageView de l'interface
+     * @return
+     */
+    private ImageView creerImageView() {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
         imageView.setFitHeight(600);
@@ -94,22 +100,22 @@ public class Hello extends Application {
         return button;
     }
 
-    private StackPane imgDansPane(ImageView i, boolean isImageA) {
+    private StackPane imgDansPane(ImageView i, boolean estImageA) {
         StackPane pane = new StackPane();
         pane.getChildren().add(i);
         pane.setStyle("-fx-border-color: #000000; -fx-border-width: 1px;");
 
         Canvas canvas = new Canvas(600, 600);
-        if (isImageA) {
-            canvasA = canvas;
+        if (estImageA) {
+            zonePointsA = canvas;
         } else {
-            canvasB = canvas;
+            zonePointsB = canvas;
         }
 
-        canvas.setOnMousePressed(mouseEvent -> handleMousePressed(mouseEvent, isImageA));
-        canvas.setOnMouseDragged(mouseEvent -> handleMouseDragged(mouseEvent, isImageA));
-        canvas.setOnMouseReleased(mouseEvent -> handleMouseReleased(isImageA));
-        canvas.setOnMouseClicked(mouseEvent -> handleMouseClicked(mouseEvent, isImageA));
+        canvas.setOnMousePressed(mouseEvent -> sourisAppuyee(mouseEvent, estImageA));
+        canvas.setOnMouseDragged(mouseEvent -> sourisGlissée(mouseEvent, estImageA));
+        canvas.setOnMouseReleased(mouseEvent -> sourisRelachee(estImageA));
+        canvas.setOnMouseClicked(mouseEvent -> sourisCliquee(mouseEvent, estImageA));
 
         StackPane.setAlignment(canvas, Pos.TOP_LEFT);
         pane.getChildren().add(canvas);
@@ -117,112 +123,112 @@ public class Hello extends Application {
         return pane;
     }
 
-    private void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
-        if (currentForme != null) {         
-            currentForme.handleMousePressed(mouseEvent, isImageA);
+    private void sourisAppuyee(MouseEvent mouseEvent, boolean estImageA) {
+        if (formeActuelle != null) {         
+            formeActuelle.sourisAppuyee(mouseEvent, estImageA);
         }
     }
 
-    private void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
-        if (currentForme != null) {
-            currentForme.handleMouseDragged(mouseEvent, isImageA);
+    private void sourisGlissée(MouseEvent mouseEvent, boolean estImageA) {
+        if (formeActuelle != null) {
+            formeActuelle.sourisGlissée(mouseEvent, estImageA);
         }
     }
 
-    private void handleMouseReleased(boolean isImageA) {
-        if (currentForme != null) {
-            currentForme.handleMouseReleased(isImageA);
+    private void sourisRelachee(boolean estImageA) {
+        if (formeActuelle != null) {
+            formeActuelle.sourisRelachee(estImageA);
         }
     }
 
-    private void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {
-        if (isPipetteMode) {
-            pickColor(mouseEvent, isImageA);
-            isPipetteMode = false;
-            canvasA.setCursor(Cursor.DEFAULT);
-            canvasB.setCursor(Cursor.DEFAULT);
-        } else if (isClickValid && currentForme != null) {
-            currentForme.handleMouseClicked(mouseEvent, isImageA);
+    private void sourisCliquee(MouseEvent mouseEvent, boolean estImageA) {
+        if (enModePipette) {
+            pipette(mouseEvent, estImageA);
+            enModePipette = false;
+            zonePointsA.setCursor(Cursor.DEFAULT);
+            zonePointsB.setCursor(Cursor.DEFAULT);
+        } else if (leClicEstValide && formeActuelle != null) {
+            formeActuelle.sourisCliquee(mouseEvent, estImageA);
         }
-        isClickValid = true;
+        leClicEstValide = true;
     }
 
-    private void pickColor(MouseEvent mouseEvent, boolean isImageA) {
-        Image image = isImageA ? startImage : endImage;
+    private void pipette(MouseEvent mouseEvent, boolean estImageA) {
+        Image image = estImageA ? imageDebut : imageFin;
         if (image != null) {
             int x = (int) mouseEvent.getX();
             int y = (int) mouseEvent.getY();
             BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
             java.awt.Color color = new java.awt.Color(bufferedImage.getRGB(x, y));
-            selectedColor = Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
-            colorDisplay.setFill(selectedColor);
-            System.out.println("Selected Color: " + selectedColor);
+            couleurSelectionne = Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
+            rectangleCouleur.setFill(couleurSelectionne);
+            System.out.println("Selected Color: " + couleurSelectionne);
         }
     }
 
-    private void updateButtonStyles(Button selectedButton) {
-        linearButton.setStyle(DEFAULT_STYLE);
-        roundedButton.setStyle(DEFAULT_STYLE);
-        pictureButton.setStyle(DEFAULT_STYLE);
-        selectedButton.setStyle(SELECTED_STYLE);
+    private void reinitialiserStyleBoutons(Button selectedButton) {
+        boutonFormeLi.setStyle(DEFAULT_STYLE);
+        boutonFormeArr.setStyle(DEFAULT_STYLE);
+        boutonPhoto.setStyle(DEFAULT_STYLE);
+        selectedButton.setStyle(SELECTIONNE_STYLE);
     }
 
-    private VBox createMenu() {
+    private VBox creerMenu() {
         VBox menu = new VBox(10);
         menu.setPadding(new Insets(10));
         menu.setStyle("-fx-background-color: #2c3e50; -fx-padding: 20px;");
 
-        linearButton = new Button("Formes Linéaires");
-        linearButton.setStyle(DEFAULT_STYLE);
-        linearButton.setOnAction(e -> {
-            faceGroupPoints.setVisible(false);
+        boutonFormeLi = new Button("Formes Linéaires");
+        boutonFormeLi.setStyle(DEFAULT_STYLE);
+        boutonFormeLi.setOnAction(e -> {
+            boutonPointsVisage.setVisible(false);
             nvGroupePointsButton.setVisible(false);
-            currentForme = new FormesLineaireFX(canvasA, canvasB, pointsDeControle);
-            currentForme.resetPoints();
-            updateButtonStyles(linearButton);
+            formeActuelle = new FormesLineaireFX(zonePointsA, zonePointsB, pointsDeControle);
+            formeActuelle.reinitialiserPoints();
+            reinitialiserStyleBoutons(boutonFormeLi);
         });
 
-        roundedButton = new Button("Formes Arrondies");
-        roundedButton.setStyle(DEFAULT_STYLE);
-        roundedButton.setOnAction(e -> {
-            faceGroupPoints.setVisible(false);
+        boutonFormeArr = new Button("Formes Arrondies");
+        boutonFormeArr.setStyle(DEFAULT_STYLE);
+        boutonFormeArr.setOnAction(e -> {
+            boutonPointsVisage.setVisible(false);
             nvGroupePointsButton.setVisible(false);
-            currentForme = new FormesArrondiesFX(canvasA, canvasB, pointsDeControle);
-            currentForme.resetPoints();
-            updateButtonStyles(roundedButton);
+            formeActuelle = new FormesArrondiesFX(zonePointsA, zonePointsB, pointsDeControle);
+            formeActuelle.reinitialiserPoints();
+            reinitialiserStyleBoutons(boutonFormeArr);
         });
 
-        pictureButton = new Button("Photo");
-        pictureButton.setStyle(DEFAULT_STYLE);
-        pictureButton.setOnAction(e -> {
-            faceGroupPoints.setVisible(true);
+        boutonPhoto = new Button("Photo");
+        boutonPhoto.setStyle(DEFAULT_STYLE);
+        boutonPhoto.setOnAction(e -> {
+            boutonPointsVisage.setVisible(true);
             nvGroupePointsButton.setVisible(true);
-            currentForme = new PhotoFX(canvasA, canvasB, pointsDeControle, pointsDeControleLies);
-            currentForme.resetPoints();
-            updateButtonStyles(pictureButton);
+            formeActuelle = new PhotoFX(zonePointsA, zonePointsB, pointsDeControle, pointsDeControleLies);
+            formeActuelle.reinitialiserPoints();
+            reinitialiserStyleBoutons(boutonPhoto);
         });
 
         Button exampleButton = new Button("Exemple");
         exampleButton.setStyle(DEFAULT_STYLE);
-        exampleButton.setOnAction(e -> loadExample());
+        exampleButton.setOnAction(e -> chargerExemple());
 
-        menu.getChildren().addAll(linearButton, roundedButton, pictureButton, exampleButton);
+        menu.getChildren().addAll(boutonFormeLi, boutonFormeArr, boutonPhoto, exampleButton);
         return menu;
     }
 
-    private void loadExample() {
-        if (currentForme instanceof FormesLineaireFX) {
-            startImage = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
-            endImage = new Image("file:./src/projet/img/triangle.png", 600, 600, true, true);
+    private void chargerExemple() {
+        if (formeActuelle instanceof FormesLineaireFX) {
+            imageDebut = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
+            imageFin = new Image("file:./src/projet/img/triangle.png", 600, 600, true, true);
 
             pointsDeControle.getPointsList().clear();
             pointsDeControle.ajouter(new Point(88.0, 97), new Point(301, 100));
             pointsDeControle.ajouter(new Point(497, 97), new Point(301, 100));
             pointsDeControle.ajouter(new Point(499, 492), new Point(509, 474));
             pointsDeControle.ajouter(new Point(85, 490), new Point(93, 474));
-        } else if (currentForme instanceof FormesArrondiesFX) {
-            startImage = new Image("file:./src/projet/img/coeur.png", 600, 600, true, true);
-            endImage = new Image("file:./src/projet/img/croissant.png", 600, 600, true, true);
+        } else if (formeActuelle instanceof FormesArrondiesFX) {
+            imageDebut = new Image("file:./src/projet/img/coeur.png", 600, 600, true, true);
+            imageFin = new Image("file:./src/projet/img/croissant.png", 600, 600, true, true);
 
             pointsDeControle.getPointsList().clear();
             pointsDeControle.ajouter(new Point(298.0, 204.0), new Point(394.0, 32.0));
@@ -238,21 +244,25 @@ public class Hello extends Application {
             pointsDeControle.ajouter(new Point(93.0, 116.0), new Point(199.0, 130.0));
             pointsDeControle.ajouter(new Point(223.0, 52.0), new Point(272.0, 30.0));
             pointsDeControle.ajouter(new Point(298.1, 204.0), new Point(394.0, 32.0));
-        } else if (currentForme instanceof PhotoFX) {            
-            startImage = new Image("file:./src/projet/img/visage1.png", 600, 600, true, true);
-            endImage = new Image("file:./src/projet/img/visage2.png", 600, 600, true, true);            
+        } else if (formeActuelle instanceof PhotoFX) {            
+            imageDebut = new Image("file:./src/projet/img/visage1.png", 600, 600, true, true);
+            imageFin = new Image("file:./src/projet/img/visage2.png", 600, 600, true, true);            
             pointsDeControle.getPointsList().clear();
-            generateFace(true);
+            genererPointsVisage(true);
         }
 
-        startImageView.setImage(startImage);
-        endImageView.setImage(endImage);
+        imageViewDebut.setImage(imageDebut);
+        imageViewFin.setImage(imageFin);
 
-        currentForme.redrawPoints();
+        formeActuelle.redessinerPoints();
     }
 
-    private void generateFace(boolean deuxTypes) {
-        currentForme.resetPoints();
+    /**
+     * Affiche des points pré-placés formant un visage pour plus de rapidité
+     * @param deuxTypes : boolean
+     */
+    private void genererPointsVisage(boolean deuxTypes) {
+        formeActuelle.reinitialiserPoints();
         // Coordonnées :
         LinkedList<LinkedList<Couple<Point, Point>>> listeCoord = new LinkedList<>();
         LinkedList<Couple<Point, Point>> g1 = new LinkedList<>(Arrays.asList(
@@ -332,17 +342,17 @@ public class Hello extends Application {
             }    
         }
             
-        currentForme.redrawPoints();     
+        formeActuelle.redessinerPoints();     
     }
 
     @Override
     public void start(Stage primaryStage) {
         this.pointsDeControle = new PointDeControle();        
         this.pointsDeControleLies = new LinkedList<>();         
-        this.pointsDeControleLies.add(pointsDeControle); // il aura tjrs pointsDeControle, qui est la dernière liste
-
-        colorDisplay = new Rectangle(30, 30, Color.TRANSPARENT);
-        colorDisplay.setStroke(Color.BLACK);
+        this.pointsDeControleLies.add(pointsDeControle); // il aura tjrs pointsDeControle dans pointsDeControleLies, qui est la *dernière* liste
+        
+        rectangleCouleur = new Rectangle(30, 30, Color.TRANSPARENT);
+        rectangleCouleur.setStroke(Color.BLACK);
 
         Text texteInstruction = new Text();
         texteInstruction.setFont(new Font(14));
@@ -353,28 +363,28 @@ public class Hello extends Application {
                 + "Si ce n'est déjà fait, merci de ne pas oublier de préciser à l'aide de la pipette la couleur correspondant à votre forme unie. "
                 + "Cliquez sur Valider en suivant, après avoir précisé le nombre de frames souhaité pour le GIF - il s'affichera dès la fin de son traitement.");
 
-        startImageView = createImageView();
-        endImageView = createImageView();
+        imageViewDebut = creerImageView();
+        imageViewFin = creerImageView();
 
-        StackPane paneA = imgDansPane(startImageView, true);
-        StackPane paneB = imgDansPane(endImageView, false);
+        StackPane paneA = imgDansPane(imageViewDebut, true);
+        StackPane paneB = imgDansPane(imageViewFin, false);
 
         HBox imageBox = new HBox(20, paneA, paneB);
         imageBox.setAlignment(Pos.CENTER);
 
-        Button selectStartImageButton = createImageButton("Select Image A");
-        Button selectEndImageButton = createImageButton("Select Image B");
+        Button boutonChoisirImageDebut = createImageButton("Select Image A");
+        Button boutonChoisirImageFin = createImageButton("Select Image B");
 
-        HBox buttonBox1 = new HBox(10, selectStartImageButton, selectEndImageButton);
-        buttonBox1.setAlignment(Pos.CENTER);
+        HBox zoneBouton1 = new HBox(10, boutonChoisirImageDebut, boutonChoisirImageFin);
+        zoneBouton1.setAlignment(Pos.CENTER);
 
-        Button resetButton = new Button("Réinitialiser");
-        resetButton.setStyle(DEFAULT_STYLE);
-        resetButton.setOnAction(e -> currentForme.resetPoints());
+        Button boutonReinitialiser = new Button("Réinitialiser");
+        boutonReinitialiser.setStyle(DEFAULT_STYLE);
+        boutonReinitialiser.setOnAction(e -> formeActuelle.reinitialiserPoints());
 
         Button deleteButton = new Button("Supprimer");
         deleteButton.setStyle(DEFAULT_STYLE);
-        deleteButton.setOnAction(e -> currentForme.showDeletePointDialog());
+        deleteButton.setOnAction(e -> formeActuelle.fenetreSuppressionPoints());
 
         // Bouton pour creer un nouveau groupe de points :
         nvGroupePointsButton = new Button("Nouveau Groupe de point");
@@ -388,25 +398,25 @@ public class Hello extends Application {
                 // Nouveau groupe :
                 pointsDeControle.getPointsList().clear();
                 pointsDeControleLies.add(pointsDeControle);  
-                currentForme.redrawPoints();              
+                formeActuelle.redessinerPoints();              
             }
         });
         nvGroupePointsButton.setVisible(false);
 
         // Bouton pour creer automatiquement des groupes de PointsDeControle pour les visages :
-        faceGroupPoints = new Button("Visage");
-        faceGroupPoints.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
-        faceGroupPoints.setOnAction(e -> {
-            generateFace(false);
+        boutonPointsVisage = new Button("Visage");
+        boutonPointsVisage.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        boutonPointsVisage.setOnAction(e -> {
+            genererPointsVisage(false);
         });
-        faceGroupPoints.setVisible(false);
+        boutonPointsVisage.setVisible(false);
 
         Button pipetteButton = new Button("Pipette");
         pipetteButton.setStyle(DEFAULT_STYLE);
         pipetteButton.setOnAction(e -> {
-            isPipetteMode = true;
-            canvasA.setCursor(Cursor.CROSSHAIR);
-            canvasB.setCursor(Cursor.CROSSHAIR);
+            enModePipette = true;
+            zonePointsA.setCursor(Cursor.CROSSHAIR);
+            zonePointsB.setCursor(Cursor.CROSSHAIR);
         });
 
         TextField framesTextField = new TextField();
@@ -443,7 +453,7 @@ public class Hello extends Application {
         addGifBox.setAlignment(Pos.CENTER);
 
         Button startButton = new Button("Start");
-        startButton.setStyle(SELECTED_STYLE);
+        startButton.setStyle(SELECTIONNE_STYLE);
         startButton.setOnAction(e -> {
             int nbFrames;
             int duration;
@@ -473,7 +483,7 @@ public class Hello extends Application {
                 return;
             }
 
-            if (startImage != null) {
+            if (imageDebut != null) {
                 
                 Stage loadingStage = createLoadingDialog(primaryStage);
                 avant = rb1.isSelected();
@@ -484,22 +494,22 @@ public class Hello extends Application {
                         updateProgress(0, nbFrames);
 
                         
-                        if (currentForme instanceof PhotoFX) {
+                        if (formeActuelle instanceof PhotoFX) {
                             Visage visage; 
                             System.out.println("Traitement d'une photo");
-                            visage = new Visage(SwingFXUtils.fromFXImage(startImage, null),SwingFXUtils.fromFXImage(endImage, null),pointsDeControleLies,nbFrames,ajouteGif,avant);
+                            visage = new Visage(SwingFXUtils.fromFXImage(imageDebut, null),SwingFXUtils.fromFXImage(imageFin, null),pointsDeControleLies,nbFrames,ajouteGif,avant);
                             try {
                                 visage.morph(duration, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
-                        } else if (currentForme instanceof FormesArrondiesFX) {
+                        } else if (formeActuelle instanceof FormesArrondiesFX) {
                             FormeArrondie forme;
                             System.out.println("Traitement d'une forme unie arrondie");
                             forme = new FormeArrondie(pointsDeControle, nbFrames,ajouteGif,avant);
-                            forme.setSelectedColor(selectedColor);
+                            forme.setSelectedColor(couleurSelectionne);
                             try {
-                                forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                                forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duration, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
@@ -507,9 +517,9 @@ public class Hello extends Application {
                             Forme forme;
                             System.out.println("Traitement d'une forme unie linéaire");
                             forme = new Forme(pointsDeControle, null, null, nbFrames,ajouteGif,avant);
-                            forme.setSelectedColor(selectedColor);
+                            forme.setSelectedColor(couleurSelectionne);
                             try {
-                                forme.morphisme(SwingFXUtils.fromFXImage(startImage, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                                forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duration, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
@@ -552,12 +562,12 @@ public class Hello extends Application {
             }
         });
 
-        HBox buttonBox2 = new HBox(10, startButton, resetButton, deleteButton, pipetteButton, colorDisplay, nvGroupePointsButton, faceGroupPoints);
+        HBox buttonBox2 = new HBox(10, startButton, boutonReinitialiser, deleteButton, pipetteButton, rectangleCouleur, nvGroupePointsButton, boutonPointsVisage);
         buttonBox2.setAlignment(Pos.CENTER);
 
-        VBox menu = createMenu();
+        VBox menu = creerMenu();
         VBox mainContent = new VBox();
-        mainContent.getChildren().addAll(texteInstruction, imageBox, buttonBox1, textFieldBox, addGifBox, buttonBox2);
+        mainContent.getChildren().addAll(texteInstruction, imageBox, zoneBouton1, textFieldBox, addGifBox, buttonBox2);
         mainContent.setPadding(new Insets(20));
         mainContent.setSpacing(15);
         mainContent.setAlignment(Pos.CENTER);
@@ -577,19 +587,19 @@ public class Hello extends Application {
         fileChooserIMG.getExtensionFilters().addAll(
             new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
         );
-        selectStartImageButton.setOnAction(e -> {
+        boutonChoisirImageDebut.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                startImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
-                startImageView.setImage(startImage);
+                imageDebut = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                imageViewDebut.setImage(imageDebut);
             }
         });
 
-        selectEndImageButton.setOnAction(e -> {
+        boutonChoisirImageFin.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                endImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
-                endImageView.setImage(endImage);
+                imageFin = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                imageViewFin.setImage(imageFin);
             }
         });
 

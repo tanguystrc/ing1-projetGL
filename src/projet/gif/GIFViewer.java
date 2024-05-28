@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Bibliothèque pour la visualisation de gif provenant de ce lien :
+ * https://openimaj.org/openimaj-demos/sandbox/xref/org/openimaj/demos/sandbox/image/gif/GifSequenceWriter.html
+ * Le code a été modifié en fonction de nos besoins présents.
+ */
 public class GIFViewer extends Application {
 
     private static String gifFilePath;
@@ -82,7 +87,7 @@ public class GIFViewer extends Application {
                 slider.setDisable(true);
             }
         });
-
+        
         HBox controls = new HBox(10, switchModeButton);
         controls.setPadding(new Insets(10));
         controls.setAlignment(Pos.CENTER);
@@ -94,10 +99,12 @@ public class GIFViewer extends Application {
         root.setTop(controls);
         BorderPane.setMargin(slider, new Insets(10));
         BorderPane.setMargin(controls, new Insets(10));
-
+        
         Scene scene = new Scene(root, gifFrames.get(0).getWidth(), gifFrames.get(0).getHeight() + 100);
         primaryStage.setScene(scene);
+        
         primaryStage.show();
+        
     }
 
     private List<Image> extractGifFrames(File gifFile) throws IOException {

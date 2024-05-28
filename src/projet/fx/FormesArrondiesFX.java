@@ -9,16 +9,16 @@ import javafx.scene.paint.Color;
 
 public class FormesArrondiesFX extends FormesFX {
 
-    public FormesArrondiesFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
-        super(canvasA, canvasB, pointsDeControle);
+    public FormesArrondiesFX(Canvas zonePointsA, Canvas zonePointsB, PointDeControle pointsDeControle) {
+        super(zonePointsA, zonePointsB, pointsDeControle);
     }
 
-    public void redrawPoints() {
-        canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
-        canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
+    public void redessinerPoints() {
+        zonePointsA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
+        zonePointsB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
-        GraphicsContext gcA = canvasA.getGraphicsContext2D();
-        GraphicsContext gcB = canvasB.getGraphicsContext2D();
+        GraphicsContext gcA = zonePointsA.getGraphicsContext2D();
+        GraphicsContext gcB = zonePointsB.getGraphicsContext2D();
 
         gcA.setStroke(Color.RED);
         gcB.setStroke(Color.RED);
@@ -32,16 +32,16 @@ public class FormesArrondiesFX extends FormesFX {
             index++;
         }
 
-        draw(gcA, true);
-        draw(gcB, false);
+        dessiner(gcA, true);
+        dessiner(gcB, false);
     }
 
-    private void draw(GraphicsContext gc, boolean isImageA) {
+    private void dessiner(GraphicsContext gc, boolean estImageA) {
         int index = 0;
         Point[] points = new Point[4];
 
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-            points[index % 4] = isImageA ? couple.getA() : couple.getB();
+            points[index % 4] = estImageA ? couple.getA() : couple.getB();
             index++;
             if (index % 4 == 0 && index >= 4) {
                 gc.beginPath();

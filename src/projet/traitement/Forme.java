@@ -18,7 +18,7 @@ public class Forme {
     protected BufferedImage image1;
     protected BufferedImage image2;
     protected int nbFrame;
-    private javafx.scene.paint.Color selectedColor;
+    private javafx.scene.paint.Color couleurSelectionne;
     protected File ajouteGIF;
     protected boolean avant;
 
@@ -31,8 +31,8 @@ public class Forme {
         this.avant = avant;
     }
 
-    public void setSelectedColor(javafx.scene.paint.Color selectedColor) {
-        this.selectedColor = selectedColor;
+    public void setSelectedColor(javafx.scene.paint.Color couleurSelectionne) {
+        this.couleurSelectionne = couleurSelectionne;
     }
 
     public static Point calculerVecteur(Point p1, Point p2) {
@@ -60,7 +60,7 @@ public class Forme {
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
             pointsKeys.add(couple.getA());
         }
-        int couleur = (selectedColor != null) ? new java.awt.Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)).getRGB() : chercheCouleur(image1, pointsKeys);
+        int couleur = (couleurSelectionne != null) ? new java.awt.Color((int)(couleurSelectionne.getRed() * 255), (int)(couleurSelectionne.getGreen() * 255), (int)(couleurSelectionne.getBlue() * 255)).getRGB() : chercheCouleur(image1, pointsKeys);
         int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
 
         ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
