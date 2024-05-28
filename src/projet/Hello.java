@@ -587,22 +587,14 @@ public class Hello extends Application {
         selectStartImageButton.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-            try{
-                BufferedImage imageBase = ImageIO.read(file);
-                double ratio = Math.max((double)600 / (double)imageBase.getHeight(), (double)600 / (double)imageBase.getWidth());
-                System.out.println(imageBase.getWidth() + "x" + imageBase.getHeight());
-                System.out.println(ratio);
-                BufferedImage imageRed = new BufferedImage((int)(imageBase.getWidth()*ratio), (int)(imageBase.getHeight()*ratio), imageBase.getType());
-                System.out.println("ImageRed: " + imageRed.getWidth() + "x" + imageRed.getHeight());
-                BufferedImage imageRognee = rognerImage(imageRed);
-                startImage = SwingFXUtils.toFXImage(imageRognee,null);
+                Image imageBase = new Image("file:" + file.getAbsolutePath());
+                double ratio = Math.max(600 / imageBase.getHeight(), 600 / imageBase.getWidth());
+                System.out.println("ratio : " + ratio);
+                Image imageRed = new Image(imageBase.getUrl(),(int) imageBase.getWidth() * ratio,(int) imageBase.getHeight() * ratio, true, true);
+                System.out.println(imageRed.getWidth() + " " + imageRed.getHeight());
+                startImage = rognerImage(imageRed);
                 startImageView.setImage(startImage);
-                System.out.println("caca");
             } 
-            catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            }
         });
 
         selectEndImageButton.setOnAction(e -> {
@@ -641,10 +633,10 @@ public class Hello extends Application {
         return loadingStage;
     }
 
-    public static BufferedImage rognerImage(BufferedImage image) {
+
+    public static Image rognerImage(Image image) {
         double width = image.getWidth();
         double height = image.getHeight();
-        System.out.println("Image: " + width + "x" + height);
         double targetSize = 600;
 
         if (width > targetSize && height <= targetSize) {
@@ -654,7 +646,7 @@ public class Hello extends Application {
         } else if (height > targetSize && width <= targetSize) {
             
             double cropAmount = (height - targetSize) / 2;
-            Rectangle2D viewport = new Rectangle2D(0, cropAmount, width, 2*height - cropAmount);
+            Rectangle2D viewport = new Rectangle2D(0, cropAmount, width, height - 2*cropAmount);
             return cropImage(image, viewport);
         }
         else{
@@ -662,15 +654,17 @@ public class Hello extends Application {
         }
     }
 
-    private static BufferedImage cropImage(BufferedImage image, Rectangle2D viewport) {
+    private static Image cropImage(Image image, Rectangle2D viewport) {
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
         int x = (int) viewport.getMinX();
         int y = (int) viewport.getMinY();
         int w = (int) viewport.getWidth();
         int h = (int) viewport.getHeight();
-        BufferedImage croppedImage = image.getSubimage(x, y, w, h);
-        System.out.println("Cropped Image: " + croppedImage.getWidth() + "x" + croppedImage.getHeight());;
-        return croppedImage;
+        BufferedImage croppedImage = bufferedImage.getSubimage(x, y, w, h);
+        return (SwingFXUtils.toFXImage(croppedImage, null));
     }
+
+
 
     public static void main(String[] args) {
         launch(args);
