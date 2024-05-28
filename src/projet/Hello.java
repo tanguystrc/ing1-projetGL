@@ -54,8 +54,11 @@ import javafx.scene.shape.Rectangle;
 
 public class Hello extends Application {
 
+    // CSS :
     private static final String DEFAULT_STYLE = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #2980b9; -fx-border-width: 1px; -fx-cursor: hand;";
     private static final String SELECTIONNE_STYLE = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #27ae60; -fx-border-width: 1px; -fx-cursor: hand;";
+    private static final String STYLE_JAUNE = "-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);";
+    private static final String STYLE_ZONE_TEXTE = "-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;";
 
     private PointDeControle pointsDeControle;
     private List<PointDeControle> pointsDeControleLies;
@@ -382,13 +385,13 @@ public class Hello extends Application {
         boutonReinitialiser.setStyle(DEFAULT_STYLE);
         boutonReinitialiser.setOnAction(e -> formeActuelle.reinitialiserPoints());
 
-        Button deleteButton = new Button("Supprimer");
-        deleteButton.setStyle(DEFAULT_STYLE);
-        deleteButton.setOnAction(e -> formeActuelle.fenetreSuppressionPoints());
+        Button boutonSupprimer = new Button("Supprimer");
+        boutonSupprimer.setStyle(DEFAULT_STYLE);
+        boutonSupprimer.setOnAction(e -> formeActuelle.fenetreSuppressionPoints());
 
         // Bouton pour creer un nouveau groupe de points :
         nvGroupePointsButton = new Button("Nouveau Groupe de point");
-        nvGroupePointsButton.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        nvGroupePointsButton.setStyle(STYLE_JAUNE);
         nvGroupePointsButton.setOnAction(e -> {
             if (!pointsDeControle.getPointsList().isEmpty()) {
                 System.out.println("NOUVEAU GROUPE !");
@@ -405,7 +408,7 @@ public class Hello extends Application {
 
         // Bouton pour creer automatiquement des groupes de PointsDeControle pour les visages :
         boutonPointsVisage = new Button("Visage");
-        boutonPointsVisage.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        boutonPointsVisage.setStyle(STYLE_JAUNE);
         boutonPointsVisage.setOnAction(e -> {
             genererPointsVisage(false);
         });
@@ -419,27 +422,27 @@ public class Hello extends Application {
             zonePointsB.setCursor(Cursor.CROSSHAIR);
         });
 
-        TextField framesTextField = new TextField();
-        framesTextField.setPromptText("Frames (5-144)");
-        framesTextField.setMaxWidth(120);
-        framesTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        TextField zoneTexteFrames = new TextField();
+        zoneTexteFrames.setPromptText("Frames (5-144)");
+        zoneTexteFrames.setMaxWidth(120);
+        zoneTexteFrames.setStyle(STYLE_ZONE_TEXTE);
 
-        TextField durationTextField = new TextField();
-        durationTextField.setPromptText("Durée (s)");
-        durationTextField.setMaxWidth(120);
-        durationTextField.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        TextField zoneTexteDuree = new TextField();
+        zoneTexteDuree.setPromptText("Durée (s)");
+        zoneTexteDuree.setMaxWidth(120);
+        zoneTexteDuree.setStyle(STYLE_ZONE_TEXTE);
 
         Label framesLabel = new Label("Nombre de frames");
         framesLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
 
-        Label durationLabel = new Label("Durée du GIF");
-        durationLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
+        Label dureeLabel = new Label("Durée du GIF");
+        dureeLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 14px;");
         
-        VBox textFieldBox = new VBox(5, framesLabel, framesTextField, durationLabel, durationTextField);
-        textFieldBox.setAlignment(Pos.CENTER);
+        VBox zoneTexte = new VBox(5, framesLabel, zoneTexteFrames, dureeLabel, zoneTexteDuree);
+        zoneTexte.setAlignment(Pos.CENTER);
 
-        Button addGif = new Button("Ajouter un GIF à celui-ci");
-        addGif.setStyle(DEFAULT_STYLE);        
+        Button boutonAjouterGif = new Button("Ajouter un GIF à celui-ci");
+        boutonAjouterGif.setStyle(DEFAULT_STYLE);        
         ToggleGroup groupeRb = new ToggleGroup();
         RadioButton rb1 = new RadioButton("Avant");
         rb1.setToggleGroup(groupeRb);
@@ -449,21 +452,21 @@ public class Hello extends Application {
         rb2.setSelected(false);
         Label nomFichierLabel = new Label("GIF : aucune fichier selectionné.");
         nomFichierLabel.setStyle("-fx-font-style: italic; -fx-text-fill: gray;");
-        HBox addGifBox = new HBox(15, addGif,rb1,rb2,nomFichierLabel);
-        addGifBox.setAlignment(Pos.CENTER);
+        HBox zoneAjouterGif = new HBox(15, boutonAjouterGif,rb1,rb2,nomFichierLabel);
+        zoneAjouterGif.setAlignment(Pos.CENTER);
 
-        Button startButton = new Button("Start");
-        startButton.setStyle(SELECTIONNE_STYLE);
-        startButton.setOnAction(e -> {
+        Button boutonStart = new Button("Start");
+        boutonStart.setStyle(SELECTIONNE_STYLE);
+        boutonStart.setOnAction(e -> {
             int nbFrames;
-            int duration;
+            int duree;
             try {
-                nbFrames = Integer.parseInt(framesTextField.getText());
+                nbFrames = Integer.parseInt(zoneTexteFrames.getText());
                 if (nbFrames < 5 || nbFrames > 144) {
                     throw new NumberFormatException();
                 }
-                duration = Integer.parseInt(durationTextField.getText());
-                if (duration < 0) {
+                duree = Integer.parseInt(zoneTexteDuree.getText());
+                if (duree < 0) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException ex) {
@@ -485,7 +488,7 @@ public class Hello extends Application {
 
             if (imageDebut != null) {
                 
-                Stage loadingStage = createLoadingDialog(primaryStage);
+                Stage stageChargement = creerFenetreChargement(primaryStage);
                 avant = rb1.isSelected();
                 
                 Task<Void> task = new Task<Void>() {
@@ -499,7 +502,7 @@ public class Hello extends Application {
                             System.out.println("Traitement d'une photo");
                             visage = new Visage(SwingFXUtils.fromFXImage(imageDebut, null),SwingFXUtils.fromFXImage(imageFin, null),pointsDeControleLies,nbFrames,ajouteGif,avant);
                             try {
-                                visage.morph(duration, this::updateProgress);
+                                visage.morph(duree, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
@@ -509,7 +512,7 @@ public class Hello extends Application {
                             forme = new FormeArrondie(pointsDeControle, nbFrames,ajouteGif,avant);
                             forme.setSelectedColor(couleurSelectionne);
                             try {
-                                forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                                forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duree, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
@@ -519,7 +522,7 @@ public class Hello extends Application {
                             forme = new Forme(pointsDeControle, null, null, nbFrames,ajouteGif,avant);
                             forme.setSelectedColor(couleurSelectionne);
                             try {
-                                forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duration, this::updateProgress);
+                                forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duree, this::updateProgress);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
@@ -539,13 +542,13 @@ public class Hello extends Application {
                     @Override
                     protected void succeeded() {
                         super.succeeded();
-                        loadingStage.close();
+                        stageChargement.close();
                     }
 
                     @Override
                     protected void failed() {
                         super.failed();
-                        loadingStage.close();
+                        stageChargement.close();
                     }
                 };
 
@@ -555,19 +558,19 @@ public class Hello extends Application {
                 vbox.setAlignment(Pos.CENTER);  
                 vbox.setPadding(new Insets(20));
                 Scene loadingScene = new Scene(vbox, 300, 100);
-                loadingStage.setScene(loadingScene);
+                stageChargement.setScene(loadingScene);
 
                 new Thread(task).start();
-                loadingStage.show();
+                stageChargement.show();
             }
         });
 
-        HBox buttonBox2 = new HBox(10, startButton, boutonReinitialiser, deleteButton, pipetteButton, rectangleCouleur, nvGroupePointsButton, boutonPointsVisage);
+        HBox buttonBox2 = new HBox(10, boutonStart, boutonReinitialiser, boutonSupprimer, pipetteButton, rectangleCouleur, nvGroupePointsButton, boutonPointsVisage);
         buttonBox2.setAlignment(Pos.CENTER);
 
         VBox menu = creerMenu();
         VBox mainContent = new VBox();
-        mainContent.getChildren().addAll(texteInstruction, imageBox, zoneBouton1, textFieldBox, addGifBox, buttonBox2);
+        mainContent.getChildren().addAll(texteInstruction, imageBox, zoneBouton1, zoneTexte, zoneAjouterGif, buttonBox2);
         mainContent.setPadding(new Insets(20));
         mainContent.setSpacing(15);
         mainContent.setAlignment(Pos.CENTER);
@@ -607,7 +610,7 @@ public class Hello extends Application {
         fileChooserGIF.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("GIF Files", "*.gif")
         );
-        addGif.setOnAction(e -> {
+        boutonAjouterGif.setOnAction(e -> {
             ajouteGif = fileChooserGIF.showOpenDialog(primaryStage);
             if (ajouteGif != null) {
                 nomFichierLabel.setText("GIF : " + ajouteGif.getName());
@@ -615,10 +618,10 @@ public class Hello extends Application {
         });
     }
 
-    private Stage createLoadingDialog(Stage primaryStage) {
-        Stage loadingStage = new Stage();
-        loadingStage.initModality(Modality.APPLICATION_MODAL);
-        loadingStage.setTitle("Loading");
+    private Stage creerFenetreChargement(Stage primaryStage) {
+        Stage stageChargement = new Stage();
+        stageChargement.initModality(Modality.APPLICATION_MODAL);
+        stageChargement.setTitle("Loading");
 
         ProgressBar progressBar = new ProgressBar();
         VBox vbox = new VBox(new Label("Loading..."), progressBar);
@@ -626,9 +629,9 @@ public class Hello extends Application {
         vbox.setPadding(new Insets(20));
 
         Scene scene = new Scene(vbox, 300, 100);
-        loadingStage.setScene(scene);
+        stageChargement.setScene(scene);
 
-        return loadingStage;
+        return stageChargement;
     }
 
     public static void main(String[] args) {

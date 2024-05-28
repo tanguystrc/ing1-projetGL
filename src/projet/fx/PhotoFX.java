@@ -97,8 +97,8 @@ public class PhotoFX extends FormesFX {
             nbGroupe++;
         }
 
-        Button deleteButton = new Button("Supprimer");
-        deleteButton.setOnAction(e -> {
+        Button boutonSupprimer = new Button("Supprimer");
+        boutonSupprimer.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
 
             if (selectedIndex != -1 && selectedIndex < calculerNbTotalPoint()) {
@@ -109,7 +109,7 @@ public class PhotoFX extends FormesFX {
             }
         });
 
-        VBox dialogVBox = new VBox(20, listView, deleteButton);
+        VBox dialogVBox = new VBox(20, listView, boutonSupprimer);
         dialogVBox.setPadding(new Insets(20));
         dialogVBox.setAlignment(Pos.CENTER);
 

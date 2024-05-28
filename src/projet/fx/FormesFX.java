@@ -124,9 +124,9 @@ public abstract class FormesFX {
             index++;
         }
 
-        Button deleteButton = new Button("Supprimer");
-        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
-        deleteButton.setOnAction(e -> {
+        Button boutonSupprimer = new Button("Supprimer");
+        boutonSupprimer.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        boutonSupprimer.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsList().size()) {
                 Couple<Point, Point> couple = pointsDeControle.getPointsList().get(selectedIndex);
@@ -136,7 +136,7 @@ public abstract class FormesFX {
             }
         });
 
-        VBox dialogVBox = new VBox(20, listView, deleteButton);
+        VBox dialogVBox = new VBox(20, listView, boutonSupprimer);
         dialogVBox.setPadding(new Insets(20));
         dialogVBox.setAlignment(Pos.CENTER);
 
