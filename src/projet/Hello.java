@@ -13,6 +13,7 @@ import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
@@ -93,6 +94,7 @@ public class Hello extends Application {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
         imageView.setFitHeight(600);
+        imageView.setPreserveRatio(true);
         return imageView;
     }
 
@@ -267,35 +269,35 @@ public class Hello extends Application {
      */
     private void chargerExemple() {
         if (formeActuelle instanceof FormesLineaireFX) {
-            imageDebut = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
-            imageFin = new Image("file:./src/projet/img/triangle.png", 600, 600, true, true);
+            imageDebut = rognerImage(new Image("file:./src/projet/img/carre.png", 600, 600, true, true));
+            imageFin = rognerImage(new Image("file:./src/projet/img/triangle.png", 600, 600, true, true));
 
             pointsDeControle.getPointsList().clear();
-            pointsDeControle.ajouter(new Point(88.0, 97), new Point(301, 100));
-            pointsDeControle.ajouter(new Point(497, 97), new Point(301, 100));
-            pointsDeControle.ajouter(new Point(499, 492), new Point(509, 474));
-            pointsDeControle.ajouter(new Point(85, 490), new Point(93, 474));
+            pointsDeControle.ajouter(new Point(90, 100), new Point(319, 108));
+            pointsDeControle.ajouter(new Point(510, 100), new Point(319, 108));
+            pointsDeControle.ajouter(new Point(510, 490), new Point(537, 470));
+            pointsDeControle.ajouter(new Point(90, 490), new Point(103, 470));
         } else if (formeActuelle instanceof FormesArrondiesFX) {
-            imageDebut = new Image("file:./src/projet/img/coeur.png", 600, 600, true, true);
-            imageFin = new Image("file:./src/projet/img/croissant.png", 600, 600, true, true);
+            imageDebut = rognerImage(new Image("file:./src/projet/img/coeur.png", 600, 600, true, true));
+            imageFin = rognerImage(new Image("file:./src/projet/img/croissant.png", 600, 600, true, true));
 
             pointsDeControle.getPointsList().clear();
-            pointsDeControle.ajouter(new Point(298.0, 204.0), new Point(394.0, 32.0));
-            pointsDeControle.ajouter(new Point(402.0, 8.0), new Point(311.0, 111.0));
-            pointsDeControle.ajouter(new Point(583.0, 154.0), new Point(284.0, 170.0));
-            pointsDeControle.ajouter(new Point(508.0, 296.0), new Point(277.0, 267.0));
-            pointsDeControle.ajouter(new Point(478.0, 368.0), new Point(273.0, 339.0));
-            pointsDeControle.ajouter(new Point(407.0, 437.0), new Point(290.0, 444.0));
-            pointsDeControle.ajouter(new Point(299.0, 510.0), new Point(396.0, 540.0));
-            pointsDeControle.ajouter(new Point(166.0, 434.0), new Point(181.0, 539.0));
-            pointsDeControle.ajouter(new Point(40.0, 297.0), new Point(124.0, 288.0));
-            pointsDeControle.ajouter(new Point(75.0, 181.0), new Point(179.0, 182.0));
-            pointsDeControle.ajouter(new Point(93.0, 116.0), new Point(199.0, 130.0));
-            pointsDeControle.ajouter(new Point(223.0, 52.0), new Point(272.0, 30.0));
-            pointsDeControle.ajouter(new Point(298.1, 204.0), new Point(394.0, 32.0));
+            pointsDeControle.ajouter(new Point(319.0, 205.0), new Point(432.0, 31.0));
+            pointsDeControle.ajouter(new Point(400.0, 49.0), new Point(343.0, 112.0));
+            pointsDeControle.ajouter(new Point(574.0, 113.0), new Point(311.0, 174.0));
+            pointsDeControle.ajouter(new Point(564.0, 227.0), new Point(305.0, 268.0));
+            pointsDeControle.ajouter(new Point(562.0, 350.0), new Point(306.0, 336.0));
+            pointsDeControle.ajouter(new Point(405.0, 451.0), new Point(313.0, 445));
+            pointsDeControle.ajouter(new Point(322.0, 509.0), new Point(431.0, 538.0));
+            pointsDeControle.ajouter(new Point(175.0, 425.0), new Point(195.0, 521.0));
+            pointsDeControle.ajouter(new Point(49.0, 292.0), new Point(147.0, 307.0));
+            pointsDeControle.ajouter(new Point(78.0, 191.0), new Point(190.0, 199.0));
+            pointsDeControle.ajouter(new Point(95.0, 115.0), new Point(216.0, 138.0));
+            pointsDeControle.ajouter(new Point(240.0, 55.0), new Point(285.0, 38.0));
+            pointsDeControle.ajouter(new Point(319.1, 205.0), new Point(432.0, 31.0));
         } else if (formeActuelle instanceof PhotoFX) {            
-            imageDebut = new Image("file:./src/projet/img/visage1.png", 600, 600, true, true);
-            imageFin = new Image("file:./src/projet/img/visage2.png", 600, 600, true, true);            
+            imageDebut = rognerImage(new Image("file:./src/projet/img/visage1.png", 600, 600, true, true));
+            imageFin = rognerImage(new Image("file:./src/projet/img/visage2.png", 600, 600, true, true));            
             pointsDeControle.getPointsList().clear();
             genererPointsVisage(true);
         }
@@ -506,6 +508,7 @@ public class Hello extends Application {
         HBox zoneAjouterGif = new HBox(15, boutonAjouterGif,rb1,rb2,nomFichierLabel);
         zoneAjouterGif.setAlignment(Pos.CENTER);
 
+        /* - - - START - - - */
         Button boutonStart = new Button("Start");
         boutonStart.setStyle(SELECTIONNE_STYLE);
         boutonStart.setOnAction(e -> {
@@ -538,7 +541,7 @@ public class Hello extends Application {
             }
 
             if (imageDebut != null) {
-                
+                System.out.println(pointsDeControleLies);
                 Stage stageChargement = creerFenetreChargement(primaryStage);
                 avant = rb1.isSelected();
                 
@@ -649,15 +652,17 @@ public class Hello extends Application {
         boutonChoisirImageDebut.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                imageDebut = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                // Redimension et recadrage de l'image pour l'avoir en 600x600 :
+                imageDebut = rognerImage(new Image("file:" + file.getAbsolutePath()));
                 imageViewDebut.setImage(imageDebut);
             }
         });
         boutonChoisirImageFin.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                imageFin = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
-                imageViewFin.setImage(imageFin);
+                 // Redimension et recadrage de l'image pour l'avoir en 600x600 :
+                 imageFin = rognerImage(new Image("file:" + file.getAbsolutePath()));
+                 imageViewFin.setImage(imageFin);
             }
         });
         FileChooser fileChooserGIF = new FileChooser();
@@ -691,6 +696,50 @@ public class Hello extends Application {
 
         return stageChargement;
     }
+          
+    /**
+     * Permet de redimenssionner et rogner une image
+     * @param image à rogner
+     * @return l'image rognée
+     */
+    public static Image rognerImage(Image image) {
+        double ratio = Math.max(600 / image.getHeight(), 600 / image.getWidth());
+        Image imageRes = new Image(image.getUrl(),(int) image.getWidth() * ratio,(int) image.getHeight() * ratio, true, true);
+
+        double width = imageRes.getWidth();
+        double height = imageRes.getHeight();
+        double targetSize = 600;
+
+        if (width > targetSize && height <= targetSize) {
+            double cropAmount = (width - targetSize) / 2;
+            Rectangle2D viewport = new Rectangle2D(cropAmount, 0, width - 2*cropAmount, height);
+            return rognerImage2(imageRes, viewport);
+        } else if (height > targetSize && width <= targetSize) {            
+            double cropAmount = (height - targetSize) / 2;
+            Rectangle2D viewport = new Rectangle2D(0, cropAmount, width, height - 2*cropAmount);
+            return rognerImage2(imageRes, viewport);
+        }
+        else{
+            return imageRes;
+        }
+    }
+
+    /**
+     * Permet de rogner une image
+     * @param image
+     * @param viewport
+     * @return
+     */
+    private static Image rognerImage2(Image image, Rectangle2D viewport) {
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+        int x = (int) viewport.getMinX();
+        int y = (int) viewport.getMinY();
+        int w = (int) viewport.getWidth();
+        int h = (int) viewport.getHeight();
+        BufferedImage imageARogner = bufferedImage.getSubimage(x, y, w, h);
+        return (SwingFXUtils.toFXImage(imageARogner, null));
+    }
+
 
     public static void main(String[] args) {
         launch(args);
