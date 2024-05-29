@@ -16,7 +16,7 @@
             "name": "Hello",
             "request": "launch",
             "mainClass": "src.projet.Hello",
-            "vmArgs": "--module-path \"./lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+            "vmArgs": "--module-path \"./lib/javafx-sdk-22-linux/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }
