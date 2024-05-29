@@ -527,7 +527,6 @@ public class Hello extends Application {
             }
 
             if (imageDebut != null) {
-                System.out.println(pointsDeControleLies);
                 Stage stageChargement = creerFenetreChargement(primaryStage);
                 avant = rb1.isSelected();
                 
