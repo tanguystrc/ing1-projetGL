@@ -552,7 +552,7 @@ public class Hello extends Application {
                             FormeArrondie forme;
                             System.out.println("Traitement d'une forme unie arrondie");
                             forme = new FormeArrondie(pointsDeControle, nbFrames,ajouteGif,avant);
-                            forme.setSelectedColor(couleurSelectionne);
+                            forme.setCouleurSelectionne(couleurSelectionne);
                             try {
                                 forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duree, this::updateProgress);
                             } catch (IOException ioException) {
@@ -563,7 +563,7 @@ public class Hello extends Application {
                             Forme forme;
                             System.out.println("Traitement d'une forme unie linéaire");
                             forme = new Forme(pointsDeControle, null, null, nbFrames,ajouteGif,avant);
-                            forme.setSelectedColor(couleurSelectionne);
+                            forme.setCouleurSelectionne(couleurSelectionne);
                             try {
                                 forme.morphisme(SwingFXUtils.fromFXImage(imageDebut, null), pointsDeControle, nbFrames, duree, this::updateProgress);
                             } catch (IOException ioException) {
