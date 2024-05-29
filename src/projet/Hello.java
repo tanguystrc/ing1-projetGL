@@ -296,7 +296,7 @@ public class Hello extends Application {
             pointsDeControle.ajouter(new Point(240.0, 55.0), new Point(285.0, 38.0));
             pointsDeControle.ajouter(new Point(319.1, 205.0), new Point(432.0, 31.0));
         } else if (formeActuelle instanceof PhotoFX) {            
-            imageDebut = rognerImage(new Image("file:./src/projet/img/visage1.png", 600, 600, true, true));
+            imageDebut = rognerImage(new Image("file:./src/projet/img/visage1.jpg", 600, 600, true, true));
             imageFin = rognerImage(new Image("file:./src/projet/img/visage2.png", 600, 600, true, true));            
             pointsDeControle.getPointsList().clear();
             genererPointsVisage(true);
@@ -313,65 +313,34 @@ public class Hello extends Application {
      * @param deuxTypes : boolean, true si c'est pour le bouton exemple (donc les points de l'image B sont differents), false sinon
      */
     private void genererPointsVisage(boolean deuxTypes) {
-        formeActuelle.reinitialiserPoints();
-        // Coordonnées :
-        LinkedList<LinkedList<Couple<Point, Point>>> listeCoord = new LinkedList<>();
-        LinkedList<Couple<Point, Point>> g1 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(200.0, 299.0), new Point(209.0, 252.0)),
-            new Couple<>(new Point(267.0, 308.0), new Point(268.0, 263.0))
-        ));
-        LinkedList<Couple<Point, Point>> g2 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(415.0, 297.0), new Point(392.0, 251.0)),
-            new Couple<>(new Point(345.0, 307.0), new Point(336.0, 264.0))
-        ));
-        LinkedList<Couple<Point, Point>> g3 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(181.0, 262.0), new Point(192.0, 218.0)),
-            new Couple<>(new Point(201.0, 252.0), new Point(216.0, 199.0)),
-            new Couple<>(new Point(259.0, 263.0), new Point(277.0, 219.0))
-        ));
-        LinkedList<Couple<Point, Point>> g4 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(429.0, 258.0), new Point(415.0, 210.0)),
-            new Couple<>(new Point(407.0, 247.0), new Point(395.0, 193.0)),
-            new Couple<>(new Point(349.0, 266.0), new Point(336.0, 211.0))
-        ));
-        LinkedList<Couple<Point, Point>> g5 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(272.0, 406.0), new Point(271.0, 336.0)),
-            new Couple<>(new Point(305.0, 320.0), new Point(302.0, 268.0)),
-            new Couple<>(new Point(337.0, 404.0), new Point(339.0, 334.0))
-        ));
-        LinkedList<Couple<Point, Point>> g6 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(255.0, 461.0), new Point(261.0, 406.0)),
-            new Couple<>(new Point(358.0, 458.0), new Point(349.0, 405.0))
-        ));
-        LinkedList<Couple<Point, Point>> g7 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(158.0, 220.0), new Point(180.0, 184.0)),
-            new Couple<>(new Point(197.0, 139.0), new Point(208.0, 122.0)),
-            new Couple<>(new Point(422.0, 139.0), new Point(397.0, 122.0)),
-            new Couple<>(new Point(449.0, 220.0), new Point(429.0, 176.0))
-        ));
-        LinkedList<Couple<Point, Point>> g8 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(169.0, 392.0), new Point(188.0, 361.0)),
-            new Couple<>(new Point(190.0, 458.0), new Point(197.0, 411.0)),
-            new Couple<>(new Point(212.0, 501.0), new Point(231.0, 451.0)),
-            new Couple<>(new Point(270.0, 541.0), new Point(289.0, 493.0)),
-            new Couple<>(new Point(329.0, 545.0), new Point(328.0, 492.0)),
-            new Couple<>(new Point(388.0, 504.0), new Point(378.0, 455.0)),
-            new Couple<>(new Point(413.0, 461.0), new Point(413.0, 414.0)),
-            new Couple<>(new Point(438.0, 386.0), new Point(423.0, 360.0))
-        ));
-        LinkedList<Couple<Point, Point>> g9 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(198.0, 502.0), new Point(224.0, 461.0)),
-            new Couple<>(new Point(194.0, 561.0), new Point(208.0, 536.0)),
-            new Couple<>(new Point(163.0, 591.0), new Point(139.0, 578.0))
-        ));
-        LinkedList<Couple<Point, Point>> g10 = new LinkedList<>(Arrays.asList(
-            new Couple<>(new Point(403.0, 509.0), new Point(384.0, 467.0)),
-            new Couple<>(new Point(406.0, 552.0), new Point(388.0, 515.0)),
-            new Couple<>(new Point(436.0, 591.0), new Point(445.0, 566.0))
-        ));
-        listeCoord.addAll(Arrays.asList(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10));
+        formeActuelle.reinitialiserPoints();      
         
         if (deuxTypes) {
+            // Coordonnées de l'exemple :
+            LinkedList<LinkedList<Couple<Point, Point>>> listeCoord = new LinkedList<>();
+            LinkedList<Couple<Point, Point>> g1 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(217.0, 293.0), new Point(206.0, 286.0)), new Couple<>(new Point(271.0, 295.0), new Point(259.0, 280.0))));
+            LinkedList<Couple<Point, Point>> g2 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(385.0, 304.0), new Point(376.0, 271.0)), new Couple<>(new Point(334.0, 304.0), new Point(324.0, 277.0))));
+            LinkedList<Couple<Point, Point>> g3 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(276.0, 371.0), new Point(274.0, 345.0)), new Couple<>(new Point(333.0, 375.0), new Point(330.0, 341.0)), 
+            new Couple<>(new Point(309.0, 297.0), new Point(298.0, 276.0)), new Couple<>(new Point(276.0, 371.0), new Point(274.0, 345.0))));
+            LinkedList<Couple<Point, Point>> g4 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(259.0, 411.0), new Point(261.0, 399.0)), new Couple<>(new Point(343.0, 415.0), new Point(345.0, 391.0))));
+            LinkedList<Couple<Point, Point>> g5 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(206.0, 266.0), new Point(185.0, 266.0)), new Couple<>(new Point(222.0, 256.0), new Point(207.0, 249.0)), new Couple<>(new Point(276.0, 274.0), new Point(256.0, 246.0))));
+            LinkedList<Couple<Point, Point>> g6 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(399.0, 279.0), new Point(387.0, 241.0)), new Couple<>(new Point(390.0, 268.0), new Point(370.0, 235.0)), new Couple<>(new Point(334.0, 275.0), new Point(328.0, 243.0))));
+            LinkedList<Couple<Point, Point>> g7 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(190.0, 251.0), new Point(177.0, 240.0)), new Couple<>(new Point(218.0, 165.0), new Point(212.0, 150.0)), 
+            new Couple<>(new Point(386.0, 176.0), new Point(348.0, 139.0)), new Couple<>(new Point(407.0, 255.0), new Point(399.0, 221.0))));
+            LinkedList<Couple<Point, Point>> g8 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(186.0, 307.0), new Point(179.0, 300.0)), new Couple<>(new Point(198.0, 383.0), new Point(202.0, 404.0)),
+            new Couple<>(new Point(215.0, 431.0), new Point(227.0, 439.0)), new Couple<>(new Point(265.0, 489.0), new Point(284.0, 480.0)),
+            new Couple<>(new Point(319.0, 495.0), new Point(339.0, 470.0)), new Couple<>(new Point(363.0, 445.0), new Point(386.0, 422.0)),
+            new Couple<>(new Point(392.0, 391.0), new Point(403.0, 376.0)), new Couple<>(new Point(406.0, 319.0), new Point(404.0, 286.0))));
+            LinkedList<Couple<Point, Point>> g9 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(201.0, 399.0), new Point(210.0, 420.0)), new Couple<>(new Point(200.0, 443.0), new Point(213.0, 456.0)),
+            new Couple<>(new Point(131.0, 473.0), new Point(140.0, 487.0)), new Couple<>(new Point(19.0, 554.0), new Point(32.0, 555.0))));
+            LinkedList<Couple<Point, Point>> g10 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(365.0, 446.0), new Point(388.0, 420.0)), new Couple<>(new Point(363.0, 462.0), new Point(389.0, 440.0)), new Couple<>(new Point(482.0, 525.0), new Point(539.0, 506.0))));
+            LinkedList<Couple<Point, Point>> g11 = new LinkedList<>(Arrays.asList(new Couple<>(new Point(158.0, 256.0), new Point(150.0, 256.0)), new Couple<>(new Point(142.0, 185.0), new Point(136.0, 189.0)), 
+            new Couple<>(new Point(209.0, 69.0), new Point(187.0, 94.0)), new Couple<>(new Point(386.0, 74.0), new Point(341.0, 77.0)),
+            new Couple<>(new Point(457.0, 184.0), new Point(450.0, 178.0)), new Couple<>(new Point(430.0, 265.0), new Point(420.0, 257.0))));
+
+            // Ajouter toutes les listes à la liste principale
+            listeCoord.addAll(Arrays.asList(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11));
+
             for (LinkedList<Couple<Point, Point>> groupe : listeCoord) {
                 for (Couple<Point, Point> p : groupe) {
                     pointsDeControle.ajouter(p.getA(), p.getB());
@@ -382,9 +351,26 @@ public class Hello extends Application {
                 pointsDeControleLies.add(pointsDeControle);          
             }    
         } else {
-            for (LinkedList<Couple<Point, Point>> groupe : listeCoord) {
-                for (Couple<Point, Point> p : groupe) {
-                    pointsDeControle.ajouter(p.getA(), p.getA());
+            // Coordonnées Visage simple :
+            LinkedList<LinkedList<Point>> listeCoord = new LinkedList<>();
+            LinkedList<Point> g1 = new LinkedList<>(Arrays.asList(new Point(200.0, 299.0),new Point(267.0, 308.0)));
+            LinkedList<Point> g2 = new LinkedList<>(Arrays.asList(new Point(415.0, 297.0),new Point(345.0, 307.0)));
+            LinkedList<Point> g3 = new LinkedList<>(Arrays.asList(new Point(181.0, 262.0),new Point(201.0, 252.0),new Point(259.0, 263.0)));
+            LinkedList<Point> g4 = new LinkedList<>(Arrays.asList(new Point(429.0, 258.0),new Point(407.0, 247.0),new Point(349.0, 266.0)));
+            LinkedList<Point> g5 = new LinkedList<>(Arrays.asList(new Point(272.0, 406.0),new Point(305.0, 320.0),new Point(337.0, 404.0)));
+            LinkedList<Point> g6 = new LinkedList<>(Arrays.asList(new Point(255.0, 461.0),new Point(358.0, 458.0)));
+            LinkedList<Point> g7 = new LinkedList<>(Arrays.asList(new Point(158.0, 220.0),new Point(197.0, 139.0),
+                new Point(422.0, 139.0),new Point(449.0, 220.0)));
+            LinkedList<Point> g8 = new LinkedList<>(Arrays.asList(new Point(169.0, 392.0),new Point(190.0, 458.0),
+                new Point(212.0, 501.0),new Point(270.0, 541.0),
+                new Point(329.0, 545.0),new Point(388.0, 504.0),
+                new Point(413.0, 461.0),new Point(438.0, 386.0)));
+            LinkedList<Point> g9 = new LinkedList<>(Arrays.asList( new Point(198.0, 502.0),new Point(194.0, 561.0),new Point(163.0, 591.0)));
+            LinkedList<Point> g10 = new LinkedList<>(Arrays.asList(new Point(403.0, 509.0),new Point(406.0, 552.0),new Point(436.0, 591.0)));
+            listeCoord.addAll(Arrays.asList(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10));
+            for (LinkedList<Point> groupe : listeCoord) {
+                for (Point p : groupe) {
+                    pointsDeControle.ajouter(p, p);
                 }
                 pointsDeControleLies.remove(pointsDeControle);
                 pointsDeControleLies.add(new PointDeControle(pointsDeControle));
