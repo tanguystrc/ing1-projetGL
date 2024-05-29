@@ -87,7 +87,7 @@ public class Hello extends Application {
     
     /**
      * Créé l'ImageView de l'interface
-     * @return
+     * @return ImageView (A ou B)
      */
     private ImageView creerImageView() {
         ImageView imageView = new ImageView();
@@ -96,19 +96,30 @@ public class Hello extends Application {
         return imageView;
     }
 
-    private Button createImageButton(String label) {
+    /**
+     * Crée les boutons permetatnt de choisir les images A et B
+     * @param label
+     * @return
+     */
+    private Button creerBoutonChoixImage(String label) {
         Button button = new Button(label);
         button.setStyle(DEFAULT_STYLE);
         button.setPrefSize(200, 50);
         return button;
     }
 
+    /**
+     * Crée le StackPane contenant l'ImageView avec son canvas (zone où il y a les points) superposé par dessus
+     * @param i : ImageView A ou B
+     * @param estImageA : vrai si c'est l'ImageView A
+     * @return StackPane
+     */
     private StackPane imgDansPane(ImageView i, boolean estImageA) {
         StackPane pane = new StackPane();
         pane.getChildren().add(i);
         pane.setStyle("-fx-border-color: #000000; -fx-border-width: 1px;");
-
-        Canvas canvas = new Canvas(600, 600);
+        
+        Canvas canvas = new Canvas(600, 600);// Zone qui contiendra les dessins des points, traits etc.
         if (estImageA) {
             zonePointsA = canvas;
         } else {
@@ -120,30 +131,49 @@ public class Hello extends Application {
         canvas.setOnMouseReleased(mouseEvent -> sourisRelachee(estImageA));
         canvas.setOnMouseClicked(mouseEvent -> sourisCliquee(mouseEvent, estImageA));
 
-        StackPane.setAlignment(canvas, Pos.TOP_LEFT);
+        StackPane.setAlignment(canvas, Pos.TOP_LEFT); // Pour bien superposer
         pane.getChildren().add(canvas);
 
         return pane;
     }
 
+    /**
+     * Gestion de l'evenement clic de la souris enfoncé
+     * @param mouseEvent : permet  d'avoir les coordonnées du curseur
+     * @param estImageA : vrai si le clic est sur l'image A
+     */
     private void sourisAppuyee(MouseEvent mouseEvent, boolean estImageA) {
         if (formeActuelle != null) {         
             formeActuelle.sourisAppuyee(mouseEvent, estImageA);
         }
     }
 
+    /**
+     * Gestion de l'evenement on fait un déplacement avec la souris (=déplacer un point)
+     * @param mouseEvent : permet  d'avoir les coordonnées du curseur
+     * @param estImageA : vrai si le clic est sur l'image A
+     */
     private void sourisGlissée(MouseEvent mouseEvent, boolean estImageA) {
         if (formeActuelle != null) {
             formeActuelle.sourisGlissée(mouseEvent, estImageA);
         }
     }
 
+    /**
+     * Gestion de l'evenement si la souris est relachée
+     * @param estImageA : vrai si le clic est sur l'image A
+     */
     private void sourisRelachee(boolean estImageA) {
         if (formeActuelle != null) {
             formeActuelle.sourisRelachee(estImageA);
         }
     }
 
+    /**
+     * Gestion de l'evenement si souris simplement cliquée
+     * @param mouseEvent : permet  d'avoir les coordonnées du clic
+     * @param estImageA : vrai si le clic est sur l'image A
+     */
     private void sourisCliquee(MouseEvent mouseEvent, boolean estImageA) {
         if (enModePipette) {
             pipette(mouseEvent, estImageA);
@@ -156,6 +186,11 @@ public class Hello extends Application {
         leClicEstValide = true;
     }
 
+    /**
+     * Mode pipette permettant de récuperer la couleur du pixel cliqué
+     * @param mouseEvent
+     * @param estImageA
+     */
     private void pipette(MouseEvent mouseEvent, boolean estImageA) {
         Image image = estImageA ? imageDebut : imageFin;
         if (image != null) {
@@ -165,17 +200,25 @@ public class Hello extends Application {
             java.awt.Color color = new java.awt.Color(bufferedImage.getRGB(x, y));
             couleurSelectionne = Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
             rectangleCouleur.setFill(couleurSelectionne);
-            System.out.println("Selected Color: " + couleurSelectionne);
+            System.out.println("Couleur : " + couleurSelectionne);
         }
     }
 
-    private void reinitialiserStyleBoutons(Button selectedButton) {
+    /**
+     * Réinitialise les styles CSS des boutons du Menu de gauche
+     * @param boutonSelectionne
+     */
+    private void reinitialiserStyleBoutons(Button boutonSelectionne) {
         boutonFormeLi.setStyle(DEFAULT_STYLE);
         boutonFormeArr.setStyle(DEFAULT_STYLE);
         boutonPhoto.setStyle(DEFAULT_STYLE);
-        selectedButton.setStyle(SELECTIONNE_STYLE);
+        boutonSelectionne.setStyle(SELECTIONNE_STYLE);
     }
 
+    /**
+     * Créé le menu de gauche contenant les différents choix des modes + boutons exemple
+     * @return Vbox contenant les boutons du menu
+     */
     private VBox creerMenu() {
         VBox menu = new VBox(10);
         menu.setPadding(new Insets(10));
@@ -211,14 +254,17 @@ public class Hello extends Application {
             reinitialiserStyleBoutons(boutonPhoto);
         });
 
-        Button exampleButton = new Button("Exemple");
-        exampleButton.setStyle(DEFAULT_STYLE);
-        exampleButton.setOnAction(e -> chargerExemple());
+        Button boutonExemple = new Button("Exemple");
+        boutonExemple.setStyle(STYLE_JAUNE);
+        boutonExemple.setOnAction(e -> chargerExemple());
 
-        menu.getChildren().addAll(boutonFormeLi, boutonFormeArr, boutonPhoto, exampleButton);
+        menu.getChildren().addAll(boutonFormeLi, boutonFormeArr, boutonPhoto, boutonExemple);
         return menu;
     }
 
+    /**
+     * Charge le mode exemple : fournit des images début et fin du dossier img et leur points de controle correspondants
+     */
     private void chargerExemple() {
         if (formeActuelle instanceof FormesLineaireFX) {
             imageDebut = new Image("file:./src/projet/img/carre.png", 600, 600, true, true);
@@ -261,8 +307,8 @@ public class Hello extends Application {
     }
 
     /**
-     * Affiche des points pré-placés formant un visage pour plus de rapidité
-     * @param deuxTypes : boolean
+     * Affiche les points pré-placés formant un visage pour plus de rapidité
+     * @param deuxTypes : boolean, true si c'est pour le bouton exemple (donc les points de l'image B sont differents), false sinon
      */
     private void genererPointsVisage(boolean deuxTypes) {
         formeActuelle.reinitialiserPoints();
@@ -348,8 +394,13 @@ public class Hello extends Application {
         formeActuelle.redessinerPoints();     
     }
 
+    /**
+     * Start
+     * @param Stage principal
+     */
     @Override
     public void start(Stage primaryStage) {
+        /* - - Initialisation de l'interface - - */
         this.pointsDeControle = new PointDeControle();        
         this.pointsDeControleLies = new LinkedList<>();         
         this.pointsDeControleLies.add(pointsDeControle); // il aura tjrs pointsDeControle dans pointsDeControleLies, qui est la *dernière* liste
@@ -375,8 +426,8 @@ public class Hello extends Application {
         HBox imageBox = new HBox(20, paneA, paneB);
         imageBox.setAlignment(Pos.CENTER);
 
-        Button boutonChoisirImageDebut = createImageButton("Select Image A");
-        Button boutonChoisirImageFin = createImageButton("Select Image B");
+        Button boutonChoisirImageDebut = creerBoutonChoixImage("Select Image A");
+        Button boutonChoisirImageFin = creerBoutonChoixImage("Select Image B");
 
         HBox zoneBouton1 = new HBox(10, boutonChoisirImageDebut, boutonChoisirImageFin);
         zoneBouton1.setAlignment(Pos.CENTER);
@@ -491,13 +542,14 @@ public class Hello extends Application {
                 Stage stageChargement = creerFenetreChargement(primaryStage);
                 avant = rb1.isSelected();
                 
+                // On peut commencer ; traitement des images, affichage du gif, affichage de la progression :
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
                         updateProgress(0, nbFrames);
-
                         
                         if (formeActuelle instanceof PhotoFX) {
+                            // Cas mode Photo :
                             Visage visage; 
                             System.out.println("Traitement d'une photo");
                             visage = new Visage(SwingFXUtils.fromFXImage(imageDebut, null),SwingFXUtils.fromFXImage(imageFin, null),pointsDeControleLies,nbFrames,ajouteGif,avant);
@@ -507,6 +559,7 @@ public class Hello extends Application {
                                 ioException.printStackTrace();
                             }
                         } else if (formeActuelle instanceof FormesArrondiesFX) {
+                            // Cas mode forme unie et arrondie :
                             FormeArrondie forme;
                             System.out.println("Traitement d'une forme unie arrondie");
                             forme = new FormeArrondie(pointsDeControle, nbFrames,ajouteGif,avant);
@@ -517,6 +570,7 @@ public class Hello extends Application {
                                 ioException.printStackTrace();
                             }
                         } else {
+                            // Cas mode forme unie et linéaire :
                             Forme forme;
                             System.out.println("Traitement d'une forme unie linéaire");
                             forme = new Forme(pointsDeControle, null, null, nbFrames,ajouteGif,avant);
@@ -528,6 +582,7 @@ public class Hello extends Application {
                             }
                         }
 
+                        // Pour afficher le gif lorsque le traitement est terminé :
                         Platform.runLater(() -> {
                             try {
                                 GIFViewer.display("GIF Viewer", "animation.gif");
@@ -539,12 +594,12 @@ public class Hello extends Application {
                         return null;
                     }
 
+                    // Fenetre de chargement :
                     @Override
                     protected void succeeded() {
                         super.succeeded();
                         stageChargement.close();
                     }
-
                     @Override
                     protected void failed() {
                         super.failed();
@@ -552,9 +607,10 @@ public class Hello extends Application {
                     }
                 };
 
-                ProgressBar progressBar = new ProgressBar();
-                progressBar.progressProperty().bind(task.progressProperty());
-                VBox vbox = new VBox(10, new Label("GIF en cours de création..."), progressBar);
+                // Pour la barre de progression en temps réel :
+                ProgressBar barreProgression = new ProgressBar();
+                barreProgression.progressProperty().bind(task.progressProperty());
+                VBox vbox = new VBox(10, new Label("GIF en cours de création..."), barreProgression);
                 vbox.setAlignment(Pos.CENTER);  
                 vbox.setPadding(new Insets(20));
                 Scene loadingScene = new Scene(vbox, 300, 100);
@@ -585,7 +641,7 @@ public class Hello extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        /* Ajouts de fichiers : */
+        /* Ajouts des fichiers correspondant à l'image de début, de fin, et potentiellement un GIF : */
         FileChooser fileChooserIMG = new FileChooser();
         fileChooserIMG.getExtensionFilters().addAll(
             new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
@@ -597,7 +653,6 @@ public class Hello extends Application {
                 imageViewDebut.setImage(imageDebut);
             }
         });
-
         boutonChoisirImageFin.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
@@ -605,7 +660,6 @@ public class Hello extends Application {
                 imageViewFin.setImage(imageFin);
             }
         });
-
         FileChooser fileChooserGIF = new FileChooser();
         fileChooserGIF.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("GIF Files", "*.gif")
@@ -618,13 +672,17 @@ public class Hello extends Application {
         });
     }
 
+    /**
+     * Crée la fenêtre affichant une barre de chargement lors du traitement des images
+     * @return Stage correspondant
+     */
     private Stage creerFenetreChargement(Stage primaryStage) {
         Stage stageChargement = new Stage();
         stageChargement.initModality(Modality.APPLICATION_MODAL);
-        stageChargement.setTitle("Loading");
+        stageChargement.setTitle("Chargement");
 
-        ProgressBar progressBar = new ProgressBar();
-        VBox vbox = new VBox(new Label("Loading..."), progressBar);
+        ProgressBar barreProgression = new ProgressBar();
+        VBox vbox = new VBox(new Label("Chargement..."), barreProgression);
         vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(20));
 
