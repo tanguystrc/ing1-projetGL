@@ -77,28 +77,21 @@ public class PointDeControle {
 
     /**
      * Fonction toString implémentée aux points de contrôle
-     * @return 
+     * @return Une colonne des couple dans PointDeControle
      */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (Couple<Point, Point> couple : pointsList) {
-            builder.append("Key: ").append(couple.getA().toString()).append(" -> Value: ").append(couple.getB().toString()).append("\n");
+            builder.append(couple.toString()).append("\n");
         }
         return builder.toString();
     }
 
     /**
-     * Fonction hashCode implémentée aux point de controle
-     * @return
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(pointsList);
-    }
-
-    /**
      * Fonction equals implémentée aux point de
+     * @param o Object
+     * @return True si les objets sont identique
      */
     @Override
     public boolean equals(Object obj) {

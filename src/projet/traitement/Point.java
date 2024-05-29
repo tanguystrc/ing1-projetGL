@@ -1,7 +1,4 @@
 package src.projet.traitement;
-
-import java.util.Objects;
-
 /**
  * Classe Point avec une abscisse et une ordonnée
  */
@@ -96,6 +93,7 @@ public class Point {
 
     /**
      * Fonction equals pour les points
+     * @param o Object
      * @return True si l'argument et identique au point
      */
     @Override
@@ -109,14 +107,6 @@ public class Point {
         Point p = (Point) obj;
         final double EPSILON = 1e-10;
         return Math.abs(this.x - p.x) < EPSILON && Math.abs(this.y - p.y) < EPSILON;
-    }
-
-    /**
-     * Fonction de hashage implémenté aux point
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
     }
 
     /**
