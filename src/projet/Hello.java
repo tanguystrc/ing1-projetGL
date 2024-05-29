@@ -1,5 +1,6 @@
 package src.projet;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -7,12 +8,15 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
@@ -23,6 +27,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -84,6 +90,7 @@ public class Hello extends Application {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
         imageView.setFitHeight(600);
+        imageView.setPreserveRatio(true);
         return imageView;
     }
 
@@ -580,15 +587,28 @@ public class Hello extends Application {
         selectStartImageButton.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                startImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+            try{
+                BufferedImage imageBase = ImageIO.read(file);
+                double ratio = Math.max((double)600 / (double)imageBase.getHeight(), (double)600 / (double)imageBase.getWidth());
+                System.out.println(imageBase.getWidth() + "x" + imageBase.getHeight());
+                System.out.println(ratio);
+                BufferedImage imageRed = new BufferedImage((int)(imageBase.getWidth()*ratio), (int)(imageBase.getHeight()*ratio), imageBase.getType());
+                System.out.println("ImageRed: " + imageRed.getWidth() + "x" + imageRed.getHeight());
+                BufferedImage imageRognee = rognerImage(imageRed);
+                startImage = SwingFXUtils.toFXImage(imageRognee,null);
                 startImageView.setImage(startImage);
+                System.out.println("caca");
+            } 
+            catch (IOException ex) {
+                ex.printStackTrace();
+            }
             }
         });
 
         selectEndImageButton.setOnAction(e -> {
             File file = fileChooserIMG.showOpenDialog(primaryStage);
             if (file != null) {
-                endImage = new Image("file:" + file.getAbsolutePath(), 600, 600, true, true);
+                endImage = new Image("file:" + file.getAbsolutePath());
                 endImageView.setImage(endImage);
             }
         });
@@ -619,6 +639,37 @@ public class Hello extends Application {
         loadingStage.setScene(scene);
 
         return loadingStage;
+    }
+
+    public static BufferedImage rognerImage(BufferedImage image) {
+        double width = image.getWidth();
+        double height = image.getHeight();
+        System.out.println("Image: " + width + "x" + height);
+        double targetSize = 600;
+
+        if (width > targetSize && height <= targetSize) {
+            double cropAmount = (width - targetSize) / 2;
+            Rectangle2D viewport = new Rectangle2D(cropAmount, 0, width - 2*cropAmount, height);
+            return cropImage(image, viewport);
+        } else if (height > targetSize && width <= targetSize) {
+            
+            double cropAmount = (height - targetSize) / 2;
+            Rectangle2D viewport = new Rectangle2D(0, cropAmount, width, 2*height - cropAmount);
+            return cropImage(image, viewport);
+        }
+        else{
+            return image;
+        }
+    }
+
+    private static BufferedImage cropImage(BufferedImage image, Rectangle2D viewport) {
+        int x = (int) viewport.getMinX();
+        int y = (int) viewport.getMinY();
+        int w = (int) viewport.getWidth();
+        int h = (int) viewport.getHeight();
+        BufferedImage croppedImage = image.getSubimage(x, y, w, h);
+        System.out.println("Cropped Image: " + croppedImage.getWidth() + "x" + croppedImage.getHeight());;
+        return croppedImage;
     }
 
     public static void main(String[] args) {

@@ -8,15 +8,15 @@
             "type": "java",
             "name": "Redimensionneur",
             "request": "launch",
-            "mainClass": "src.projet.Redimensionneur",
-            "vmArgs": "--module-path \"./lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+            "mainClass": "src.projet.ImageCropApp",
+            "vmArgs": "--module-path \"./lib/javafx-sdk-22-linux/lib\" --add-modules javafx.controls,javafx.fxml"
         },
         {
             "type": "java",
             "name": "Hello",
             "request": "launch",
             "mainClass": "src.projet.Hello",
-            "vmArgs": "--module-path \"./lib/javafx-sdk-22-windows/lib\" --add-modules javafx.controls,javafx.fxml"
+            "vmArgs": "--module-path \"./lib/javafx-sdk-22-linux/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }
