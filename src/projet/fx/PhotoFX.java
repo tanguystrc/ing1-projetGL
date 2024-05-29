@@ -19,17 +19,31 @@ import src.projet.traitement.Couple;
 import src.projet.traitement.Point;
 import src.projet.traitement.PointDeControle;
 
+/**
+ * Classe correspondant au FX du mode des formes unies et abstraites
+ */
 public class PhotoFX extends FormesFX {
 
     private List<PointDeControle> pointsDeControleLies;
     private int nbPointsDeControleAutreGroupe;
 
+    /**
+     * Constructeur
+     * @param zonePointsA : canvas de l'image de début (A)
+     * @param zonePointsB : canvas de l'image de fin (B)
+     * @param pointsDeControle : information stockée des points de controle du groupe actuel
+     * @param pointsDeControleLies : information des différents groupes de points de controle
+     */
     public PhotoFX(Canvas zonePointsA, Canvas zonePointsB, PointDeControle pointsDeControle, List<PointDeControle> pointsDeControleLies) {
         super(zonePointsA, zonePointsB, pointsDeControle);
         this.pointsDeControleLies = pointsDeControleLies;
         this.nbPointsDeControleAutreGroupe = 0;
     }
 
+    /**
+     * On efface tous les points stockés et on actualise les canvas
+     * En Override car on a ici différents groupes
+     */
     @Override
     public void reinitialiserPoints() {
         seDeplace = false;
@@ -40,6 +54,12 @@ public class PhotoFX extends FormesFX {
         redessinerPoints();
     }
 
+    /**
+     * Traitement si souris enfoncée, on vérifie si on a cliqué sur un point existant ( = pour ensuite le déplacer)
+     * En Override car on a ici différents groupes
+     * @param mouseEvent : pour récupérer les coordonnées du clic
+     * @param estImageA : vrai si clic sur l'image de début (A)
+     */
     @Override
     public void sourisAppuyee(MouseEvent mouseEvent, boolean estImageA) {
         double x = mouseEvent.getX();
@@ -58,6 +78,13 @@ public class PhotoFX extends FormesFX {
         }
     }
 
+    /**
+     * Vérifie si le point déplacé s'approche d'un autre point déjà existant pour bien le superposer directement 
+     * En Override car on a ici différents groupes
+     * @param x : coordonnée x du point traité
+     * @param y : coordonnée y du point traité
+     * @param estImageA : vrai si clic dans l'image de début (A)
+     */
     @Override
     public void verifSuperposerPoint(double x, double y, boolean estImageA) {
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
@@ -70,8 +97,13 @@ public class PhotoFX extends FormesFX {
         }
     }
 
+    /**
+     * Affiche et gère le traitement de la fenetre pour supprimer un point spécifique
+     * En Override car on a ici différents groupes
+     */
     @Override
     public void fenetreSuppressionPoints() {
+        // Initialisation du FX :
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Supprimer un couple de point");
@@ -83,7 +115,7 @@ public class PhotoFX extends FormesFX {
         int index = 0;
         int nbGroupe = 0;
 
-        // Affichage
+        // Récup les points existants des divers groupes pour l'affichage :
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 Point key = couple.getA();
@@ -97,6 +129,7 @@ public class PhotoFX extends FormesFX {
             nbGroupe++;
         }
 
+        // Supprime le point correspondant et actualise le canvas
         Button boutonSupprimer = new Button("Supprimer");
         boutonSupprimer.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
@@ -118,6 +151,10 @@ public class PhotoFX extends FormesFX {
         dialog.show();
     }
 
+    /**
+     * Actualise l'affichage des points sur les canvas
+     * En Override car on a ici différents groupes
+     */
     @Override
     public void redessinerPoints() {
         zonePointsA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
@@ -144,6 +181,15 @@ public class PhotoFX extends FormesFX {
         }
     }
 
+    /**
+     * Dessine le point sur le canvas
+     * @param gc : informations du canvas
+     * @param x : coordonnée x du point à dessiner
+     * @param y : coordonnée y du point à dessiner
+     * @param estImageA : vrai si point de l'image de début (A)
+     * @param index : index du point dans le pointsDeControle, pour savoir s'il faut le lier à un point précédent ou non
+     * @param numGroupe : numéro du groupe du point a traiter
+     */
     private void dessiner(GraphicsContext gc, double x, double y, boolean estImageA, int index, int numGroupe) {
         // lettre de l'alphabet au début, chiffres après
         String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
@@ -167,6 +213,13 @@ public class PhotoFX extends FormesFX {
         }
     }
 
+    /**
+     * Pour récupérer un point avec son index dans le pointsDeControle correspondant
+     * @param index : commence à 0
+     * @param estImageA : vrai si point de controle de l'image de début (A)
+     * @param numGroupe : numéro du groupe pour savoir le pointsDeControle correspodnant
+     * @return Point : le point correspondant
+     */
     private Point getPointFromIndex(int index, boolean estImageA, int numGroupe) {
         int i = 0;
         for (Couple<Point, Point> couple : pointsDeControleLies.get(numGroupe).getPointsList()) {
@@ -178,6 +231,12 @@ public class PhotoFX extends FormesFX {
         return null;
     }
 
+    /**
+     * Pour récupérer un point avec son index TOTAl, en prenant en compte tous les groupes différents
+     * @param index : commence à 0
+     * @param estImageA : vrai si point de controle de l'image de début (A)
+     * @return Point : le point correspondant
+     */
     private Point getPointFromIndexTotal(int index, boolean estImageA) {
         int i = 0;
         for (PointDeControle groupe : pointsDeControleLies) {
@@ -191,6 +250,10 @@ public class PhotoFX extends FormesFX {
         return null;
     }
 
+    /**
+     * Calcul le nombre total de points
+     * @return le nombre total de points parmis tous les groupes
+     */
     public int calculerNbTotalPoint() {
         int res = 0;
         for (PointDeControle groupe : pointsDeControleLies) {
@@ -199,6 +262,11 @@ public class PhotoFX extends FormesFX {
         return res;
     }
 
+    /**
+     * Récupère le numéro de groupe correspondant à l'index TOTAL d'un point
+     * @param indexTotal : index total du point correspondant
+     * @return le numéro du groupe correspondant
+     */
     public int calculerNumGroupe(int indexTotal) {
         int i = 0;
         int res = 0;

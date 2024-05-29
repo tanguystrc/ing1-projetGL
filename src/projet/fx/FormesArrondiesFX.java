@@ -7,12 +7,24 @@ import src.projet.traitement.PointDeControle;
 import src.projet.traitement.Couple;
 import javafx.scene.paint.Color;
 
+/**
+ * Classe correspondant au FX du mode des formes unies et arrondies
+ */
 public class FormesArrondiesFX extends FormesFX {
 
+    /**
+     * Constructeur
+     * @param zonePointsA : canvas de l'image de début (A)
+     * @param zonePointsB : canvas de l'image de fin (B)
+     * @param pointsDeControle : information stockée des points de controle du groupe actuel
+     */
     public FormesArrondiesFX(Canvas zonePointsA, Canvas zonePointsB, PointDeControle pointsDeControle) {
         super(zonePointsA, zonePointsB, pointsDeControle);
     }
 
+    /**
+     * Actualise l'affichage des points sur les canvas
+     */
     public void redessinerPoints() {
         zonePointsA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
         zonePointsB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
@@ -36,6 +48,11 @@ public class FormesArrondiesFX extends FormesFX {
         dessiner(gcB, false);
     }
 
+    /**
+     * Dessine le point sur le canvas et les potentielles courbes
+     * @param gc : informations du canvas
+     * @param estImageA : vrai si point de l'image de début (A)
+     */
     private void dessiner(GraphicsContext gc, boolean estImageA) {
         int index = 0;
         Point[] points = new Point[4];
