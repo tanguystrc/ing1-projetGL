@@ -110,8 +110,8 @@ Ce projet de morphing d'images permet de créer des animations de transition ent
 ## Comment utiliser l'application
  - **Si vous n'avez pas vos propres images, cliquez sur l'une des 3 parties puis sur le bouton "Exemple", ensuite remplissez le nombre de frames voulues ainsi que la durée du gif et lancez avec "Start"**
 
- - **Pour formes linéaires et arrondies vous pouvez selectionner la couleur à l'aide de la pipette**
- - **Quand un point se rapproche d'un autre, il se superpose automatiquement**
+ - **Pour formes linéaires et arrondies vous pouvez selectionner la couleur à l'aide de la pipette et quand un point se rapproche d'un autre, il se superpose automatiquement**
+ 
 ### Formes linéaires
 
 Après avoir importé vos images et placé les points principaux sur la première, ajusté les points formés en miroir sur la seconde puis ajoutez le nombre d'images désirées ainsi que la durée du gif.
