@@ -117,7 +117,7 @@ Petite subtilité, un segment se forme maintenant en 4 clic au lieu de deux.
 
 ### Transformations de photo
 
-Après avoir importé vos images et sélectionner le mode Photo de l'application, détourez la première image en cliquant pour former et déplacer les points caractéristiques qui seront reliés par des segments. 
+Après avoir importé vos images et sélectionné le mode Photo de l'application, détourez la première image en cliquant pour former et déplacez les points caractéristiques qui seront reliés par des segments. 
 Pour former un nouveau groupe de point, appuyez sur le bouton Nouveau Groupe De Point. Ajustez ensuite vos points sur la seconde image. Sélectionnez le nombre d'images et la durée du gif puis appuyez sur start.
 
 ### GifViewer
