@@ -41,7 +41,7 @@ Ce projet de morphing d'images permet de créer des animations de transition ent
 
    **Sous Windows :**
 
-   - Téléchargez la JDK depuis le site officiel d'Oracle ou adoptium.net.
+   - Téléchargez la JDK depuis le site officiel d'[Oracle](https://www.oracle.com/java/technologies/javase/jdk19-archive-downloads.html) 
    - Exécutez l'installateur et suivez les instructions à l'écran.
    - Ajoutez le chemin de la JDK à la variable d'environnement PATH :
      1. Ouvrez le Panneau de configuration.
