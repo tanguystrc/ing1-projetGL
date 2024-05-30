@@ -129,7 +129,7 @@ public class Hello extends Application {
         }
 
         canvas.setOnMousePressed(mouseEvent -> sourisAppuyee(mouseEvent, estImageA));
-        canvas.setOnMouseDragged(mouseEvent -> sourisGlissée(mouseEvent, estImageA));
+        canvas.setOnMouseDragged(mouseEvent -> sourisGlissee(mouseEvent, estImageA));
         canvas.setOnMouseReleased(mouseEvent -> sourisRelachee(estImageA));
         canvas.setOnMouseClicked(mouseEvent -> sourisCliquee(mouseEvent, estImageA));
 
@@ -155,9 +155,9 @@ public class Hello extends Application {
      * @param mouseEvent : permet  d'avoir les coordonnées du curseur
      * @param estImageA : vrai si le clic est sur l'image A
      */
-    private void sourisGlissée(MouseEvent mouseEvent, boolean estImageA) {
+    private void sourisGlissee(MouseEvent mouseEvent, boolean estImageA) {
         if (formeActuelle != null) {
-            formeActuelle.sourisGlissée(mouseEvent, estImageA);
+            formeActuelle.sourisGlissee(mouseEvent, estImageA);
         }
     }
 

@@ -107,7 +107,7 @@ public abstract class FormesFX {
      * @param mouseEvent : pour récupérer les coordonnées du clic
      * @param estImageA : vrai si clic sur l'image de début (A)
      */
-    public void sourisGlissée(MouseEvent mouseEvent, boolean estImageA) {
+    public void sourisGlissee(MouseEvent mouseEvent, boolean estImageA) {
         if (seDeplace && pointSelectionne != null) {
             double x = Math.max(0, Math.min(600, mouseEvent.getX())); 
             double y = Math.max(0, Math.min(600, mouseEvent.getY())); 
