@@ -6,32 +6,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * La classe FormeArrondie représente une forme avec des contours arrondis
- * basée sur des courbes de Bézier. Elle hérite de la classe Forme.
+ * Classe pour le morphing de formes unies arrondis
  */
 public class FormeArrondie extends Forme {
 
     /**
-     * Constructeur de la classe FormeArrondie.
-     *
-     * @param pointsDeControle Les points de contrôle pour générer la forme arrondie.
+     * Constructeur de la classe Forme.
+     * @param pointsDeControle Les points de contrôle de la forme.
      * @param nbFrame Le nombre de frames pour l'animation.
-     * @param ajouteGIF Le fichier GIF à ajouter.
-     * @param avant Indique si l'animation est avant (true) ou après (false).
+     * @param ajouteGIF fichier du gif s'il faut en ajouter un
+     * @param avant : vrai si le Gif a ajouter est avant celui actuel
      */
     public FormeArrondie(PointDeControle pointsDeControle, int nbFrame, File ajouteGIF, boolean avant) {
         super(pointsDeControle, null, null, nbFrame, ajouteGIF, avant);
     }
 
     /**
-     * Applique un morphisme de remplissage sur l'image en utilisant les couleurs spécifiées
-     * et une liste de points pour définir la forme.
-     *
-     * @param image L'image de base à remplir.
-     * @param couleur La couleur à utiliser pour remplir la forme.
-     * @param autreCouleur La couleur à utiliser pour l'extérieur de la forme.
-     * @param points La liste de points définissant la forme.
-     * @return Une nouvelle image avec la forme remplie.
+     * Remplit l'image en fonction des points de contrôle et des couleurs spécifiées.
+     * @param image L'image de base.
+     * @param couleur La couleur de la forme.
+     * @param autreCouleur La couleur de fond.
+     * @param points Les points de contrôle.
+     * @return L'image remplie.
      */
     @Override
     public BufferedImage morphismeRemplissage(BufferedImage image, int couleur, int autreCouleur, List<Point> points) {
@@ -54,10 +50,9 @@ public class FormeArrondie extends Forme {
     }
 
     /**
-     * Calcule une liste de points intermédiaires en utilisant des courbes de Bézier.
-     *
-     * @param listePoints La liste de points de contrôle pour les courbes de Bézier.
-     * @return Une liste de points intermédiaires représentant les courbes de Bézier.
+     * Calcul les points de Bezier
+     * @param listePoints : La liste des points de contrôle définissant la forme.
+     * @return les points intermédiaires
      */
     public List<Point> calculerPointsBezier(List<Point> listePoints) {
         List<Point> pointsIntermediaires = new ArrayList<>();
