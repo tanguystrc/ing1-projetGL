@@ -109,6 +109,9 @@ Ce projet de morphing d'images permet de créer des animations de transition ent
 
 ## Comment utiliser l'application
  - **Si vous n'avez pas vos propres images, cliquez sur l'une des 3 parties puis sur le bouton "Exemple", ensuite remplissez le nombre de frames voulues ainsi que la durée du gif et lancez avec "Start"**
+
+ - **Pour formes linéaires et arrondies vous pouvez selectionner la couleur à l'aide de la pipette**
+ - **Quand un point se rapproche d'un autre, il se superpose automatiquement**
 ### Formes linéaires
 
 Après avoir importé vos images et placé les points principaux sur la première, ajusté les points formés en miroir sur la seconde puis ajoutez le nombre d'images désirées ainsi que la durée du gif.
@@ -123,9 +126,10 @@ Petite subtilité, un segment se forme maintenant en 4 clic au lieu de deux.
 
 Après avoir importé vos images et sélectionné le mode Photo de l'application, détourez la première image en cliquant pour former et déplacez les points caractéristiques qui seront reliés par des segments. 
 Pour former un nouveau groupe de point, appuyez sur le bouton Nouveau Groupe De Point. Ajustez ensuite vos points sur la seconde image. Sélectionnez le nombre d'images et la durée du gif puis appuyez sur start.
+**Vous avez aussi le bouton Visage qui génére les points nécessaires pour un visage**.
 
 ### GifViewer
-Une fois la barre de progression terminée, la fenetre d'affichage du gif apparaît qui est par défaut en mode lecture , vous pouvez passez en mode slider pour voir en détail chaque image ou téléchargez le gif pour pouvoir faire des enchaînements par la suite
+Une fois la barre de progression terminée, la fenetre d'affichage du gif apparaît qui est par défaut en mode lecture , vous pouvez passez en mode slider pour voir en détail chaque image ou téléchargez le gif pour pouvoir faire des enchaînements par la suite.
 
 ## Arborescence du projet
 
