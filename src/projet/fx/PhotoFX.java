@@ -19,59 +19,91 @@ import src.projet.traitement.Couple;
 import src.projet.traitement.Point;
 import src.projet.traitement.PointDeControle;
 
+/**
+ * Classe correspondant au FX du mode des formes unies et abstraites
+ */
 public class PhotoFX extends FormesFX {
 
     private List<PointDeControle> pointsDeControleLies;
     private int nbPointsDeControleAutreGroupe;
 
-    public PhotoFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle, List<PointDeControle> pointsDeControleLies) {
-        super(canvasA, canvasB, pointsDeControle);
+    /**
+     * Constructeur
+     * @param zonePointsA : canvas de l'image de début (A)
+     * @param zonePointsB : canvas de l'image de fin (B)
+     * @param pointsDeControle : information stockée des points de controle du groupe actuel
+     * @param pointsDeControleLies : information des différents groupes de points de controle
+     */
+    public PhotoFX(Canvas zonePointsA, Canvas zonePointsB, PointDeControle pointsDeControle, List<PointDeControle> pointsDeControleLies) {
+        super(zonePointsA, zonePointsB, pointsDeControle);
         this.pointsDeControleLies = pointsDeControleLies;
         this.nbPointsDeControleAutreGroupe = 0;
     }
 
+    /**
+     * On efface tous les points stockés et on actualise les canvas
+     * En Override car on a ici différents groupes
+     */
     @Override
-    public void resetPoints() {
-        isDragging = false;
-        isMousePressed = false;
+    public void reinitialiserPoints() {
+        seDeplace = false;
+        sourisClicEnfonce = false;
         pointsDeControle.getPointsList().clear();
         pointsDeControleLies.clear();
         pointsDeControleLies.add(pointsDeControle);
-        redrawPoints();
+        redessinerPoints();
     }
 
+    /**
+     * Traitement si souris enfoncée, on vérifie si on a cliqué sur un point existant ( = pour ensuite le déplacer)
+     * En Override car on a ici différents groupes
+     * @param mouseEvent : pour récupérer les coordonnées du clic
+     * @param estImageA : vrai si clic sur l'image de début (A)
+     */
     @Override
-    public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
-        double mouseX = mouseEvent.getX();
-        double mouseY = mouseEvent.getY();
+    public void sourisAppuyee(MouseEvent mouseEvent, boolean estImageA) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
 
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
-                Point point = isImageA ? couple.getA() : couple.getB();
-                if (point.distance(new Point(mouseX, mouseY)) < 10) { // zone de 10 pixels autour du point pour la sélection
-                    selectedPoint = point;
-                    isDragging = true;
-                    isClickValid = false;
+                Point point = estImageA ? couple.getA() : couple.getB();
+                if (point.distance(new Point(x, y)) < 10) { // zone de 10 pixels autour du point pour la sélection
+                    pointSelectionne = point;
+                    seDeplace = true;
+                    leClicEstValide = false;
                     break;
                 }
             }
         }
     }
 
+    /**
+     * Vérifie si le point déplacé s'approche d'un autre point déjà existant pour bien le superposer directement 
+     * En Override car on a ici différents groupes
+     * @param x : coordonnée x du point traité
+     * @param y : coordonnée y du point traité
+     * @param estImageA : vrai si clic dans l'image de début (A)
+     */
     @Override
-    public void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
+    public void verifSuperposerPoint(double x, double y, boolean estImageA) {
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-            Point point = isImageA ? couple.getA() : couple.getB();
-            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { // Merge points within 10 pixels
-                selectedPoint.setX(point.getX());
-                selectedPoint.setY(point.getY());
+            Point point = estImageA ? couple.getA() : couple.getB();
+            if (point != pointSelectionne && point.distance(new Point(x, y)) < 10) { // Merge points within 10 pixels
+                pointSelectionne.setX(point.getX());
+                pointSelectionne.setY(point.getY());
                 return;
             }
         }
     }
 
+    /**
+     * Affiche et gère le traitement de la fenetre pour supprimer un point spécifique
+     * En Override car on a ici différents groupes
+     */
     @Override
-    public void showDeletePointDialog() {
+    public void fenetreSuppressionPoints() {
+        // Initialisation du FX :
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Supprimer un couple de point");
@@ -83,7 +115,7 @@ public class PhotoFX extends FormesFX {
         int index = 0;
         int nbGroupe = 0;
 
-        // Affichage
+        // Récup les points existants des divers groupes pour l'affichage :
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 Point key = couple.getA();
@@ -97,19 +129,20 @@ public class PhotoFX extends FormesFX {
             nbGroupe++;
         }
 
-        Button deleteButton = new Button("Supprimer");
-        deleteButton.setOnAction(e -> {
+        // Supprime le point correspondant et actualise le canvas
+        Button boutonSupprimer = new Button("Supprimer");
+        boutonSupprimer.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
 
             if (selectedIndex != -1 && selectedIndex < calculerNbTotalPoint()) {
                 Point point = getPointFromIndexTotal(selectedIndex, true);
                 pointsDeControleLies.get(calculerNumGroupe(selectedIndex)).supprimer(point);
-                redrawPoints();
+                redessinerPoints();
                 dialog.close();
             }
         });
 
-        VBox dialogVBox = new VBox(20, listView, deleteButton);
+        VBox dialogVBox = new VBox(20, listView, boutonSupprimer);
         dialogVBox.setPadding(new Insets(20));
         dialogVBox.setAlignment(Pos.CENTER);
 
@@ -118,10 +151,14 @@ public class PhotoFX extends FormesFX {
         dialog.show();
     }
 
+    /**
+     * Actualise l'affichage des points sur les canvas
+     * En Override car on a ici différents groupes
+     */
     @Override
-    public void redrawPoints() {
-        canvasA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
-        canvasB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
+    public void redessinerPoints() {
+        zonePointsA.getGraphicsContext2D().clearRect(0, 0, 600, 600);
+        zonePointsB.getGraphicsContext2D().clearRect(0, 0, 600, 600);
 
         int index;
         int numGroupe = 0;
@@ -136,48 +173,76 @@ public class PhotoFX extends FormesFX {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 Point key = couple.getA();
                 Point value = couple.getB();
-                draw(canvasA.getGraphicsContext2D(), key.getX(), key.getY(), true, index, numGroupe);
-                draw(canvasB.getGraphicsContext2D(), value.getX(), value.getY(), false, index, numGroupe);
+                dessiner(zonePointsA.getGraphicsContext2D(), key.getX(), key.getY(), true, index, numGroupe);
+                dessiner(zonePointsB.getGraphicsContext2D(), value.getX(), value.getY(), false, index, numGroupe);
                 index++;
             }
             numGroupe++;
         }
     }
 
-    private void draw(GraphicsContext gc, double mouseX, double mouseY, boolean isImageA, int index, int numGroupe) {
+    /**
+     * Dessine le point sur le canvas
+     * @param gc : informations du canvas
+     * @param x : coordonnée x du point à dessiner
+     * @param y : coordonnée y du point à dessiner
+     * @param estImageA : vrai si point de l'image de début (A)
+     * @param index : index du point dans le pointsDeControle, pour savoir s'il faut le lier à un point précédent ou non
+     * @param numGroupe : numéro du groupe du point a traiter
+     */
+    private void dessiner(GraphicsContext gc, double x, double y, boolean estImageA, int index, int numGroupe) {
         // lettre de l'alphabet au début, chiffres après
         String pointLabel = (index < 26) ? Character.toString((char) (asciiDuA + index)) : Integer.toString(index - 26);
 
-        gc.setStroke(isImageA ? Color.RED : Color.BLUE);
-        gc.strokeText("." + pointLabel, mouseX, mouseY);
+        gc.setStroke(estImageA ? Color.RED : Color.BLUE);
+        gc.strokeText("." + pointLabel, x, y);
 
         // On a un point précédent du même groupe, on le lie avec le nouveau
         if (index > 0 && !(index == nbPointsDeControleAutreGroupe)) {
-            gc.setStroke(isImageA ? Color.BLUE : Color.RED);
-            Point previousPoint = getPointFromIndex(index - 1, isImageA, numGroupe);
+            if(numGroupe!=(pointsDeControleLies.size()-1)){
+                gc.setStroke(Color.GREY);
+            }else if(estImageA){
+                gc.setStroke(Color.BLUE);
+            }else{
+                gc.setStroke(Color.RED);
+            }            
+            Point previousPoint = getPointFromIndex(index - 1, estImageA, numGroupe);
             if (previousPoint != null) {
-                gc.strokeLine(previousPoint.getX(), previousPoint.getY(), mouseX, mouseY);
+                gc.strokeLine(previousPoint.getX(), previousPoint.getY(), x, y);
             }
         }
     }
 
-    private Point getPointFromIndex(int index, boolean isImageA, int numGroupe) {
+    /**
+     * Pour récupérer un point avec son index dans le pointsDeControle correspondant
+     * @param index : commence à 0
+     * @param estImageA : vrai si point de controle de l'image de début (A)
+     * @param numGroupe : numéro du groupe pour savoir le pointsDeControle correspodnant
+     * @return Point : le point correspondant
+     */
+    private Point getPointFromIndex(int index, boolean estImageA, int numGroupe) {
         int i = 0;
         for (Couple<Point, Point> couple : pointsDeControleLies.get(numGroupe).getPointsList()) {
             if (i == index - nbPointsDeControleAutreGroupe) {
-                return isImageA ? couple.getA() : couple.getB();
+                return estImageA ? couple.getA() : couple.getB();
             }
             i++;
         }
         return null;
     }
 
-    private Point getPointFromIndexTotal(int index, boolean isImageA) {
+    /**
+     * Pour récupérer un point avec son index TOTAl, en prenant en compte tous les groupes différents
+     * @param index : commence à 0
+     * @param estImageA : vrai si point de controle de l'image de début (A)
+     * @return Point : le point correspondant
+     */
+    private Point getPointFromIndexTotal(int index, boolean estImageA) {
         int i = 0;
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 if (i == index) {
-                    return isImageA ? couple.getA() : couple.getB();
+                    return estImageA ? couple.getA() : couple.getB();
                 }
                 i++;
             }
@@ -185,6 +250,10 @@ public class PhotoFX extends FormesFX {
         return null;
     }
 
+    /**
+     * Calcul le nombre total de points
+     * @return le nombre total de points parmis tous les groupes
+     */
     public int calculerNbTotalPoint() {
         int res = 0;
         for (PointDeControle groupe : pointsDeControleLies) {
@@ -193,6 +262,11 @@ public class PhotoFX extends FormesFX {
         return res;
     }
 
+    /**
+     * Récupère le numéro de groupe correspondant à l'index TOTAL d'un point
+     * @param indexTotal : index total du point correspondant
+     * @return le numéro du groupe correspondant
+     */
     public int calculerNumGroupe(int indexTotal) {
         int i = 0;
         int res = 0;

@@ -15,104 +15,142 @@ import src.projet.traitement.Point;
 import src.projet.traitement.PointDeControle;
 import src.projet.traitement.Couple;
 
-
+/**
+ * Classe abstraite correspondant au FX des 3 modes (formes linéaires, arrondies et photo)
+ */
 public abstract class FormesFX {
-    protected Canvas canvasA;
-    protected Canvas canvasB;
+    protected Canvas zonePointsA;
+    protected Canvas zonePointsB;
     protected PointDeControle pointsDeControle;
     protected int asciiDuA = 65;
 
-    protected Point selectedPoint = null;
-    protected boolean isDragging = false;
-    protected boolean isMousePressed = false;
-    protected boolean isClickValid = true;
+    // Informations du clic :
+    protected Point pointSelectionne = null;
+    protected boolean seDeplace = false;
+    protected boolean sourisClicEnfonce = false;
+    protected boolean leClicEstValide = true;
 
-    public abstract void redrawPoints();
+    /**
+     * Actualise l'affichage des points sur les canvas
+     */
+    public abstract void redessinerPoints();
 
-    public FormesFX(Canvas canvasA, Canvas canvasB, PointDeControle pointsDeControle) {
-        this.canvasA = canvasA;
-        this.canvasB = canvasB;
+    /**
+     * Constructeur
+     * @param zonePointsA : canvas de l'image de début (A)
+     * @param zonePointsB : canvas de l'image de fin (B)
+     * @param pointsDeControle : information stockée des points de controle du groupe actuel
+     */
+    public FormesFX(Canvas zonePointsA, Canvas zonePointsB, PointDeControle pointsDeControle) {
+        this.zonePointsA = zonePointsA;
+        this.zonePointsB = zonePointsB;
         this.pointsDeControle = pointsDeControle;
     }
 
-    public void handleMouseClicked(MouseEvent mouseEvent, boolean isImageA) {        
-        if (isClickValid) { // Ensure this is not a drag            
-            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
-            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
+    /**
+     * On efface tous les points stockés et on actualise les canvas
+     */
+    public void reinitialiserPoints() {
+        seDeplace = false;
+        sourisClicEnfonce = false;
+        pointsDeControle.getPointsList().clear();
+        redessinerPoints();
+    }
+    
+    /**
+     * Traitement si souris simplement cliquée, création du point
+     * @param mouseEvent : pour récupérer les coordonnées du clic
+     * @param estImageA : vrai si clic sur l'image de début (A)
+     */
+    public void sourisCliquee(MouseEvent mouseEvent, boolean estImageA) {        
+        if (leClicEstValide) { // Pour vérifier que ce n'est PAS un déplacement de point, et bien une création            
+            double x = Math.max(0, Math.min(600, mouseEvent.getX())); 
+            double y = Math.max(0, Math.min(600, mouseEvent.getY())); 
             Point point;
             try {
-                point = new Point(mouseX, mouseY);
+                point = new Point(x, y);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 return;
             }
 
-            if (isImageA) {
-                pointsDeControle.ajouter(point, new Point(mouseX, mouseY)); 
-                redrawPoints();
+            if (estImageA) {
+                pointsDeControle.ajouter(point, new Point(x, y)); // Stock le nouveau point
+                redessinerPoints(); // Affiche le nouveau point
             }
         }
-        isClickValid = true;
+        leClicEstValide = true;
     }
 
-    public void handleMousePressed(MouseEvent mouseEvent, boolean isImageA) {
-        double mouseX = mouseEvent.getX();
-        double mouseY = mouseEvent.getY();
-        isMousePressed = true;
-
+    /**
+     * Traitement si souris enfoncée, on vérifie si on a cliqué sur un point existant ( = pour ensuite le déplacer)
+     * @param mouseEvent : pour récupérer les coordonnées du clic
+     * @param estImageA : vrai si clic sur l'image de début (A)
+     */
+    public void sourisAppuyee(MouseEvent mouseEvent, boolean estImageA) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        sourisClicEnfonce = true;        
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-            Point point = isImageA ? couple.getA() : couple.getB();
-            if (point.distance(new Point(mouseX, mouseY)) < 10) { 
-                selectedPoint = point;
-                isDragging = true;
-                isClickValid = false;
+            Point point = estImageA ? couple.getA() : couple.getB();
+            if (point.distance(new Point(x, y)) < 10) { // Zone de 10 pixels autour du point
+                pointSelectionne = point;
+                seDeplace = true;
+                leClicEstValide = false;
                 break;
             }
         }
     }
 
-    public void handleMouseDragged(MouseEvent mouseEvent, boolean isImageA) {
-        if (isDragging && selectedPoint != null) {
-            double mouseX = Math.max(0, Math.min(600, mouseEvent.getX())); 
-            double mouseY = Math.max(0, Math.min(600, mouseEvent.getY())); 
+    /**
+     * Traitement si souris glissé, on déplace un point
+     * @param mouseEvent : pour récupérer les coordonnées du clic
+     * @param estImageA : vrai si clic sur l'image de début (A)
+     */
+    public void sourisGlissee(MouseEvent mouseEvent, boolean estImageA) {
+        if (seDeplace && pointSelectionne != null) {
+            double x = Math.max(0, Math.min(600, mouseEvent.getX())); 
+            double y = Math.max(0, Math.min(600, mouseEvent.getY())); 
             try {
-                selectedPoint.setX(mouseX);
-                selectedPoint.setY(mouseY);
-                checkForProximityAndMerge(mouseX, mouseY, isImageA);
+                pointSelectionne.setX(x);
+                pointSelectionne.setY(y);
+                verifSuperposerPoint(x, y, estImageA);
 
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 return;
             }
-            redrawPoints();
+            redessinerPoints();
         }
     }
 
-    public void handleMouseReleased(boolean isImageA) {
-        if (isDragging) {
-            isDragging = false;            
-            selectedPoint = null;
-            redrawPoints();
+    /**
+     * Traitement si souris relachée, clic fini, on réinitialise les informations du clic
+     * @param mouseEvent : pour récupérer les coordonnées du clic
+     * @param estImageA : vrai si clic sur l'image de début (A)
+     */
+    public void sourisRelachee(boolean estImageA) {
+        if (seDeplace) {
+            seDeplace = false;            
+            pointSelectionne = null;
+            redessinerPoints();
         }
-        isMousePressed = false;
+        sourisClicEnfonce = false;
     }
 
-    public void resetPoints() {
-        isDragging = false;
-        isMousePressed = false;
-        pointsDeControle.getPointsList().clear();
-        redrawPoints();
-    }
-
-    public void showDeletePointDialog() {
+    /**
+     * Affiche et gère le traitement de la fenetre pour supprimer un point spécifique
+     */
+    public void fenetreSuppressionPoints() {
+        // Initialisation du FX :
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Supprimer un point");
-
         ListView<String> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         listView.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 
+        // Récup les points existants pour l'affichage :
         int index = 0;
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
             Point key = couple.getA();
@@ -124,19 +162,20 @@ public abstract class FormesFX {
             index++;
         }
 
-        Button deleteButton = new Button("Supprimer");
-        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
-        deleteButton.setOnAction(e -> {
+        // Supprime le point correspondant et actualise le canvas
+        Button boutonSupprimer = new Button("Supprimer");
+        boutonSupprimer.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-border-color: #bdc3c7; -fx-border-width: 1px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);");
+        boutonSupprimer.setOnAction(e -> {
             int selectedIndex = listView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1 && selectedIndex < pointsDeControle.getPointsList().size()) {
                 Couple<Point, Point> couple = pointsDeControle.getPointsList().get(selectedIndex);
                 pointsDeControle.supprimer(couple.getA());
-                redrawPoints();
+                redessinerPoints();
                 dialog.close();
             }
         });
 
-        VBox dialogVBox = new VBox(20, listView, deleteButton);
+        VBox dialogVBox = new VBox(20, listView, boutonSupprimer);
         dialogVBox.setPadding(new Insets(20));
         dialogVBox.setAlignment(Pos.CENTER);
 
@@ -145,22 +184,34 @@ public abstract class FormesFX {
         dialog.show();
     }
 
-    public void checkForProximityAndMerge(double mouseX, double mouseY, boolean isImageA) {
+    /**
+     * Vérifie si le point déplacé s'approche d'un autre point déjà existant pour bien le superposer directement 
+     * @param x : coordonnée x du point traité
+     * @param y : coordonnée y du point traité
+     * @param estImageA : vrai si clic dans l'image de début (A)
+     */
+    public void verifSuperposerPoint(double x, double y, boolean estImageA) {
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-            Point point = isImageA ? couple.getA() : couple.getB();
-            if (point != selectedPoint && point.distance(new Point(mouseX, mouseY)) < 10) { 
-                selectedPoint.setX(point.getX());
-                selectedPoint.setY(point.getY());
+            Point point = estImageA ? couple.getA() : couple.getB();
+            if (point != pointSelectionne && point.distance(new Point(x, y)) < 10) { // Avec un rayon de 10 pixels autour
+                pointSelectionne.setX(point.getX());
+                pointSelectionne.setY(point.getY());
                 return;
             }
         }
     }
 
-    public Point getPointFromIndex(int index, boolean isImageA) {
+    /**
+     * Pour récupérer un point avec son index dans le pointsDeControle actuel
+     * @param index : commence à 0
+     * @param estImageA : vrai si point de controle de l'image de début (A)
+     * @return Point : le point correspondant
+     */
+    public Point getPointFromIndex(int index, boolean estImageA) {
         int i = 0;
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
             if (i == index) {
-                return isImageA ? couple.getA() : couple.getB();
+                return estImageA ? couple.getA() : couple.getB();
             }
             i++;
         }
