@@ -1,31 +1,60 @@
 package src.projet.traitement;
 
+/**
+ * Paire de Segment utilisé dans la classe Visage
+ */
 public class PairSegment {
 	
 	private Segment segmentSource;
 	private Segment segmentDestination;
 	
+	/**
+	 * Constructeur de la classe PairSegment
+	 * @param segmentSource Segment sur l'image source
+	 * @param segmentDestination Segment sur l'image destination
+	 */
 	public PairSegment (Segment segmentSource, Segment segmentDestination) {
 		this.segmentSource = segmentSource;
 		this.segmentDestination = segmentDestination;
 	}
 
+	/**
+	 * Getteur du Segment source
+	 * @return Segment sur l'image source
+	 */
 	public Segment getSegmentSource() {
 		return segmentSource;
 	}
 
+	/**
+	 * Setteur du Segment source
+	 * @param segmentSource Segment sur l'image source
+	 */
 	public void setSegmentSource(Segment segmentSource) {
 		this.segmentSource = segmentSource;
 	}
 
+	/**
+	 * Getteur du Segment destination
+	 * @return Segment sur l'image destination
+	 */
 	public Segment getSegmentDestination() {
 		return segmentDestination;
 	}
 
+	/**
+	 * Setteur du segment destination
+	 * @param segmentDestination Segement sur l'image destination
+	 */
 	public void setSegmentDestination(Segment segmentDestination) {
 		this.segmentDestination = segmentDestination;
 	}
 	
+	/**
+	 * Fonction pour retrouver le point correspondant à un point dans l'image destination à partir du mouvement induite par la pair de segment
+	 * @param xD Point destination
+	 * @return xS le point de l'image source correspondant
+	 */
 	public Point trouverPointSource(Point xD) {
 		Point pS = segmentSource.getDebut();
 		Point qS = segmentSource.getFin();
@@ -38,11 +67,22 @@ public class PairSegment {
 		return xS;
 	}
 
+	/**
+	 * Renvoie le vecteur déplacement entre le point source et le point destination
+	 * @param xD Point destination
+	 * @return le vecteur déplacement
+	 */
 	public Point deplacementPointSource(Point xD) {
 		Point xS = this.trouverPointSource(xD);
 		return xS.soustraction(xD);
 	}
 	
+
+	/**
+	 * renvoie la distance entre le point xD et le segment sur l'image destination
+	 * @param xD
+	 * @return La distance sous forme d'un double
+	 */
 	public double distance(Point xD) {
 		Point pD = segmentDestination.getDebut();
 		Point qD = segmentDestination.getFin();
@@ -58,6 +98,11 @@ public class PairSegment {
 		}
 	}
 	
+	/**
+	 * Renoie le poids pour le morphing utilisant les lignes de champs d'influance
+	 * @param xD Point destination
+	 * @return Le poid sous forme d'un double
+	 */
 	public double poids(Point xD) {
 		Point pD = segmentDestination.getDebut();
 		Point qD = segmentDestination.getFin();

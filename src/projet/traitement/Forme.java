@@ -21,7 +21,9 @@ public class Forme {
     protected BufferedImage image1;
     protected BufferedImage image2;
     protected int nbFrame;
-    private javafx.scene.paint.Color selectedColor;
+    private javafx.scene.paint.Color couleurSelectionne;
+    protected File ajouteGIF;
+    protected boolean avant;
 
     /**
      * Constructeur de la classe Forme.
@@ -29,20 +31,24 @@ public class Forme {
      * @param image1 L'image de départ.
      * @param image2 L'image d'arrivée.
      * @param nbFrame Le nombre de frames pour l'animation.
+     * @param ajouteGIF fichier du gif s'il faut en ajouter un
+     * @param avant : vrai si le Gif a ajouter est avant celui actuel
      */
-    public Forme(PointDeControle pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame) {
+    public Forme(PointDeControle pointsDeControle, BufferedImage image1, BufferedImage image2, int nbFrame, File ajouteGIF, boolean avant) {
         this.pointsDeControle = pointsDeControle;
         this.image1 = image1;
         this.image2 = image2;
         this.nbFrame = nbFrame;
+        this.ajouteGIF = ajouteGIF;
+        this.avant = avant;
     }
 
     /**
      * Définit la couleur sélectionnée pour le morphing.
-     * @param selectedColor La couleur sélectionnée.
+     * @param couleurSelectionne La couleur sélectionnée.
      */
-    public void setSelectedColor(javafx.scene.paint.Color selectedColor) {
-        this.selectedColor = selectedColor;
+    public void setCouleurSelectionne(javafx.scene.paint.Color couleurSelectionne) {
+        this.couleurSelectionne = couleurSelectionne;
     }
 
     /**
@@ -66,9 +72,9 @@ public class Forme {
     public List<Point> listIndice(PointDeControle pointsDeControle, int nbFrame) {
         List<Point> p = new ArrayList<>();
         for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-            Point keyPoint = couple.getA();
-            Point valuePoint = couple.getB();
-            Point indice = calculerVecteur(keyPoint, valuePoint);
+            Point pointA = couple.getA();
+            Point pointB = couple.getB();
+            Point indice = calculerVecteur(pointA, pointB);
             indice.setX(indice.getX() / nbFrame);
             indice.setY(indice.getY() / nbFrame);
             p.add(indice);
@@ -82,59 +88,56 @@ public class Forme {
      * @param pointsDeControle Les points de contrôle.
      * @param nbFrame Le nombre de frames pour l'animation.
      * @param dureeGIF La durée du GIF en secondes.
-     * @param progressUpdater Fonction pour mettre à jour la progression de l'animation.
+     * @param barreChargement Fonction pour mettre à jour la progression de l'animation.
      * @throws IOException En cas d'erreur lors de l'écriture du GIF.
      */
-public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame, int dureeGIF, BiConsumer<Integer, Integer> progressUpdater) throws IOException {
-    // Calcule les vecteurs de déplacement pour chaque point entre chaque image de transition
-    List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
-    
-    // Récupère les points de contrôle de l'image de départ
-    List<Point> pointsKeys = new ArrayList<>();
-    for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-        pointsKeys.add(couple.getA());
-    }
-    
-    // Détermine les couleurs à utiliser pour le remplissage et l'arrière-plan
-    int couleur = (selectedColor != null) ? new java.awt.Color((int)(selectedColor.getRed() * 255), (int)(selectedColor.getGreen() * 255), (int)(selectedColor.getBlue() * 255)).getRGB() : chercheCouleur(image1, pointsKeys);
-    int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
-
-    ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
-    GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / nbFrame, true);
-
-    int hauteur = image1.getHeight();
-    int largeur = image1.getWidth();
-
-    // Crée chaque frame de l'animation
-    for (int i = 0; i < nbFrame; i++) {
-        List<Point> listPoint = new ArrayList<>(); 
-        for (int j = 0; j < pointsKeys.size(); j++) {
-            Point p = pointsKeys.get(j);
-            Point indice = listIndice.get(j);
-            double x = Math.max(0, Math.min(largeur - 1, p.getX() + indice.getX() * i));
-            double y = Math.max(0, Math.min(hauteur - 1, p.getY() + indice.getY() * i));
-            Point p1 = new Point(x, y); 
-            listPoint.add(p1);
+    public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, int nbFrame, int dureeGIF, BiConsumer<Integer, Integer> barreChargement) throws IOException {
+        // Calcule les vecteurs de déplacement pour chaque point entre chaque image de transition :
+        List<Point> listIndice = listIndice(pointsDeControle, nbFrame); 
+        // Récupère les points de contrôle de l'image de départ
+        List<Point> pointsKeys = new ArrayList<>();
+        for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
+            pointsKeys.add(couple.getA());
         }
-        // Remplit la nouvelle image en utilisant les nouveaux points de controles
-        BufferedImage frameImage = morphismeRemplissage(image1, couleur, autreCouleur, listPoint);
-        gifWriter.writeToSequence(frameImage);
-        progressUpdater.accept(i + 1, nbFrame);
+
+        // Détermine les couleurs à utiliser pour le remplissage et l'arrière-plan :
+        int couleur = (couleurSelectionne != null) ? new java.awt.Color((int)(couleurSelectionne.getRed() * 255), (int)(couleurSelectionne.getGreen() * 255), (int)(couleurSelectionne.getBlue() * 255)).getRGB() : chercheCouleur(image1, pointsKeys);
+        int autreCouleur = chercheAutreCouleur(image1, pointsKeys);
+
+        ImageOutputStream output = new FileImageOutputStream(new File("animation.gif"));
+        GifSequenceWriter gifWriter = new GifSequenceWriter(output, image1.getType(), (dureeGIF * 1000) / nbFrame, true,ajouteGIF, avant);
+
+        int hauteur = image1.getHeight();
+        int largeur = image1.getWidth();
+        // Crée chaque frame de l'animation :
+        for (int i = 0; i < nbFrame; i++) {
+            List<Point> listPoint = new ArrayList<>(); 
+            for (int j = 0; j < pointsKeys.size(); j++) {
+                Point p = pointsKeys.get(j);
+                Point indice = listIndice.get(j);
+                double x = Math.max(0, Math.min(largeur - 1, p.getX() + indice.getX() * i));
+                double y = Math.max(0, Math.min(hauteur - 1, p.getY() + indice.getY() * i));
+                Point p1 = new Point(x, y); 
+                listPoint.add(p1);
+            }
+            // Remplit la nouvelle image en utilisant les nouveaux points de controles :
+            BufferedImage frameImage = morphismeRemplissage(image1, couleur, autreCouleur, listPoint);
+            gifWriter.writeToSequence(frameImage);
+            barreChargement.accept(i + 1, nbFrame);
+        }
+
+        // Génère la dernière image en utilisant les derniers points de controles :
+        List<Point> listPointArrivee = new ArrayList<>();
+        for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
+            listPointArrivee.add(couple.getB());
+        }
+        BufferedImage imageArrivee = morphismeRemplissage(image1, couleur, autreCouleur, listPointArrivee);
+        gifWriter.writeToSequence(imageArrivee);
+        
+        // Terminé, ferme le GIF :
+        gifWriter.close();
+        output.close();
     }
-
-    // Génère la dernière image en utilisant les derniers points de controles
-    List<Point> listPointArrivee = new ArrayList<>();
-    for (Couple<Point, Point> couple : pointsDeControle.getPointsList()) {
-        listPointArrivee.add(couple.getB());
-    }
-    BufferedImage imageArrivee = morphismeRemplissage(image1, couleur, autreCouleur, listPointArrivee);
-    gifWriter.writeToSequence(imageArrivee);
-
-    // Ferme le GIF
-    gifWriter.close();
-    output.close();
-}
-
 
     /**
      * Remplit l'image en fonction des points de contrôle et des couleurs spécifiées.
@@ -158,6 +161,7 @@ public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, in
                 }
             }
         }
+    
         return newImage;
     }
 
@@ -180,8 +184,7 @@ public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, in
                     (dernierPoint.getX() <= p.getX() && p.getX() <= pointActuel.getX())) {
                     return true; 
                 }
-            } 
-            else {
+            }else {
                 // Vérifie si la ligne horizontale passant par p croise le segment formé par pointActuel et dernierPoint et ajoute au compteur
                 if ((pointActuel.getY() < p.getY() && dernierPoint.getY() >= p.getY()) || 
                     (pointActuel.getY() >= p.getY() && dernierPoint.getY() < p.getY())) {
@@ -193,10 +196,8 @@ public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, in
             }
             dernierPoint = pointActuel;
         }
-        // Si le compteur est impair, le point est à l'intérieur du polygone
-        return compteur % 2 != 0;
+        return compteur % 2 != 0; // Si le compteur est impair, le point est à l'intérieur du polygone
     }
-    
 
     /**
      * Cherche une couleur différente de la couleur de fond à l'intérieur de la forme pour si les points ne sont pas parfaitement placés
@@ -231,7 +232,6 @@ public void morphisme(BufferedImage image1, PointDeControle pointsDeControle, in
         int hauteur = image.getHeight();
         int largeur = image.getWidth();
         Point p = new Point();
-
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 p.setX(x);
