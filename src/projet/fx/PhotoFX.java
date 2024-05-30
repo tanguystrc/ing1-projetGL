@@ -114,21 +114,21 @@ public class PhotoFX extends FormesFX {
 
         int index = 0;
         int nbGroupe = 0;
-
+        System.out.println(pointsDeControleLies);
         // Récup les points existants des divers groupes pour l'affichage :
         for (PointDeControle groupe : pointsDeControleLies) {
             for (Couple<Point, Point> couple : groupe.getPointsList()) {
                 Point key = couple.getA();
                 Point value = couple.getB();
                 String pointInfo = String.format("G%d : Points %c: A(%.1f, %.1f) - B(%.1f, %.1f)", nbGroupe,
-                        (index < 26) ? (char) (asciiDuA + index) : Integer.toString(index - 26),
+                        (index < 26) ? (char) (asciiDuA + index) : (char) (index - 26),
                         key.getX(), key.getY(), value.getX(), value.getY());
                 listView.getItems().add(pointInfo);
                 index++;
             }
             nbGroupe++;
         }
-
+        System.out.println("B");
         // Supprime le point correspondant et actualise le canvas
         Button boutonSupprimer = new Button("Supprimer");
         boutonSupprimer.setOnAction(e -> {
@@ -141,7 +141,7 @@ public class PhotoFX extends FormesFX {
                 dialog.close();
             }
         });
-
+        System.out.println("C");
         VBox dialogVBox = new VBox(20, listView, boutonSupprimer);
         dialogVBox.setPadding(new Insets(20));
         dialogVBox.setAlignment(Pos.CENTER);
