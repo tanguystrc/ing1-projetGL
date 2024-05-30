@@ -15,11 +15,72 @@ Ce projet de morphing d'images permet de créer des animations de transition ent
 
 ## Instructions pour lancer l'application
 
-### Option 1 : Créer une Custom JRE avec Maven et JLink (LINUX SEULEMENT)
+### Option 1 : Utiliser une JDK existante
+#### Prérequis
+
+- Une JDK doit être présente sur votre appareil (**passez directement à l'étape 3**)
+- Placez vous dans le dossier dézipé
+
+1. **Installer une JDK sur Linux et Windows :**
+
+   **Sous Linux :**
+
+   - Ouvrez un terminal.
+   - Mettez à jour votre liste de paquets :
+     ```sh
+     sudo apt update
+     ```
+   - Installez la JDK (par exemple, OpenJDK 19) :
+     ```sh
+     sudo apt install openjdk-19-jdk
+     ```
+   - Vérifiez l'installation :
+     ```sh
+     java -version
+     ```
+
+   **Sous Windows :**
+
+   - Téléchargez la JDK depuis le site officiel d'Oracle ou adoptium.net.
+   - Exécutez l'installateur et suivez les instructions à l'écran.
+   - Ajoutez le chemin de la JDK à la variable d'environnement PATH :
+     1. Ouvrez le Panneau de configuration.
+     2. Allez dans Système et sécurité > Système > Paramètres système avancés.
+     3. Cliquez sur Variables d'environnement.
+     4. Dans la section Variables système, trouvez la variable PATH, et cliquez sur Modifier.
+     5. Ajoutez le chemin du répertoire `bin` de la JDK (par exemple, `C:\Program Files\Java\jdk-17in`).
+   - Vérifiez l'installation en ouvrant une invite de commandes et en tapant :
+     ```sh
+     java -version
+     ```
+
+2. **Dézipper le dossier JavaFX SDK :**
+
+   Assurez-vous que le dossier `lib` contenant `javafx-sdk-22-linux` ou `javafx-sdk-22-windows` est dézippé dans votre répertoire de travail.
+
+3. **Compiler et exécuter l'application :**
+
+   **Pour Linux :**
+   ```sh
+   javac --module-path lib/javafx-sdk-22-linux/lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out $(find src -name "*.java")
+   java --module-path lib/javafx-sdk-22-linux/lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -cp out projet.Hello
+   ```
+
+   **Pour Windows :**
+   ```sh
+   dir /s /b src\*.java > sources.txt
+
+   javac --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out @sources.txt
+
+   java --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -cp out projet.Hello
+   ```
+
+### Option 2 : Créer une Custom JRE avec Maven et JLink (LINUX SEULEMENT)
 
 #### Prérequis
 
-- Maven doit être installé sur votre machine.
+- Maven doit être installé sur votre machine. ```sudo apt install maven ```
+
 - Placez vous dans le dossier dézipé
 
 1. **Copier les dépendances :**
@@ -40,33 +101,6 @@ Ce projet de morphing d'images permet de créer des animations de transition ent
 4. **Lancer l'application :**
    ```sh
    custom-jre/bin/java -jar target/javafx-project-1.0-SNAPSHOT.jar
-   ```
-
-### Option 2 : Utiliser une JDK existante
-#### Prérequis
-
-- Une JDK doit être présente sur votre appareil
-- Placez vous dans le dossier dézipé
-
-1. **Dézipper le dossier JavaFX SDK :**
-
-   Assurez-vous que le dossier `lib` contenant `javafx-sdk-22-linux` ou `javafx-sdk-22-windows` est dézippé dans votre répertoire de travail.
-
-2. **Compiler et exécuter l'application :**
-
-   Pour Linux :
-   ```sh
-   javac --module-path lib/javafx-sdk-22-linux/lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out $(find src -name "*.java")
-   java --module-path lib/javafx-sdk-22-linux/lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -cp out projet.Hello
-   ```
-
-   Pour Windows :
-   ```sh
-   dir /s /b src\*.java > sources.txt
-
-   javac --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out @sources.txt
-
-   java --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -cp out projet.Hello
    ```
 
 ## Comment utiliser l'application
