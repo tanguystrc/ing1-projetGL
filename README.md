@@ -63,15 +63,19 @@ Ce projet de morphing d'images permet de créer des animations de transition ent
    **Pour Linux :**
    ```sh
    javac --module-path lib/javafx-sdk-22-linux/lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out $(find src -name "*.java")
+    ```
+    ```sh
    java --module-path lib/javafx-sdk-22-linux/lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -cp out projet.Hello
    ```
 
    **Pour Windows :**
    ```sh
-   dir /s /b src\*.java > sources.txt
-
-   javac --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out @sources.txt
-
+   dir /s /b src\*.java > sources.txt 
+   ```
+   ```sh
+   javac --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -d out @sources.txt 
+   ```
+   ```sh
    java --module-path lib\javafx-sdk-22-windows\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing,javafx.web -cp out projet.Hello
    ```
 
